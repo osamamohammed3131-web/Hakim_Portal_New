@@ -1,70 +1,60 @@
-import os
-from flask import Flask, render_template_string, request
-import telebot
+from flask import Flask, render_template_string
 
 app = Flask(__name__)
 
-# إعدادات بوت التليجرام الخاص بك
-TOKEN = "8971876966:AAE3Rdgm5ymlMzwu8IWgXCv8LGCJnmfSBl0"
-CHAT_ID = "7640908744"
-
-try:
-  bot = telebot.TeleBot(TOKEN)
-except:
-  bot = None
-
-
-@app.route("/", methods=["GET", "POST"])
-def portal_home():
-  if request.method == "POST":
-    username = request.form.get("username", "مجهول")
-
-    if bot:
-      try:
-        bot.send_message(
-            CHAT_ID,
-            f"🚨 تنبيه جديد من المنصة (الخطة الجديدة): تم تسجيل دخول بواسطة {username}",
-        )
-      except Exception as e:
-        print("خطأ في إرسال التنبيه:", e)
-
+# الصفحة الرئيسية للمنصة
+@app.route('/')
+def home():
     return """
-        <html dir="rtl">
-        <body style="background:#0f172a; color:#fff; font-family:Tahoma; text-align:center; padding-top:20vh;">
-            <h1 style="color:#38bdf8;">تم تسجيل الدخول بنجاح يا حكيم! 🚀</h1>
-            <p style="color:#94a3b8;">تم إرسال كافة التفاصيل والبيانات بنجاح إلى النظام.</p>
-        </body>
-        </html>
-        """
-
-  return """
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>منصة حكيم - البوابة الجديدة</title>
+        <title>بوابة حكيم</title>
         <style>
-            body { font-family: Tahoma, sans-serif; background-color: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .login-card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
-            h2 { margin-bottom: 20px; color: #38bdf8; }
-            input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #475569; background: #0f172a; color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-            button { background: #0284c7; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; }
+            body { font-family: Tahoma, sans-serif; background: #f4f6f9; text-align: center; padding-top: 50px; }
+            .card { background: white; max-width: 500px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            h1 { color: #2c3e50; }
+            p { color: #555; font-size: 18px; }
         </style>
     </head>
     <body>
-        <div class="login-card">
-            <h2>بوابة حكيم الجديدة</h2>
-            <form method="POST">
-                <input type="text" name="username" placeholder="اسم المستخدم / الكود" required>
-                <input type="password" name="password" placeholder="كلمة المرور" required>
-                <button type="submit">دخول للمنصة</button>
-            </form>
+        <div class="card">
+            <h1>مرحباً بك في بوابة حكيم</h1>
+            <p>النظام يعمل بنجاح تام وجاهز لخدمة الطلاب.</p>
         </div>
     </body>
     </html>
     """
 
+# لوحة تحكم المشرف (الرابط السري)
+@app.route('/hakim-secure-command-room-999')
+def admin_command_room():
+    return """
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <title>غرفة قيادة المشرف - بوابة حكيم</title>
+        <style>
+            body { font-family: Tahoma, sans-serif; background: #1e1e2f; color: #fff; text-align: center; padding-top: 50px; }
+            .admin-container { background: #27293d; max-width: 600px; margin: auto; padding: 40px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 2px solid #e14eca; }
+            h1 { color: #e14eca; }
+            p { font-size: 18px; color: #d0d0d0; }
+            .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #00f2c3; color: #1e1e2f; text-decoration: none; font-weight: bold; border-radius: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="admin-container">
+            <h1>🛡️ غرفة قيادة المشرف - حكيم</h1>
+            <p>أهلاً بك يا حكيم، أنت الآن داخل لوحة التحكم والتحكم الكامل بالمنصة.</p>
+            <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+            <p>جميع صلاحيات الإدارة والتحكم مفعلة هنا.</p>
+            <a href="/" class="btn">العودة للرئيسية</a>
+        </div>
+    </body>
+    </html>
+    """
 
-if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
