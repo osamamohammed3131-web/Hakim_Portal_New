@@ -13,7 +13,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 students_database = [
     {'name': 'حكيم (المشرف العام)', 'phone': '0500000000', 'student_id': 'admin777', 'status': 'مقبول'}
 ]
-
+ 
 # الرمز السري لغرفة القيادة
 ADMIN_PIN = "999"
 
