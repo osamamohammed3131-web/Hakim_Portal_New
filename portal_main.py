@@ -9,7 +9,7 @@ STUDENTS_DB = {}
 CURRENT_SERIAL_INDEX = 2000
 UPLOADED_FILES = []
 
-GATEWAY_HTML = """<!DOCTYPE html>
+GATEWAY_HTML = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,7 @@ GATEWAY_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-STUDENT_HTML = """<!DOCTYPE html>
+STUDENT_HTML = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -172,7 +172,7 @@ STUDENT_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-ADMIN_HTML = """<!DOCTYPE html>
+ADMIN_HTML = r"""<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
