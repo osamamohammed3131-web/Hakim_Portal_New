@@ -137,7 +137,7 @@ STUDENT_HTML = """<!DOCTYPE html>
             midDiv.innerHTML = '<p style="color: #777; font-size: 13px;">لا توجد ملخصات ميد مرفوعة حالياً.</p>';
             finalDiv.innerHTML = '<p style="color: #777; font-size: 13px;">لا توجد تجميعات فاينل مرفوعة حالياً.</p>';
             let mlazCount = 0, midCount = 0, finalCount = 0;
-            data.files.forEach(f => {
+            data.files.forEach(function(f) {
                 let itemHtml = '<div class="file-item"><span>📄 <b>' + f.title + '</b></span><a href="' + f.link + '" target="_blank" style="background:#00f2c3; color:black; padding:5px 10px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:13px;">تحميل / استعراض</a></div>';
                 if(f.category === "ملازم دراسية") {
                     if(mlazCount === 0) mlazemDiv.innerHTML = "";
@@ -255,9 +255,9 @@ ADMIN_HTML = """<!DOCTYPE html>
         socket.on('update_students_list', function(data) {
             let table = document.getElementById('admin-students-table');
             table.innerHTML = '<tr><th>الرقم التسلسلي</th><th>اسم الطالب</th><th>رقم الهاتف</th><th>حالة القبول</th><th>إجراءات القبول والرفض</th></tr>';
-            data.students.forEach(st => {
+            data.students.forEach(function(st) {
                 let statusColor = st.status === 'مقبول' ? '#27ae60' : (st.status === 'مرفوض' ? '#e74c3c' : '#f39c12');
-                table.innerHTML += '<tr><td><b>' + st.serial + '</b></td><td>' + st.name + '</td><td>' + st.phone + '</td><td style="color:' + statusColor + '; font-weight:bold;">' + st.status + '</td><td><button class="btn-success" onclick="updateStatus(\\'' + st.serial + '\\', \\'accept\\')">✔ قبول</button> <button class="btn-danger" onclick="updateStatus(\\'' + st.serial + '\\', \\'reject\\')">✖ رفض</button></td></tr>';
+                table.innerHTML += '<tr><td><b>' + st.serial + '</b></td><td>' + st.name + '</td><td>' + st.phone + '</td><td style="color:' + statusColor + '; font-weight:bold;">' + st.status + '</td><td><button class="btn-success" onclick="updateStatus(\x27' + st.serial + '\x27, \x27accept\x27)">✔ قبول</button> <button class="btn-danger" onclick="updateStatus(\x27' + st.serial + '\x27, \x27reject\x27)">✖ رفض</button></td></tr>';
             });
         });
         function updateStatus(serial, action) {
@@ -337,4 +337,3 @@ def handle_status_change(data):
 @socketio.on('admin_upload_file')
 def handle_file_upload(data):
     UPLOADED_FILES.append({
-        'title': data.ge
