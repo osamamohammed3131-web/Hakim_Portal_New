@@ -9,9 +9,15 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     db.init_app(app)
 
+    # استدعاء جدول المستخدمين لضمان إنشائه تلقائياً
+    from models import User
+
+    with app.app_context():
+        db.create_all()
+
     @app.route('/')
     def home():
-        return "مرحباً بك في منصة حكيم الأكاديمية - تعمل بنجاح!"
+        return "مرحباً بك في منصة حكيم الأكاديمية - النواة وقاعدة البيانات تعمل بنجاح تام!"
 
     return app
 
