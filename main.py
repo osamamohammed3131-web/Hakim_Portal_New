@@ -9,12 +9,16 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     db.init_app(app)
 
-    # استدعاء جدول المستخدمين لإنشائه تلقائياً
+    # استدعاء جدول المستخدمين
     from models import User
     
     # تسجيل مسارات المصادقة
     from auth import auth_bp
     app.register_blueprint(auth_bp)
+
+    # تسجيل مسارات لوحة التحكم الأكاديمية
+    from dashboard import dashboard_bp
+    app.register_blueprint(dashboard_bp)
 
     with app.app_context():
         db.create_all()
@@ -24,10 +28,11 @@ def create_app(config_class=Config):
         return '''
             <div style="text-align: center; font-family: Tahoma; margin-top: 50px;">
                 <h1>مرحباً بك في منصة حكيم الأكاديمية</h1>
-                <p>النواة وقاعدة البيانات ونظام المصادقة يعملون بنجاح تام!</p>
+                <p>النواة وقاعدة البيانات ونظام المصادقة ولوحة التحكم تعمل بنجاح تام!</p>
                 <br>
-                <a href="/register" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; margin: 5px;">إنشاء حساب</a>
-                <a href="/login" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; margin: 5px;">تسجيل الدخول</a>
+                <a href="/register" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">إنشاء حساب</a>
+                <a href="/login" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">تسجيل الدخول</a>
+                <a href="/dashboard" style="padding: 10px 20px; background: #17a2b8; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">لوحة التحكم الأكاديمية</a>
             </div>
         '''
 
