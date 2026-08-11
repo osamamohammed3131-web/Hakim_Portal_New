@@ -20,19 +20,26 @@ def create_app(config_class=Config):
     from dashboard import dashboard_bp
     app.register_blueprint(dashboard_bp)
 
+    # تسجيل مسارات الإعلانات
+    from announcements import announcements_bp
+    app.register_blueprint(announcements_bp)
+
     with app.app_context():
         db.create_all()
 
     @app.route('/')
     def home():
         return '''
-            <div style="text-align: center; font-family: Tahoma; margin-top: 50px;">
+            <div style="text-align: center; font-family: Tahoma; margin-top: 40px;">
                 <h1>مرحباً بك في منصة حكيم الأكاديمية</h1>
-                <p>النواة وقاعدة البيانات ونظام المصادقة ولوحة التحكم تعمل بنجاح تام!</p>
+                <p>النواة، وقاعدة البيانات، والمصادقة، ولوحة التحكم، والإعلانات تعمل بنجاح تام!</p>
                 <br>
-                <a href="/register" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">إنشاء حساب</a>
-                <a href="/login" style="padding: 10px 20px; background: #28a745; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">تسجيل الدخول</a>
-                <a href="/dashboard" style="padding: 10px 20px; background: #17a2b8; color: white; text-decoration: none; margin: 5px; border-radius: 5px;">لوحة التحكم الأكاديمية</a>
+                <div style="margin-top: 20px;">
+                    <a href="/register" style="padding: 10px 18px; background: #007bff; color: white; text-decoration: none; margin: 5px; border-radius: 5px; display: inline-block;">إنشاء حساب</a>
+                    <a href="/login" style="padding: 10px 18px; background: #28a745; color: white; text-decoration: none; margin: 5px; border-radius: 5px; display: inline-block;">تسجيل الدخول</a>
+                    <a href="/dashboard" style="padding: 10px 18px; background: #17a2b8; color: white; text-decoration: none; margin: 5px; border-radius: 5px; display: inline-block;">لوحة التحكم</a>
+                    <a href="/announcements" style="padding: 10px 18px; background: #ffc107; color: #333; text-decoration: none; margin: 5px; border-radius: 5px; display: inline-block; font-weight: bold;">لوحة الإعلانات</a>
+                </div>
             </div>
         '''
 
