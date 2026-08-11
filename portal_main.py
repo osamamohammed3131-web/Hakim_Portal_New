@@ -7,12 +7,10 @@ app.config["SECRET_KEY"] = "hakim_master_platform_2026"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # قاعدة بيانات الطلاب والأرقام التسلسلية (من 2000 إلى 2100+ وما فوق)
-# يمكنك تعديلها أو ربطها بقاعدة بيانات لاحقاً
 ACTIVE_STUDENTS = {}
 
 
 def generate_valid_serials():
-  # توليد نطاق الأرقام التسلسلية تلقائياً من 2000 إلى 2200 كمرحلة أولية
   serials = {}
   for i in range(2000, 2201):
     serial_str = f"HAKIM-{i}"
@@ -24,6 +22,67 @@ def generate_valid_serials():
 
 
 VALID_SERIALS = generate_valid_serials()
+
+# --- واجهة الطالب الأساسية (التسجيل والتحكم وعرض الخدمات) ---
+STUDENT_HOME_HTML = """
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>منصة حكيم الأكاديمية - بوابة الطلاب</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; text-align: center; padding: 20px; }
+        h1 { color: #00f2c3; }
+        .card { background: #1a1c23; padding: 25px; border-radius: 12px; border: 2px solid #00f2c3; display: inline-block; margin-top: 20px; max-width: 600px; width: 100%; text-align: right; }
+        .input-field { width: 93%; padding: 12px; margin: 10px 0; background: #0f1016; border: 1px solid #00f2c3; color: white; border-radius: 6px; font-size: 16px; }
+        .btn { background-color: #00f2c3; color: black; padding: 12px 25px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 8px; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { background-color: #00c29a; }
+        .admin-link { display: block; margin-top: 20px; color: #f39c12; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🎓 منصة حكيم الأكاديمية - بوابة تسجيل الطلاب</h1>
+    
+    <div class="card">
+        <h3>تسجيل الدخول برقمك التسلسلي</h3>
+        <p style="color: #bbb; font-size: 14px;">أدخل الرقم التسلسلي الخاص بك (مثال: HAKIM-2000) للبدء:</p>
+        <input type="text" id="serialInput" class="input-field" placeholder="أدخل الرقم التسلسلي هنا...">
+        <button class="btn" onclick="verifySerial()">دخول المنصة</button>
+        <p id="msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
+    </div>
+
+    <div>
+        <a href="/admin" class="admin-link">⚙️ الانتقال إلى لوحة تحكم المشرف (Admin Dashboard)</a>
+    </div>
+
+    <script>
+        var socket = io();
+
+        function verifySerial() {
+            let serial = document.getElementById('serialInput').value.trim();
+            if(!serial) {
+                alert("الرجاء إدخال الرقم التسلسلي!");
+                return;
+            }
+            socket.emit('verify_student_serial', { serial: serial });
+        }
+
+        socket.on('serial_verified_success', function(data) {
+            let msg = document.getElementById('msg');
+            msg.style.color = "#27ae60";
+            msg.innerText = "مرحباً بك يا " + data.name + " (" + data.track + ") - تم تسجيل دخولك بنجاح!";
+        });
+
+        socket.on('serial_verified_fail', function(data) {
+            let msg = document.getElementById('msg');
+            msg.style.color = "#e74c3c";
+            msg.innerText = data.message;
+        });
+    </script>
+</body>
+</html>
+"""
 
 # --- واجهة لوحة تحكم المشرف (Admin Dashboard) ---
 ADMIN_HTML = """
@@ -45,9 +104,11 @@ ADMIN_HTML = """
         .screen-box { border: 2px solid #00f2c3; padding: 15px; border-radius: 10px; background: #1a1c23; width: 380px; text-align: right; }
         .screen-box img { width: 100%; border-radius: 5px; border: 1px solid #333; margin-top: 10px; }
         .badge { background: #9b59b6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .back-link { display: inline-block; margin-bottom: 15px; color: #00f2c3; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div style="text-align: right;"><a href="/" class="back-link">← العودة لواجهة الطلاب الرئيسية</a></div>
     <h1>🛡️ منصة حكيم - لوحة تحكم اختبارات الميد والفاينل (الذكاء الاصطناعي)</h1>
     
     <div class="control-panel">
@@ -108,18 +169,13 @@ ADMIN_HTML = """
 """
 
 
-# --- تم إضافة المسار الرئيسي لكي لا يظهر خطأ 404 عند فتح الرابط ---
+# --- مسار الطلاب الرئيسي (بوابة التسجيل وعرض النظام) ---
 @app.route("/")
-def home():
-  return """
-    <div style="font-family: Tahoma; background: #0f1016; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-        <h1 style="color: #00f2c3;">🚀 منصة حكيم الأكاديمية تعمل بنجاح</h1>
-        <p>السيستم متصل وجاهز لاستقبال الطلاب والمشرفين.</p>
-        <a href="/admin" style="background: #00f2c3; color: black; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 8px; margin-top: 15px;">دخول لوحة تحكم المشرف (Admin)</a>
-    </div>
-    """
+def student_home():
+  return render_template_string(STUDENT_HOME_HTML)
 
 
+# --- مسار لوحة تحكم المشرف ---
 @app.route("/admin")
 def admin_route():
   return render_template_string(ADMIN_HTML)
@@ -166,7 +222,6 @@ def admin_request_screenshots():
 
 @socketio.on("admin_trigger_ai_solution")
 def admin_trigger_ai_solution(data):
-  # بث أمر إظهار النافذة المنبثقة للحل الذكي لجميع الطلاب المتصلين
   emit("show_ai_popup_window", data, broadcast=True)
 
 
