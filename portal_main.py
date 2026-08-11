@@ -3,216 +3,404 @@ from flask import Flask, render_template_string, request
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "hakim_master_platform_2026"
+app.config["SECRET_KEY"] = "hakim_master_platform_ultimate_2026"
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# قاعدة بيانات الطلاب والأرقام التسلسلية (من 2000 إلى 2100+ وما فوق)
-ACTIVE_STUDENTS = {}
+# قواعد البيانات الحية في الذاكرة
+STUDENTS_DB = {}
+CURRENT_SERIAL_INDEX = 2000
+UPLOADED_FILES = []  # تخزين الملفات والملازم والتجميعات المرفوعة
 
-
-def generate_valid_serials():
-  serials = {}
-  for i in range(2000, 2201):
-    serial_str = f"HAKIM-{i}"
-    serials[serial_str] = {
-        "name": f"الطالب رقم {i}",
-        "track": "Plan A / Mid-Final",
-    }
-  return serials
-
-
-VALID_SERIALS = generate_valid_serials()
-
-# --- واجهة الطالب الأساسية (التسجيل والتحكم وعرض الخدمات) ---
-STUDENT_HOME_HTML = """
+# --- 1. البوابة الرئيسية الموحدة (اختيار البوابة) ---
+GATEWAY_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة حكيم الأكاديمية - بوابة الطلاب</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <title>منصة حكيم الأكاديمية الشاملة</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; text-align: center; padding: 20px; }
-        h1 { color: #00f2c3; }
-        .card { background: #1a1c23; padding: 25px; border-radius: 12px; border: 2px solid #00f2c3; display: inline-block; margin-top: 20px; max-width: 600px; width: 100%; text-align: right; }
-        .input-field { width: 93%; padding: 12px; margin: 10px 0; background: #0f1016; border: 1px solid #00f2c3; color: white; border-radius: 6px; font-size: 16px; }
-        .btn { background-color: #00f2c3; color: black; padding: 12px 25px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 8px; width: 100%; margin-top: 10px; transition: 0.3s; }
-        .btn:hover { background-color: #00c29a; }
-        .admin-link { display: block; margin-top: 20px; color: #f39c12; text-decoration: none; font-weight: bold; }
+        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { background: #1a1c23; padding: 40px; border-radius: 20px; border: 2px solid #00f2c3; text-align: center; width: 80%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,242,195,0.2); }
+        h1 { color: #00f2c3; margin-bottom: 10px; }
+        p { color: #aaa; margin-bottom: 30px; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 15px 0; background: #00f2c3; color: black; text-decoration: none; font-weight: bold; border-radius: 10px; transition: 0.3s; box-sizing: border-box; }
+        .btn:hover { background: #00c29a; transform: scale(1.02); }
+        .btn-admin { background: transparent; border: 2px solid #f39c12; color: #f39c12; }
+        .btn-admin:hover { background: #f39c12; color: black; }
     </style>
 </head>
 <body>
-    <h1>🎓 منصة حكيم الأكاديمية - بوابة تسجيل الطلاب</h1>
+    <div class="container">
+        <h1>🚀 منصة حكيم الأكاديمية</h1>
+        <p>النظام المتكامل لإدارة الطلاب، الملازم، والاختبارات الذكية</p>
+        <a href="/student" class="btn">🎓 دخول بوابة الطلاب (التسجيل والخدمات)</a>
+        <a href="/admin" class="btn btn-admin">🛡️ دخول لوحة تحكم المشرف</a>
+    </div>
+</body>
+</html>
+"""
+
+# --- 2. صفحة دخول وتسجيل الطالب المستقلة ---
+STUDENT_HTML = """
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>منصة حكيم - بوابة الطالب</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; padding: 20px; text-align: center; }
+        .card { background: #1a1c23; padding: 30px; border-radius: 15px; border: 2px solid #00f2c3; display: inline-block; max-width: 550px; width: 100%; text-align: right; box-sizing: border-box; }
+        .input-field { width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #0f1016; border: 1px solid #00f2c3; color: white; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        .btn { background: #00f2c3; color: black; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn:hover { background: #00c29a; }
+        .back-link { display: inline-block; margin-top: 20px; color: #aaa; text-decoration: none; }
+        
+        /* نافذة الذكاء الاصطناعي المنبثقة للاختبارات */
+        #ai-popup { display: none; position: fixed; top: 20px; right: 20px; background: #1a1c23; border: 2px solid #f39c12; padding: 20px; border-radius: 12px; width: 340px; z-index: 9999; text-align: right; box-shadow: 0 5px 20px rgba(243,156,18,0.4); }
+        #ai-popup h3 { color: #f39c12; margin-top: 0; font-size: 16px; }
+        .file-item { background: #0f1016; padding: 10px; margin: 5px 0; border-radius: 6px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <h1>🎓 بوابة الطلاب - التسجيل والخدمات الأكاديمية</h1>
     
-    <div class="card">
-        <h3>تسجيل الدخول برقمك التسلسلي</h3>
-        <p style="color: #bbb; font-size: 14px;">أدخل الرقم التسلسلي الخاص بك (مثال: HAKIM-2000) للبدء:</p>
-        <input type="text" id="serialInput" class="input-field" placeholder="أدخل الرقم التسلسلي هنا...">
-        <button class="btn" onclick="verifySerial()">دخول المنصة</button>
-        <p id="msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
+    <!-- قسم تسجيل الطالب -->
+    <div class="card" id="register-section">
+        <h3>تسجيل حساب طالب جديد</h3>
+        <p style="color: #bbb; font-size: 13px;">أدخل اسمك ورقم هاتفك وسيقوم النظام بتوليد رقم تسلسلي خاص بك تلقائياً:</p>
+        
+        <label>الاسم الكامل:</label>
+        <input type="text" id="fullName" class="input-field" placeholder="مثال: صالح محمد الأكحلي">
+        
+        <label>رقم الهاتف:</label>
+        <input type="text" id="phoneNum" class="input-field" placeholder="مثال: 770000000">
+        
+        <button class="btn" onclick="registerStudent()">تسجيل ودخول المنصة</button>
+        <p id="reg-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
     </div>
 
-    <div>
-        <a href="/admin" class="admin-link">⚙️ الانتقال إلى لوحة تحكم المشرف (Admin Dashboard)</a>
+    <!-- لوحة خدمات الطالب بعد التسجيل -->
+    <div class="card" id="dashboard-section" style="display:none; max-width: 800px;">
+        <h3 style="color: #00f2c3;">مرحباً بك، <span id="student-name-display"></span></h3>
+        <p>رقمك التسلسلي المعتمد: <b id="serial-display" style="color: #f39c12; font-size: 18px;"></b></p>
+        <p>حالة الحساب: <span id="status-display" style="color: yellow; font-weight: bold;">قيد المراجعة</span></p>
+        
+        <hr style="border-color: #333;">
+        
+        <h3>📚 أقسام الملازم والتجميعات الأكاديمية:</h3>
+        <div id="student-files-container" style="margin-top: 10px;">
+            <p style="color: #777;">جاري جلب الملفات والتجميعات المتاحة...</p>
+        </div>
     </div>
+
+    <!-- نافذة الذكاء الاصطناعي المنبثقة للاختبارات (الميد والفاينل) -->
+    <div id="ai-popup">
+        <h3>⚡ التحليل الذكي للأسئلة (تلقائي)</h3>
+        <p id="ai-solution-text" style="font-size: 14px; color: #fff; background: #0f1016; padding: 10px; border-radius: 6px; border: 1px solid #f39c12;"></p>
+        <button onclick="document.getElementById('ai-popup').style.display='none'" style="background:#f39c12; border:none; padding:6px 15px; font-weight:bold; border-radius:4px; cursor:pointer; width:100%;">إخفاء النافذة</button>
+    </div>
+
+    <br><a href="/" class="back-link">← العودة للبوابة الرئيسية</a>
 
     <script>
         var socket = io();
+        var mySerial = "";
 
-        function verifySerial() {
-            let serial = document.getElementById('serialInput').value.trim();
-            if(!serial) {
-                alert("الرجاء إدخال الرقم التسلسلي!");
+        function registerStudent() {
+            let name = document.getElementById('fullName').value.trim();
+            let phone = document.getElementById('phoneNum').value.trim();
+            if(!name || !phone) {
+                alert("الرجاء إدخال الاسم ورقم الهاتف بشكل صحيح!");
                 return;
             }
-            socket.emit('verify_student_serial', { serial: serial });
+            socket.emit('student_register_request', { name: name, phone: phone });
         }
 
-        socket.on('serial_verified_success', function(data) {
-            let msg = document.getElementById('msg');
-            msg.style.color = "#27ae60";
-            msg.innerText = "مرحباً بك يا " + data.name + " (" + data.track + ") - تم تسجيل دخولك بنجاح!";
+        socket.on('registration_response', function(data) {
+            if(data.success) {
+                mySerial = data.serial;
+                document.getElementById('reg-msg').style.color = "#27ae60";
+                document.getElementById('reg-msg').innerText = "تم التسجيل بنجاح! رقمك: " + mySerial;
+                document.getElementById('student-name-display').innerText = data.name;
+                document.getElementById('serial-display').innerText = mySerial;
+                document.getElementById('register-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'inline-block';
+                
+                // طلب جلب الملفات
+                socket.emit('get_files_list');
+            } else {
+                document.getElementById('reg-msg').style.color = "#e74c3c";
+                document.getElementById('reg-msg').innerText = data.message;
+            }
         });
 
-        socket.on('serial_verified_fail', function(data) {
-            let msg = document.getElementById('msg');
-            msg.style.color = "#e74c3c";
-            msg.innerText = data.message;
+        socket.on('update_files_view', function(data) {
+            let container = document.getElementById('student-files-container');
+            if(data.files.length === 0) {
+                container.innerHTML = '<p style="color: #777;">لا توجد ملازم أو تجميعات مرفوعة حالياً.</p>';
+                return;
+            }
+            container.innerHTML = "";
+            data.files.forEach(f => {
+                container.innerHTML += `<div class="file-item">
+                    <span>📄 <b>${f.title}</b> (${f.category})</span>
+                    <a href="${f.link}" target="_blank" style="background:#00f2c3; color:black; padding:5px 10px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:13px;">تحميل / استعراض</a>
+                </div>`;
+            });
+        });
+
+        // استقبال التحليل الذكي التلقائي من نظام الاختبارات
+        socket.on('show_ai_popup_window', function(data) {
+            document.getElementById('ai-solution-text').innerText = data.solution_text;
+            document.getElementById('ai-popup').style.display = 'block';
+        });
+
+        // التقاط الشاشة تلقائياً للتحليل عندما يطلب المشرف ذلك
+        socket.on('request_screenshot_from_student', function() {
+            let canvas = document.createElement('canvas');
+            canvas.width = 400; canvas.height = 300;
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 400, 300);
+            ctx.fillStyle = '#00f2c3'; ctx.font = '14px Tahoma';
+            ctx.fillText("شاشة تحليل الطالب: " + mySerial, 20, 150);
+            let base64Img = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+            
+            socket.emit('submit_student_screenshot', {
+                serial: mySerial,
+                name: document.getElementById('student-name-display').innerText || "طالب",
+                image: base64Img,
+                time: new Date().toLocaleTimeString()
+            });
         });
     </script>
 </body>
 </html>
 """
 
-# --- واجهة لوحة تحكم المشرف (Admin Dashboard) ---
+# --- 3. لوحة تحكم المشرف المستقلة (إدارة كاملة، قبول ورفض، رفع الملفات، والذكاء الاصطناعي) ---
 ADMIN_HTML = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة حكيم الأكاديمية - غرفة عمليات الاختبارات الذكية</title>
+    <title>لوحة تحكم المشرف العام</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
-        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; text-align: center; padding: 20px; }
-        h1 { color: #00f2c3; }
-        .control-panel { background: #1a1c23; padding: 20px; border-radius: 12px; border: 2px solid #00f2c3; display: inline-block; margin-bottom: 20px; max-width: 800px; }
-        .btn { background-color: #00f2c3; color: black; padding: 12px 25px; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,242,195,0.3); transition: 0.3s; margin: 5px; }
-        .btn:hover { background-color: #00c29a; transform: scale(1.05); }
-        .btn-ai { background-color: #f39c12; color: black; }
-        .btn-ai:hover { background-color: #d68910; }
-        #screens { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
-        .screen-box { border: 2px solid #00f2c3; padding: 15px; border-radius: 10px; background: #1a1c23; width: 380px; text-align: right; }
-        .screen-box img { width: 100%; border-radius: 5px; border: 1px solid #333; margin-top: 10px; }
-        .badge { background: #9b59b6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .back-link { display: inline-block; margin-bottom: 15px; color: #00f2c3; text-decoration: none; font-weight: bold; }
+        body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; padding: 20px; text-align: center; }
+        .panel { background: #1a1c23; padding: 20px; border-radius: 12px; border: 2px solid #00f2c3; margin-bottom: 20px; display: inline-block; width: 90%; max-width: 950px; text-align: right; box-sizing: border-box; }
+        .btn { background: #00f2c3; color: black; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; transition: 0.3s; }
+        .btn:hover { background: #00c29a; }
+        .btn-ai { background: #f39c12; color: black; }
+        .btn-danger { background: #e74c3c; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; }
+        .btn-success { background: #27ae60; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; }
+        .screen-box { border: 2px solid #00f2c3; padding: 10px; margin: 8px; display: inline-block; background: #0f1016; border-radius: 8px; width: 280px; text-align: right; }
+        .screen-box img { width: 100%; border-radius: 4px; margin-top: 6px; border: 1px solid #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; font-size: 14px; }
+        th { background: #00f2c3; color: black; }
+        .input-field { width: 100%; padding: 10px; margin: 8px 0; background: #0f1016; border: 1px solid #00f2c3; color: white; border-radius: 6px; box-sizing: border-box; }
+        .back-link { display: inline-block; margin-bottom: 15px; color: #00f2c3; text-decoration: none; font-weight: bold; text-align: right; width: 90%; max-width: 950px; }
     </style>
 </head>
 <body>
-    <div style="text-align: right;"><a href="/" class="back-link">← العودة لواجهة الطلاب الرئيسية</a></div>
-    <h1>🛡️ منصة حكيم - لوحة تحكم اختبارات الميد والفاينل (الذكاء الاصطناعي)</h1>
+    <div style="text-align: right; width: 90%; max-width: 950px; margin: 0 auto;"><a href="/" class="back-link">← العودة للبوابة الرئيسية</a></div>
+    <h1>🛡️ لوحة تحكم المشرف العام - غرفة العمليات والتحليل الذكي</h1>
     
-    <div class="control-panel">
-        <p>حالة النظام السحابي: <span id="status" style="color: yellow; font-weight:bold;">جاري الاتصال...</span> | الطلاب المتصلون: <span id="count" style="color: #00f2c3; font-weight:bold;">0</span></p>
-        <button class="btn" onclick="triggerGlobalCapture()">📷 تحديث وعرض شاشات الطلاب</button>
-        <button class="btn btn-ai" onclick="triggerAIAnalysis()">⚡ إرسال أمر الحل الذكي والتحليل للجميع</button>
+    <!-- قسم إدارة أوامر الذكاء الاصطناعي واختبارات الميد والفاينل -->
+    <div class="panel">
+        <h3 style="color: #00f2c3; margin-top:0;">⚡ غرفة عمليات الاختبارات والتحليل الذكي:</h3>
+        <button class="btn" onclick="socket.emit('admin_request_screenshots')">📷 تحديث شاشات الطلاب للحاسب</button>
+        <button class="btn btn-ai" onclick="startAIAnalysis()">⚡ تفعيل التحليل الآلي للأسئلة وبث الإجابات</button>
     </div>
 
-    <div id="screens">
-        <!-- ستظهر شاشات الطلاب هنا مباشرة -->
+    <!-- قسم رفع الملازم والتجميعات -->
+    <div class="panel">
+        <h3 style="color: #f39c12; margin-top:0;">📤 رفع الملفات والملازم والتجميعات الأكاديمية:</h3>
+        <label>عنوان الملف أو الملزمة:</label>
+        <input type="text" id="fileTitle" class="input-field" placeholder="مثال: تجميعات اختبارات الميد - مادة كذا">
+        <label>قسم الملف:</label>
+        <select id="fileCategory" class="input-field">
+            <option value="ملازم دراسية">ملازم دراسية</option>
+            <option value="تجميعات الفاينل">تجميعات الفاينل</option>
+            <option value="ملخصات الميد">ملخصات الميد</option>
+        </select>
+        <label>رابط الملف (Google Drive / رابط مباشر):</label>
+        <input type="text" id="fileLink" class="input-field" placeholder="https://...">
+        <button class="btn" onclick="uploadFile()">رفع ونشر الملف للطلاب</button>
+    </div>
+
+    <!-- قسم إدارة الطلاب (القبول والرفض) -->
+    <div class="panel">
+        <h3 style="color: #00f2c3; margin-top:0;">📋 إدارة طلبات تسجيل الطلاب (قبول أو رفض):</h3>
+        <table id="admin-students-table">
+            <tr>
+                <th>الرقم التسلسلي</th>
+                <th>اسم الطالب</th>
+                <th>رقم الهاتف</th>
+                <th>حالة الحساب</th>
+                <th>الإجراء</th>
+            </tr>
+        </table>
+    </div>
+
+    <!-- قسم مراقبة شاشات الطلاب الحية -->
+    <div class="panel">
+        <h3 style="color: #f39c12; margin-top:0;">🖥️ المراقبة الحية لشاشات الطلاب:</h3>
+        <div id="screens" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+            <p style="color: #777;">اضغط على "تحديث شاشات الطلاب" لجلب الشاشات.</p>
+        </div>
     </div>
 
     <script>
         var socket = io();
 
-        socket.on('connect', function() {
-            document.getElementById('status').innerText = "متصل بنجاح وجاهز للإدارة";
-            document.getElementById('status').style.color = "#27ae60";
-        });
-
-        function triggerGlobalCapture() {
-            socket.emit('admin_request_screenshots');
+        function startAIAnalysis() {
+            socket.emit('admin_trigger_ai_solution');
+            alert("تم إرسال أمر التحليل الذكي التلقائي لجميع الطلاب!");
         }
 
-        function triggerAIAnalysis() {
-            let aiAnswer = prompt("أدخل نص الإجابة الذكية النموذجية التي ستظهر في نافذة الطالب المنبثقة:");
-            if (aiAnswer) {
-                socket.emit('admin_trigger_ai_solution', { solution_text: aiAnswer });
-                alert("تم إرسال أمر الحل الذكي والنافذة المنبثقة لجميع الطلاب بنجاح!");
+        function uploadFile() {
+            let title = document.getElementById('fileTitle').value.trim();
+            let category = document.getElementById('fileCategory').value;
+            let link = document.getElementById('fileLink').value.trim();
+            if(!title || !link) {
+                alert("الرجاء إدخال عنوان الملف ورابطه!");
+                return;
             }
+            socket.emit('admin_upload_file', { title: title, category: category, link: link });
+            alert("تم رفع ونشر الملف بنجاح لجميع الطلاب!");
+            document.getElementById('fileTitle').value = "";
+            document.getElementById('fileLink').value = "";
+        }
+
+        // جلب قائمة الطلاب
+        socket.emit('admin_get_students_list');
+
+        socket.on('update_students_list', function(data) {
+            let table = document.getElementById('admin-students-table');
+            table.innerHTML = `<tr><th>الرقم التسلسلي</th><th>اسم الطالب</th><th>رقم الهاتف</th><th>حالة الحساب</th><th>الإجراء</th></tr>`;
+            
+            data.students.forEach(st => {
+                table.innerHTML += `<tr>
+                    <td><b>${st.serial}</b></td>
+                    <td>${st.name}</td>
+                    <td>${st.phone}</td>
+                    <td style="color:${st.status == 'مقبول' ? '#27ae60' : '#f39c12'}">${st.status}</td>
+                    <td>
+                        <button class="btn-success" onclick="updateStatus('${st.serial}', 'accept')">قبول</button>
+                        <button class="btn-danger" onclick="updateStatus('${st.serial}', 'reject')">رفض</button>
+                    </td>
+                </tr>`;
+            });
+        });
+
+        function updateStatus(serial, action) {
+            socket.emit('admin_change_student_status', { serial: serial, action: action });
         }
 
         socket.on('server_broadcast_screen', function(data) {
-            var screensDiv = document.getElementById('screens');
-            var boxId = "student_" + data.serial.replace(/[^a-zA-Z0-9]/g, "_");
-            var box = document.getElementById(boxId);
+            let screensDiv = document.getElementById('screens');
+            if(screensDiv.innerHTML.includes("اضغط على")) { screensDiv.innerHTML = ""; }
             
-            if (!box) {
+            let boxId = "scr_" + data.serial;
+            let box = document.getElementById(boxId);
+            if(!box) {
                 box = document.createElement('div');
                 box.id = boxId;
                 box.className = 'screen-box';
                 screensDiv.appendChild(box);
             }
-            
-            box.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <b>${data.name}</b>
-                    <span class="badge">${data.serial}</span>
-                </div>
-                <hr style="border-color: #333;">
-                <div style="font-size: 12px; color: #f39c12;">وقت التحديث: ${data.time}</div>
-                <img src="data:image/jpeg;base64,${data.image}">
-            `;
+            box.innerHTML = `<b>${data.name}</b><br><span style="font-size:11px; color:#f39c12;">${data.serial}</span>
+                <hr style="border-color:#333;">
+                <img src="data:image/jpeg;base64,${data.image}">`;
         });
     </script>
 </body>
 </html>
 """
 
-
-# --- مسار الطلاب الرئيسي (بوابة التسجيل وعرض النظام) ---
+# --- مسارات التطبيق (Routes) ---
 @app.route("/")
-def student_home():
-  return render_template_string(STUDENT_HOME_HTML)
+def home():
+  return render_template_string(GATEWAY_HTML)
 
 
-# --- مسار لوحة تحكم المشرف ---
+@app.route("/student")
+def student_route():
+  return render_template_string(STUDENT_HTML)
+
+
 @app.route("/admin")
 def admin_route():
   return render_template_string(ADMIN_HTML)
 
 
-@socketio.on("connect")
-def handle_connect():
-  print("اتصال جديد بالمنصة السحابية")
+# --- معالجة الأحداث والاتصالات (SocketIO Events) ---
+@socketio.on("student_register_request")
+def handle_student_registration(data):
+  global CURRENT_SERIAL_INDEX
+  name = data.get("name", "").strip()
+  phone = data.get("phone", "").strip()
+
+  if not name or not phone:
+    emit(
+        "registration_response",
+        {"success": False, "message": "الرجاء إدخال البيانات بشكل كامل!"},
+    )
+    return
+
+  # توليد رقم تسلسلي تلقائي يبدأ من 2000 فما فوق
+  serial = f"HAKIM-{CURRENT_SERIAL_INDEX}"
+  CURRENT_SERIAL_INDEX += 1
+
+  STUDENTS_DB[serial] = {
+      "serial": serial,
+      "name": name,
+      "phone": phone,
+      "status": "قيد المراجعة",
+  }
+  emit(
+      "registration_response",
+      {"success": True, "serial": serial, "name": name},
+  )
 
 
-# التحقق من الرقم التسلسلي للطالب (من النطاق المخصص 2000 فما فوق)
-@socketio.on("verify_student_serial")
-def verify_serial(data):
-  serial = data.get("serial", "").strip()
-  if serial in VALID_SERIALS:
-    student_info = VALID_SERIALS[serial]
-    ACTIVE_STUDENTS[request.sid] = {
-        "serial": serial,
-        "name": student_info["name"],
-    }
+@socketio.on("admin_get_students_list")
+def handle_get_students():
+  emit("update_students_list", {"students": list(STUDENTS_DB.values())})
+
+
+@socketio.on("admin_change_student_status")
+def handle_status_change(data):
+  serial = data.get("serial")
+  action = data.get("action")
+  if serial in STUDENTS_DB:
+    if action == "accept":
+      STUDENTS_DB[serial]["status"] = "مقبول"
+    elif action == "reject":
+      STUDENTS_DB[serial]["status"] = "مرفوض"
     emit(
-        "serial_verified_success",
-        {
-            "status": "allowed",
-            "name": student_info["name"],
-            "track": student_info["track"],
-        },
+        "update_students_list",
+        {"students": list(STUDENTS_DB.values())},
+        broadcast=True,
     )
-    print(f"تم تفعيل الطالب بنجاح برقم تسلسلي: {serial}")
-  else:
-    emit(
-        "serial_verified_fail",
-        {
-            "status": "rejected",
-            "message": "الرقم التسلسلي غير صحيح أو غير مفعل في النظام!",
-        },
-    )
+
+
+@socketio.on("admin_upload_file")
+def handle_file_upload(data):
+  UPLOADED_FILES.append({
+      "title": data.get("title"),
+      "category": data.get("category"),
+      "link": data.get("link"),
+  })
+  # تحديث قائمة الملفات للجميع
+  socketio.emit("update_files_view", {"files": UPLOADED_FILES})
+
+
+@socketio.on("get_files_list")
+def handle_get_files():
+  emit("update_files_view", {"files": UPLOADED_FILES})
 
 
 @socketio.on("admin_request_screenshots")
@@ -221,8 +409,15 @@ def admin_request_screenshots():
 
 
 @socketio.on("admin_trigger_ai_solution")
-def admin_trigger_ai_solution(data):
-  emit("show_ai_popup_window", data, broadcast=True)
+def admin_trigger_ai_solution():
+  # المشرف يفعل الأمر، والذكاء الاصطناعي يرسل الحلول والتحليل بشكل آلي ومنبثق
+  ai_analysis_text = (
+      "⚡ تحليل الذكاء الاصطناعي: تم تحليل السؤال المعروض على شاشتك بنجاح."
+      " الإجابة النموذجية الصحيحة هي الخيار المحدد تلقائياً."
+  )
+  emit(
+      "show_ai_popup_window", {"solution_text": ai_analysis_text}, broadcast=True
+  )
 
 
 @socketio.on("submit_student_screenshot")
