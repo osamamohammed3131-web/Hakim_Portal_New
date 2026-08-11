@@ -57,10 +57,12 @@ STUDENT_HTML = """
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <style>
         body { font-family: Tahoma, sans-serif; background-color: #0f1016; color: white; padding: 20px; text-align: center; }
-        .card { background: #1a1c23; padding: 30px; border-radius: 15px; border: 2px solid #00f2c3; display: inline-block; max-width: 650px; width: 100%; text-align: right; box-sizing: border-box; margin-top: 20px; }
+        .card { background: #1a1c23; padding: 30px; border-radius: 15px; border: 2px solid #00f2c3; display: inline-block; max-width: 700px; width: 100%; text-align: right; box-sizing: border-box; margin-top: 20px; }
         .input-field { width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #0f1016; border: 1px solid #00f2c3; color: white; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .btn { background: #00f2c3; color: black; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .btn:hover { background: #00c29a; }
+        .btn-ai-sub { background: #f39c12; color: black; margin-top: 10px; }
+        .btn-ai-sub:hover { background: #e67e22; }
         .back-link { display: inline-block; margin-top: 20px; color: #aaa; text-decoration: none; }
         
         .section-box { background: #0f1016; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-top: 15px; }
@@ -76,7 +78,7 @@ STUDENT_HTML = """
     
     <div class="card" id="register-section">
         <h3>تسجيل حساب طالب جديد ودخول المنصة</h3>
-        <p style="color: #bbb; font-size: 13px;">أدخل اسمك ورقم هاتفك لفتح حسابك وانتقالك المباشر لأقسام المنصة:</p>
+        <p style="color: #bbb; font-size: 13px;">أدخل اسمك ورقم هاتفك للحصول فوراً على رقمك التسلسلي واستعراض جميع المحتويات:</p>
         
         <label>الاسم الكامل:</label>
         <input type="text" id="fullName" class="input-field" placeholder="مثال: صالح محمد الأكحلي">
@@ -84,17 +86,19 @@ STUDENT_HTML = """
         <label>رقم الهاتف:</label>
         <input type="text" id="phoneNum" class="input-field" placeholder="مثال: 770000000">
         
-        <button class="btn" onclick="registerStudent()">دخول المنصة فوراً 🚀</button>
+        <button class="btn" onclick="registerStudent()">تسجيل ودخول المنصة فوراً 🚀</button>
         <p id="reg-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
     </div>
 
+    <!-- لوحة الطالب (تظهر مباشرة بعد التسجيل مع الرقم التسلسلي والمحتويات) -->
     <div class="card" id="dashboard-section" style="display:none; max-width: 800px;">
         <h3 style="color: #00f2c3;">مرحباً بك، <span id="student-name-display"></span></h3>
-        <p>رقمك التسلسلي المعتمد: <b id="serial-display" style="color: #f39c12; font-size: 18px;"></b></p>
-        <p>حالة الحساب: <span id="status-display" style="color: #27ae60; font-weight: bold;">نشط ومصرح له بالدخول</span></p>
+        <p>رقمك التسلسلي في النظام: <b id="serial-display" style="color: #f39c12; font-size: 18px;"></b></p>
+        <p>حالة اعتماد الحساب من المشرف: <span id="status-display" style="color: #f39c12; font-weight: bold;">قيد المراجعة</span></p>
         
         <hr style="border-color: #333;">
 
+        <!-- قسم محتويات الملازم والميد والفاينل (متاحة للاستعراض والتحميل) -->
         <div class="section-box">
             <h4>📖 قسم الملازم الدراسية</h4>
             <div id="mlazem-container"><p style="color: #777; font-size: 13px;">لا توجد ملازم مرفوعة حالياً.</p></div>
@@ -109,8 +113,17 @@ STUDENT_HTML = """
             <h4>📚 قسم تجميعات الفاينل (Final)</h4>
             <div id="final-container"><p style="color: #777; font-size: 13px;">لا توجد تجميعات فاينل مرفوعة حالياً.</p></div>
         </div>
+
+        <!-- قسم اشتراك اختبارات الذكاء الاصطناعي والتحليل -->
+        <div class="section-box" style="border: 2px solid #f39c12;">
+            <h4 style="color: #f39c12;">⚡ اشتراك اختبارات الذكاء الاصطناعي والتحليل الفوري</h4>
+            <p style="font-size: 13px; color: #ccc;">اشترك الآن لتفعيل استقبال التحليلات الآلية والحلول النموذجية فور طرحها من قِبل النظام.</p>
+            <button class="btn btn-ai-sub" onclick="subscribeAI()">طلب الاشتراك في نظام الذكاء الاصطناعي 🤖</button>
+            <p id="ai-sub-status" style="font-size: 13px; margin-top: 8px; color: #27ae60; font-weight: bold;"></p>
+        </div>
     </div>
 
+    <!-- نافذة تحليل الذكاء الاصطناعي المنبثقة -->
     <div id="ai-popup">
         <h3>⚡ التحليل الذكي للأسئلة (تلقائي)</h3>
         <p id="ai-solution-text" style="font-size: 14px; color: #fff; background: #0f1016; padding: 10px; border-radius: 6px; border: 1px solid #f39c12;"></p>
@@ -133,6 +146,11 @@ STUDENT_HTML = """
             socket.emit('student_register_request', { name: name, phone: phone });
         }
 
+        function subscribeAI() {
+            document.getElementById('ai-sub-status').innerText = "✅ تم تفعيل اشتراكك بنجاح في نظام الذكاء الاصطناعي والتحليل!";
+            socket.emit('student_subscribe_ai', { serial: mySerial });
+        }
+
         socket.on('registration_response', function(data) {
             if(data.success) {
                 mySerial = data.serial;
@@ -142,10 +160,23 @@ STUDENT_HTML = """
                 document.getElementById('register-section').style.display = 'none';
                 document.getElementById('dashboard-section').style.display = 'inline-block';
                 
+                // جلب الملفات والمحتويات مباشرة للطالب
                 socket.emit('get_files_list');
             } else {
-                document.getElementById('reg-msg').style.color = "#e74c3c";
-                document.getElementById('reg-msg').innerText = data.message;
+                alert(data.message);
+            }
+        });
+
+        // تحديث حالة القبول من المشرف
+        socket.on('student_status_updated', function(data) {
+            if(data.serial === mySerial) {
+                let statusSpan = document.getElementById('status-display');
+                statusSpan.innerText = data.status;
+                if(data.status === 'مقبول') {
+                    statusSpan.style.color = "#27ae60";
+                } else if(data.status === 'مرفوض') {
+                    statusSpan.style.color = "#e74c3c";
+                }
             }
         });
 
@@ -224,8 +255,8 @@ ADMIN_HTML = """
         .btn { background: #00f2c3; color: black; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; transition: 0.3s; }
         .btn:hover { background: #00c29a; }
         .btn-ai { background: #f39c12; color: black; }
-        .btn-danger { background: #e74c3c; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; }
-        .btn-success { background: #27ae60; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; }
+        .btn-success { background: #27ae60; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; font-weight: bold; }
+        .btn-danger { background: #e74c3c; color: white; padding: 5px 12px; border-radius: 4px; border:none; cursor:pointer; font-weight: bold; }
         .screen-box { border: 2px solid #00f2c3; padding: 10px; margin: 8px; display: inline-block; background: #0f1016; border-radius: 8px; width: 280px; text-align: right; }
         .screen-box img { width: 100%; border-radius: 4px; margin-top: 6px; border: 1px solid #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -237,7 +268,7 @@ ADMIN_HTML = """
 </head>
 <body>
     <div style="text-align: right; width: 90%; max-width: 950px; margin: 0 auto;"><a href="/" class="back-link">← العودة للبوابة الرئيسية</a></div>
-    <h1>🛡️ لوحة تحكم المشرف العام - غرفة العمليات والتحليل الذكي</h1>
+    <h1>🛡️ لوحة تحكم المشرف العام - غرفة العمليات والقبول</h1>
     
     <div class="panel">
         <h3 style="color: #00f2c3; margin-top:0;">⚡ غرفة عمليات الاختبارات والتحليل الذكي:</h3>
@@ -261,14 +292,14 @@ ADMIN_HTML = """
     </div>
 
     <div class="panel">
-        <h3 style="color: #00f2c3; margin-top:0;">📋 إدارة سجلات الطلاب المسجلين:</h3>
+        <h3 style="color: #00f2c3; margin-top:0;">📋 إدارة قبول وتفعيل الطلاب:</h3>
         <table id="admin-students-table">
             <tr>
                 <th>الرقم التسلسلي</th>
                 <th>اسم الطالب</th>
                 <th>رقم الهاتف</th>
-                <th>حالة الحساب</th>
-                <th>الإجراء</th>
+                <th>حالة القبول</th>
+                <th>إجراءات القبول والرفض</th>
             </tr>
         </table>
     </div>
@@ -285,7 +316,7 @@ ADMIN_HTML = """
 
         function startAIAnalysis() {
             socket.emit('admin_trigger_ai_solution');
-            alert("تم إرسال أمر التحليل الذكي التلقائي لجميع الطلاب!");
+            alert("تم إرسال أمر التحليل الذكي التلقائي لجميع الطلاب المشتركين!");
         }
 
         function uploadFile() {
@@ -306,16 +337,18 @@ ADMIN_HTML = """
 
         socket.on('update_students_list', function(data) {
             let table = document.getElementById('admin-students-table');
-            table.innerHTML = `<tr><th>الرقم التسلسلي</th><th>اسم الطالب</th><th>رقم الهاتف</th><th>حالة الحساب</th><th>الإجراء</th></tr>`;
+            table.innerHTML = `<tr><th>الرقم التسلسلي</th><th>اسم الطالب</th><th>رقم الهاتف</th><th>حالة القبول</th><th>إجراءات القبول والرفض</th></tr>`;
             
             data.students.forEach(st => {
+                let statusColor = st.status === 'مقبول' ? '#27ae60' : (st.status === 'مرفوض' ? '#e74c3c' : '#f39c12');
                 table.innerHTML += `<tr>
                     <td><b>${st.serial}</b></td>
                     <td>${st.name}</td>
                     <td>${st.phone}</td>
-                    <td style="color:#27ae60">${st.status}</td>
+                    <td style="color:${statusColor}; font-weight:bold;">${st.status}</td>
                     <td>
-                        <button class="btn-danger" onclick="updateStatus('${st.serial}', 'reject')">حذف/تعطيل</button>
+                        <button class="btn-success" onclick="updateStatus('${st.serial}', 'accept')">✔ قبول</button>
+                        <button class="btn-danger" onclick="updateStatus('${st.serial}', 'reject')">✖ رفض</button>
                     </td>
                 </tr>`;
             });
@@ -350,66 +383,4 @@ ADMIN_HTML = """
 # 5. المسارات والروابط العامة (Flask Routes)
 # ----------------------------------------------------
 @app.route("/")
-def home():
-    return render_template_string(GATEWAY_HTML)
-
-@app.route("/student")
-def student_route():
-    return render_template_string(STUDENT_HTML)
-
-@app.route("/admin")
-def admin_route():
-    return render_template_string(ADMIN_HTML)
-
-# ----------------------------------------------------
-# 6. معالجات الأحداث والربط اللحظي (SocketIO Events)
-# ----------------------------------------------------
-@socketio.on('student_register_request')
-def handle_student_registration(data):
-    global CURRENT_SERIAL_INDEX
-    name = data.get('name', '').strip()
-    phone = data.get('phone', '').strip()
-    
-    if not name or not phone:
-        emit('registration_response', {'success': False, 'message': 'الرجاء إدخال البيانات بشكل كامل!'})
-        return
-    
-    serial = f"HAKIM-{CURRENT_SERIAL_INDEX}"
-    CURRENT_SERIAL_INDEX += 1
-    
-    STUDENTS_DB[serial] = {
-        'serial': serial,
-        'name': name,
-        'phone': phone,
-        'status': 'نشط'
-    }
-    emit('registration_response', {'success': True, 'serial': serial, 'name': name})
-    socketio.emit('update_students_list', {'students': list(STUDENTS_DB.values())})
-
-@socketio.on('admin_get_students_list')
-def handle_get_students():
-    emit('update_students_list', {'students': list(STUDENTS_DB.values())})
-
-@socketio.on('admin_change_student_status')
-def handle_status_change(data):
-    serial = data.get('serial')
-    if serial in STUDENTS_DB:
-        del STUDENTS_DB[serial]
-        emit('update_students_list', {'students': list(STUDENTS_DB.values())}, broadcast=True)
-
-@socketio.on('admin_upload_file')
-def handle_file_upload(data):
-    UPLOADED_FILES.append({
-        'title': data.get('title'),
-        'category': data.get('category'),
-        'link': data.get('link')
-    })
-    socketio.emit('update_files_view', {'files': UPLOADED_FILES})
-
-@socketio.on('get_files_list')
-def handle_get_files():
-    emit('update_files_view', {'files': UPLOADED_FILES})
-
-@socketio.on('admin_request_screenshots')
-def admin_request_screenshots():
-    socketio.em
+d
