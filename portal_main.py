@@ -90,7 +90,7 @@ STUDENT_HTML = """
         <p id="reg-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
     </div>
 
-    <!-- لوحة الطالب (تظهر مباشرة بعد التسجيل مع الرقم التسلسلي والمحتويات) -->
+    <!-- لوحة الطالب -->
     <div class="card" id="dashboard-section" style="display:none; max-width: 800px;">
         <h3 style="color: #00f2c3;">مرحباً بك، <span id="student-name-display"></span></h3>
         <p>رقمك التسلسلي في النظام: <b id="serial-display" style="color: #f39c12; font-size: 18px;"></b></p>
@@ -98,7 +98,7 @@ STUDENT_HTML = """
         
         <hr style="border-color: #333;">
 
-        <!-- قسم محتويات الملازم والميد والفاينل (متاحة للاستعراض والتحميل) -->
+        <!-- قسم محتويات الملازم والميد والفاينل -->
         <div class="section-box">
             <h4>📖 قسم الملازم الدراسية</h4>
             <div id="mlazem-container"><p style="color: #777; font-size: 13px;">لا توجد ملازم مرفوعة حالياً.</p></div>
@@ -160,14 +160,12 @@ STUDENT_HTML = """
                 document.getElementById('register-section').style.display = 'none';
                 document.getElementById('dashboard-section').style.display = 'inline-block';
                 
-                // جلب الملفات والمحتويات مباشرة للطالب
                 socket.emit('get_files_list');
             } else {
                 alert(data.message);
             }
         });
 
-        // تحديث حالة القبول من المشرف
         socket.on('student_status_updated', function(data) {
             if(data.serial === mySerial) {
                 let statusSpan = document.getElementById('status-display');
@@ -383,4 +381,12 @@ ADMIN_HTML = """
 # 5. المسارات والروابط العامة (Flask Routes)
 # ----------------------------------------------------
 @app.route("/")
-d
+def home():
+    return render_template_string(GATEWAY_HTML)
+
+@app.route("/student")
+def student_route():
+    return render_template_string(STUDENT_HTML)
+
+@app.route("/admin")
+def
