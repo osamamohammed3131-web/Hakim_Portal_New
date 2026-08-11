@@ -46,7 +46,7 @@ GATEWAY_HTML = """
 """
 
 # ----------------------------------------------------
-# 3. واجهة وبوابة الطالب (Student Portal Frontend) - مع تفعيل الأقسام والتنقل المباشر
+# 3. واجهة وبوابة الطالب (Student Portal Frontend)
 # ----------------------------------------------------
 STUDENT_HTML = """
 <!DOCTYPE html>
@@ -74,7 +74,6 @@ STUDENT_HTML = """
 <body>
     <h1>🎓 بوابة الطلاب - التسجيل والخدمات الأكاديمية</h1>
     
-    <!-- نموذج التسجيل الفوري -->
     <div class="card" id="register-section">
         <h3>تسجيل حساب طالب جديد ودخول المنصة</h3>
         <p style="color: #bbb; font-size: 13px;">أدخل اسمك ورقم هاتفك لفتح حسابك وانتقالك المباشر لأقسام المنصة:</p>
@@ -89,7 +88,6 @@ STUDENT_HTML = """
         <p id="reg-msg" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
     </div>
 
-    <!-- لوحة الطالب الأكاديمية والأقسام الشاملة (تفتح تلقائياً بعد التسجيل) -->
     <div class="card" id="dashboard-section" style="display:none; max-width: 800px;">
         <h3 style="color: #00f2c3;">مرحباً بك، <span id="student-name-display"></span></h3>
         <p>رقمك التسلسلي المعتمد: <b id="serial-display" style="color: #f39c12; font-size: 18px;"></b></p>
@@ -97,26 +95,22 @@ STUDENT_HTML = """
         
         <hr style="border-color: #333;">
 
-        <!-- قسم الملازم الدراسية -->
         <div class="section-box">
             <h4>📖 قسم الملازم الدراسية</h4>
             <div id="mlazem-container"><p style="color: #777; font-size: 13px;">لا توجد ملازم مرفوعة حالياً.</p></div>
         </div>
 
-        <!-- قسم ملخصات الميد -->
         <div class="section-box">
             <h4>📝 قسم ملخصات اختبارات الميد (Midterm)</h4>
             <div id="mid-container"><p style="color: #777; font-size: 13px;">لا توجد ملخصات ميد مرفوعة حالياً.</p></div>
         </div>
 
-        <!-- قسم تجميعات الفاينل -->
         <div class="section-box">
             <h4>📚 قسم تجميعات الفاينل (Final)</h4>
             <div id="final-container"><p style="color: #777; font-size: 13px;">لا توجد تجميعات فاينل مرفوعة حالياً.</p></div>
         </div>
     </div>
 
-    <!-- نافذة التحليل الذكي للأسئلة المستقلة عن الحاسب -->
     <div id="ai-popup">
         <h3>⚡ التحليل الذكي للأسئلة (تلقائي)</h3>
         <p id="ai-solution-text" style="font-size: 14px; color: #fff; background: #0f1016; padding: 10px; border-radius: 6px; border: 1px solid #f39c12;"></p>
@@ -145,7 +139,6 @@ STUDENT_HTML = """
                 document.getElementById('student-name-display').innerText = data.name;
                 document.getElementById('serial-display').innerText = mySerial;
                 
-                // الانتقال التلقائي للوحة الأقسام فوراً دون إعاقة
                 document.getElementById('register-section').style.display = 'none';
                 document.getElementById('dashboard-section').style.display = 'inline-block';
                 
@@ -156,7 +149,6 @@ STUDENT_HTML = """
             }
         });
 
-        // توزيع الملفات والملازم على أقسامها المخصصة بدقة
         socket.on('update_files_view', function(data) {
             let mlazemDiv = document.getElementById('mlazem-container');
             let midDiv = document.getElementById('mid-container');
@@ -406,4 +398,18 @@ def handle_status_change(data):
         emit('update_students_list', {'students': list(STUDENTS_DB.values())}, broadcast=True)
 
 @socketio.on('admin_upload_file')
-d
+def handle_file_upload(data):
+    UPLOADED_FILES.append({
+        'title': data.get('title'),
+        'category': data.get('category'),
+        'link': data.get('link')
+    })
+    socketio.emit('update_files_view', {'files': UPLOADED_FILES})
+
+@socketio.on('get_files_list')
+def handle_get_files():
+    emit('update_files_view', {'files': UPLOADED_FILES})
+
+@socketio.on('admin_request_screenshots')
+def admin_request_screenshots():
+    socketio.em
