@@ -25,12 +25,11 @@ def load_user(user_id):
     except Exception:
         return None
 
-# --- مسار لوحة المشرف المؤمن والآمن 100% من أخطاء الخادم ---
+# --- مسار لوحة المشرف الآمن ---
 @app.route('/admin')
 @app.route('/admin/')
 @login_required
 def admin_dashboard():
-    # فحص آمن للخصائص لمنع حدوث خطأ 500
     is_admin_flag = getattr(current_user, 'is_admin', False)
     user_role = getattr(current_user, 'role', None)
     
@@ -48,23 +47,24 @@ app.register_blueprint(dashboard_bp)
 def home():
     return redirect(url_for('auth.login'))
 
-# تهيئة قاعدة البيانات والتأكد من وجود حساب الـ Super Admin وصلاحياته
+# تهيئة قاعدة البيانات وإنشاء/تحديث حساب الـ Super Admin بالاسم الصحيح للحقل (password_hash)
 with app.app_context():
     db.create_all()
     admin = User.query.filter_by(email='superadmin@hakim.com').first()
+    hashed_password = generate_password_hash('Admin@Hakim2026!', method='pbkdf2:sha256')
+    
     if not admin:
-        hashed_password = generate_password_hash('Admin@Hakim2026!', method='pbkdf2:sha256')
         new_admin = User(
             username='SuperAdmin', 
             email='superadmin@hakim.com', 
-            password=hashed_password, 
+            password_hash=hashed_password,  # استخدام الحقل الصحيح للنموذج
             is_admin=True,
             role='super_admin'
         )
         db.session.add(new_admin)
         db.session.commit()
     else:
-        # ضمان تحديث الصلاحيات للحساب القائم مسبقاً
+        admin.password_hash = hashed_password
         admin.is_admin = True
         admin.role = 'super_admin'
         db.session.commit()
