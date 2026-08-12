@@ -66,3 +66,27 @@ def login():
             <br><a href="/register">ليس لديك حساب؟ سجل الآن</a>
         </div>
     '''
+
+from functools import wraps
+from flask_login import current_user
+from flask import redirect, url_for, flash
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or getattr(current_user, 'role', None) != 'admin':
+            flash("غير مسموح لك بالدخول لهذه الصفحة", "danger")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def verified_student_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        if getattr(current_user, 'status', 'approved') == 'pending':
+            flash("حسابك قيد الانتظار لم يتم تفعيله بعد", "warning")
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
