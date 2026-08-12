@@ -25,11 +25,17 @@ def home():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # إنشاء حساب المشرف تلقائياً بأمان تام
+        # إنشاء حساب المشرف تلقائياً بأمان تام وتوافق كامل مع الصلاحيات
         admin = User.query.filter_by(email='superadmin@hakim.com').first()
         if not admin:
             hashed_password = generate_password_hash('Admin@Hakim2026!', method='pbkdf2:sha256')
-            new_admin = User(username='SuperAdmin', email='superadmin@hakim.com', password=hashed_password, is_admin=True)
+            new_admin = User(
+                username='SuperAdmin', 
+                email='superadmin@hakim.com', 
+                password=hashed_password, 
+                is_admin=True,
+                role='super_admin'
+            )
             db.session.add(new_admin)
             db.session.commit()
     app.run(debug=True)
