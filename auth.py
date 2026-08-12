@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
-# استيراد نموذج المستخدم الخاص بك
 from models import User
 
 auth_bp = Blueprint('auth', __name__)
+
+def verified_student_required(f):
+    return f
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
