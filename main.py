@@ -11,7 +11,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hakim_secure_secret_key_2026'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hakim.db'
 
-# ربط الإضافات بقاعدة البيانات
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -30,16 +29,16 @@ def load_user(user_id):
 @app.route('/admin/')
 @login_required
 def admin_dashboard():
+    # التحقق الآمن بالكامل بناءً على الحقول المتاحة أو البريد الإلكتروني للمشرف
     is_admin_flag = getattr(current_user, 'is_admin', False)
     user_role = getattr(current_user, 'role', None)
     
-    if is_admin_flag or user_role in ['super_admin', 'admin']:
+    if is_admin_flag or user_role in ['super_admin', 'admin'] or getattr(current_user, 'email', '') == 'superadmin@hakim.com':
         return "مرحباً بك في لوحة تحكم المشرف العام - المنصة تعمل بكامل الصلاحيات والاتصال مستقر."
     
     flash('غير مسموح لك بالوصول إلى لوحة المشرف.')
     return redirect(url_for('auth.login'))
 
-# تسجيل الـ Blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 
@@ -47,7 +46,7 @@ app.register_blueprint(dashboard_bp)
 def home():
     return redirect(url_for('auth.login'))
 
-# تهيئة قاعدة البيانات وإنشاء/تحديث حساب الـ Super Admin بالاسم الصحيح للحقل (password_hash)
+# تهيئة قاعدة البيانات وإنشاء الحساب بالأعمدة الأساسية فقط لتجنب أي خطأ
 with app.app_context():
     db.create_all()
     admin = User.query.filter_by(email='superadmin@hakim.com').first()
@@ -57,16 +56,12 @@ with app.app_context():
         new_admin = User(
             username='SuperAdmin', 
             email='superadmin@hakim.com', 
-            password_hash=hashed_password,  # استخدام الحقل الصحيح للنموذج
-            is_admin=True,
-            role='super_admin'
+            password_hash=hashed_password
         )
         db.session.add(new_admin)
         db.session.commit()
     else:
         admin.password_hash = hashed_password
-        admin.is_admin = True
-        admin.role = 'super_admin'
         db.session.commit()
 
 if __name__ == '__main__':
