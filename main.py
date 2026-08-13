@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
+
 from extensions import db
 from api import api
 from auth import auth
@@ -29,12 +30,12 @@ app.register_blueprint(auth)
 app.register_blueprint(dashboard)
 
 
-from models import User, StudyPlan, Subject, Lecture
+from models import User, StudyPlan, Subject, Lecture, ScheduleItem
 
 
 @app.route("/")
 def home():
-    return "Hakim Academy"
+    return render_template("index.html")
 
 
 @app.route("/health")
