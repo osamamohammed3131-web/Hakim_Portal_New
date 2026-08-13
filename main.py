@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template, session, redirect, url_for
+from sqlalchemy import inspect, text
 
 from extensions import db
 from api import api
@@ -94,14 +95,64 @@ def health():
 
 
 with app.app_context():
+
+    # إنشاء الجداول إذا لم تكن موجودة
     db.create_all()
 
+    # =========================================================
+    # إصلاح قاعدة البيانات القديمة:
+    # إضافة status إلى جدول users إذا لم يكن موجودًا
+    # =========================================================
+
+    inspector = inspect(db.engine)
+
+    users_columns = [
+        column["name"]
+        for column in inspector.get_columns("users")
+    ]
+
+    if "status" not in users_columns:
+
+        with db.engine.begin() as connection:
+
+            if db.engine.dialect.name == "postgresql":
+                connection.execute(
+                    text(
+                        """
+                        ALTER TABLE users
+                        ADD COLUMN status VARCHAR(20)
+                        NOT NULL
+                        DEFAULT 'active'
+                        """
+                    )
+                )
+
+            elif db.engine.dialect.name == "sqlite":
+                connection.execute(
+                    text(
+                        """
+                        ALTER TABLE users
+                        ADD COLUMN status VARCHAR(20)
+                        NOT NULL
+                        DEFAULT 'active'
+                        """
+                    )
+                )
+
+    # =========================================================
     # إنشاء أو تصحيح حساب المشرف تلقائيًا
-    admin_username = os.getenv("ADMIN_USERNAME", "admin")
+    # =========================================================
+
+    admin_username = os.getenv(
+        "ADMIN_USERNAME",
+        "admin"
+    )
+
     admin_email = os.getenv(
         "ADMIN_EMAIL",
         "admin@hakim.academy"
     )
+
     admin_password = os.getenv(
         "ADMIN_PASSWORD",
         "change-this-admin-password"
@@ -112,20 +163,29 @@ with app.app_context():
     ).first()
 
     if admin:
-        # الحساب موجود، نحوله إلى مشرف
+
         admin.role = "admin"
         admin.email = admin_email
         admin.is_active = True
+
+        # إذا كان موديل User يحتوي على status
+        if hasattr(admin, "status"):
+            admin.status = "active"
+
         admin.set_password(admin_password)
 
     else:
-        # الحساب غير موجود، ننشئه كمشرف
+
         admin = User(
             username=admin_username,
             email=admin_email,
             role="admin",
             is_active=True
         )
+
+        # إذا كان موديل User يحتوي على status
+        if hasattr(admin, "status"):
+            admin.status = "active"
 
         admin.set_password(admin_password)
 
