@@ -55,9 +55,12 @@ def student_page():
 
     user = db.session.get(User, session["user_id"])
 
-    if not user or not user.is_active or user.role != "student":
+    if not user or not user.is_active:
         session.clear()
         return redirect(url_for("login_page"))
+
+    if user.role != "student":
+        return redirect(url_for("admin_page"))
 
     return render_template(
         "student.html",
