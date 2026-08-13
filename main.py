@@ -1,11 +1,17 @@
 import os
 
-from flask import Flask, jsonify
+from flask import Flask
 from extensions import db
 from api import api
+from auth import auth
 
 
 app = Flask(__name__)
+
+app.config["SECRET_KEY"] = os.getenv(
+    "SECRET_KEY",
+    "change-this-secret-key"
+)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DATABASE_URL",
@@ -14,9 +20,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+
+# تشغيل قاعدة البيانات
 db.init_app(app)
 
+
+# تسجيل مسارات النظام
 app.register_blueprint(api)
+app.register_blueprint(auth)
 
 
 # تحميل نماذج قاعدة البيانات
@@ -33,6 +44,7 @@ def health():
     return "OK"
 
 
+# إنشاء الجداول عند تشغيل التطبيق
 with app.app_context():
     db.create_all()
 
