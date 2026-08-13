@@ -32,6 +32,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
         }
 
         header h1 {
@@ -61,6 +62,11 @@
         .welcome h2 {
             margin-top: 0;
             color: #1769d1;
+        }
+
+        .welcome p {
+            line-height: 1.8;
+            color: #666;
         }
 
         .sections {
@@ -98,7 +104,8 @@
         }
 
         .logout {
-            margin-top: 25px;
+            display: block;
+            margin: 25px auto 40px;
             background: #1769d1;
             color: white;
             border: 0;
@@ -106,6 +113,10 @@
             border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
+        }
+
+        .logout:hover {
+            background: #1258b0;
         }
 
         /* =====================================================
@@ -143,6 +154,10 @@
             cursor: pointer;
         }
 
+        .add-button:hover {
+            background: #1258b0;
+        }
+
         .back-button {
             background: #6b7280;
             color: white;
@@ -151,6 +166,10 @@
             border-radius: 9px;
             cursor: pointer;
             margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #4b5563;
         }
 
         /* =====================================================
@@ -164,6 +183,11 @@
             border: 1px solid #d1d5db;
             border-radius: 10px;
             font-size: 16px;
+            outline: none;
+        }
+
+        .search:focus {
+            border-color: #1769d1;
         }
 
         /* =====================================================
@@ -210,8 +234,13 @@
             font-weight: bold;
         }
 
+        .status-rejected {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
         /* =====================================================
-           الأزرار
+           أزرار الإجراءات
         ===================================================== */
 
         .action {
@@ -222,6 +251,10 @@
             margin: 2px;
         }
 
+        .action:hover {
+            opacity: 0.85;
+        }
+
         .edit {
             background: #e5f0ff;
             color: #1769d1;
@@ -230,16 +263,6 @@
         .toggle {
             background: #fef3c7;
             color: #92400e;
-        }
-
-        .activate {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .disable {
-            background: #fee2e2;
-            color: #991b1b;
         }
 
         /* =====================================================
@@ -280,15 +303,16 @@
             padding: 12px;
             background: #f5f7fb;
             border-radius: 10px;
+            line-height: 1.9;
         }
 
         .plan-status {
-            margin-top: 10px;
+            margin-top: 8px;
             font-weight: bold;
         }
 
         /* =====================================================
-           النوافذ
+           النوافذ المنبثقة
         ===================================================== */
 
         .modal {
@@ -308,6 +332,8 @@
             background: white;
             border-radius: 20px;
             padding: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-box h2 {
@@ -331,6 +357,13 @@
             border-radius: 9px;
             font-size: 15px;
             font-family: Arial, sans-serif;
+            outline: none;
+        }
+
+        .modal-box input:focus,
+        .modal-box textarea:focus,
+        .modal-box select:focus {
+            border-color: #1769d1;
         }
 
         .modal-box textarea {
@@ -357,24 +390,81 @@
             color: white;
         }
 
+        .save:hover {
+            background: #1258b0;
+        }
+
         .cancel {
             background: #e5e7eb;
         }
 
-        #message {
+        .cancel:hover {
+            background: #d1d5db;
+        }
+
+        /* =====================================================
+           الرسائل
+        ===================================================== */
+
+        .message {
             margin-top: 15px;
             font-weight: bold;
+            min-height: 20px;
+        }
+
+        .empty-message {
+            padding: 25px;
+            text-align: center;
+            color: #777;
+        }
+
+        /* =====================================================
+           الجوال
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 18px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+
+            .welcome {
+                padding: 22px;
+            }
+
+            .management-section {
+                padding: 18px;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
+
+
+<!-- =========================================================
+     رأس الصفحة
+========================================================= -->
 
 <header>
 
-    <h1>Hakim Academy</h1>
+    <h1>
+        Hakim Academy
+    </h1>
 
     <div class="user">
         المشرف: {{ user.username }}
@@ -384,6 +474,7 @@
 
 
 <div class="container">
+
 
     <!-- =====================================================
          لوحة المشرف الرئيسية
@@ -406,9 +497,14 @@
 
         <div class="sections">
 
+
+            <!-- الإحصائيات -->
+
             <div class="card">
 
-                <h3>الإحصائيات العامة</h3>
+                <h3>
+                    الإحصائيات العامة
+                </h3>
 
                 <p>
                     عرض الإحصائيات والمعلومات العامة للمنصة.
@@ -424,7 +520,9 @@
                 onclick="openStudents()"
             >
 
-                <h3>إدارة الطلاب</h3>
+                <h3>
+                    إدارة الطلاب
+                </h3>
 
                 <p>
                     إدارة حسابات الطلاب ومتابعة بياناتهم.
@@ -433,14 +531,16 @@
             </div>
 
 
-            <!-- إدارة الخطط A/B -->
+            <!-- إدارة الخطط -->
 
             <div
                 class="card"
                 onclick="openStudyPlans()"
             >
 
-                <h3>إدارة الخطط A/B</h3>
+                <h3>
+                    إدارة الخطط A/B
+                </h3>
 
                 <p>
                     إدارة الخطط الدراسية والمسارات الأكاديمية.
@@ -449,9 +549,13 @@
             </div>
 
 
+            <!-- المواد -->
+
             <div class="card">
 
-                <h3>إدارة المواد</h3>
+                <h3>
+                    إدارة المواد
+                </h3>
 
                 <p>
                     إضافة وتعديل المواد الدراسية.
@@ -460,9 +564,13 @@
             </div>
 
 
+            <!-- الكتب -->
+
             <div class="card">
 
-                <h3>إدارة الكتب والملفات</h3>
+                <h3>
+                    إدارة الكتب والملفات
+                </h3>
 
                 <p>
                     إدارة الملفات والمراجع التعليمية.
@@ -471,9 +579,13 @@
             </div>
 
 
+            <!-- الجداول -->
+
             <div class="card">
 
-                <h3>إدارة الجداول والمحاضرات</h3>
+                <h3>
+                    إدارة الجداول والمحاضرات
+                </h3>
 
                 <p>
                     إدارة الجداول والمحاضرات والمواعيد.
@@ -482,9 +594,13 @@
             </div>
 
 
+            <!-- AI -->
+
             <div class="card">
 
-                <h3>مركز معرفة AI</h3>
+                <h3>
+                    مركز معرفة AI
+                </h3>
 
                 <p>
                     إدارة قاعدة المعرفة والمحتوى الذكي.
@@ -493,9 +609,13 @@
             </div>
 
 
+            <!-- الدعم -->
+
             <div class="card">
 
-                <h3>قاعدة معرفة الدعم</h3>
+                <h3>
+                    قاعدة معرفة الدعم
+                </h3>
 
                 <p>
                     إدارة الأسئلة والمعلومات الخاصة بالدعم.
@@ -504,9 +624,13 @@
             </div>
 
 
+            <!-- التدريب -->
+
             <div class="card">
 
-                <h3>بنك التدريب</h3>
+                <h3>
+                    بنك التدريب
+                </h3>
 
                 <p>
                     إدارة مواد التدريب والتجارب.
@@ -515,9 +639,13 @@
             </div>
 
 
+            <!-- الأخبار -->
+
             <div class="card">
 
-                <h3>الأخبار والتحديثات</h3>
+                <h3>
+                    الأخبار والتحديثات
+                </h3>
 
                 <p>
                     إدارة الأخبار والتنبيهات والتحديثات.
@@ -526,9 +654,13 @@
             </div>
 
 
+            <!-- الصلاحيات -->
+
             <div class="card">
 
-                <h3>الصلاحيات</h3>
+                <h3>
+                    الصلاحيات
+                </h3>
 
                 <p>
                     إدارة صلاحيات المشرفين والمستخدمين.
@@ -537,9 +669,13 @@
             </div>
 
 
+            <!-- السجل -->
+
             <div class="card">
 
-                <h3>سجل العمليات</h3>
+                <h3>
+                    سجل العمليات
+                </h3>
 
                 <p>
                     متابعة العمليات التي تتم داخل المنصة.
@@ -548,15 +684,20 @@
             </div>
 
 
+            <!-- الإعدادات -->
+
             <div class="card">
 
-                <h3>الإعدادات</h3>
+                <h3>
+                    الإعدادات
+                </h3>
 
                 <p>
                     إدارة إعدادات المنصة.
                 </p>
 
             </div>
+
 
         </div>
 
@@ -613,19 +754,30 @@
 
                     <tr>
 
-                        <th>الرقم</th>
+                        <th>
+                            الرقم
+                        </th>
 
-                        <th>اسم المستخدم</th>
+                        <th>
+                            اسم المستخدم
+                        </th>
 
-                        <th>البريد الإلكتروني</th>
+                        <th>
+                            البريد الإلكتروني
+                        </th>
 
-                        <th>الحالة</th>
+                        <th>
+                            الحالة
+                        </th>
 
-                        <th>الإجراءات</th>
+                        <th>
+                            الإجراءات
+                        </th>
 
                     </tr>
 
                 </thead>
+
 
                 <tbody id="studentsTable">
 
@@ -636,7 +788,10 @@
         </div>
 
 
-        <div id="studentMessage"></div>
+        <div
+            id="studentMessage"
+            class="message"
+        ></div>
 
     </div>
 
@@ -674,21 +829,26 @@
         </div>
 
 
-        <div class="plans-grid" id="plansContainer">
+        <div
+            class="plans-grid"
+            id="plansContainer"
+        ></div>
 
-        </div>
 
-
-        <div id="planMessage"></div>
+        <div
+            id="planMessage"
+            class="message"
+        ></div>
 
     </div>
+
 
 </div>
 
 
-<!-- =====================================================
-     زر تسجيل الخروج
-====================================================== -->
+<!-- =========================================================
+     تسجيل الخروج
+========================================================= -->
 
 <button
     class="logout"
@@ -698,9 +858,9 @@
 </button>
 
 
-<!-- =====================================================
-     نافذة إضافة / تعديل الطالب
-====================================================== -->
+<!-- =========================================================
+     نافذة الطالب
+========================================================= -->
 
 <div
     id="studentModal"
@@ -762,6 +922,7 @@
                 حفظ
             </button>
 
+
             <button
                 class="cancel"
                 onclick="closeModal('studentModal')"
@@ -776,9 +937,9 @@
 </div>
 
 
-<!-- =====================================================
-     نافذة إضافة / تعديل الخطة
-====================================================== -->
+<!-- =========================================================
+     نافذة الخطة
+========================================================= -->
 
 <div
     id="planModal"
@@ -838,6 +999,7 @@
                 حفظ
             </button>
 
+
             <button
                 class="cancel"
                 onclick="closeModal('planModal')"
@@ -854,202 +1016,13 @@
 
 <script>
 
+/* =========================================================
+   البيانات
+========================================================= */
+
 let students = [];
 
 let studyPlans = [];
 
 
-/* =========================================================
-   التنقل بين الأقسام
-========================================================= */
-
-function showOnlySection(sectionId) {
-
-    document.getElementById(
-        "mainDashboard"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "studentsSection"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "studyPlansSection"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        sectionId
-    ).style.display = "block";
-
-}
-
-
-function closeManagementSections() {
-
-    document.getElementById(
-        "studentsSection"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "studyPlansSection"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "mainDashboard"
-    ).style.display = "block";
-
-}
-
-
-/* =========================================================
-   إدارة الطلاب
-========================================================= */
-
-async function openStudents() {
-
-    showOnlySection(
-        "studentsSection"
-    );
-
-    await loadStudents();
-
-}
-
-
-async function loadStudents() {
-
-    const response = await fetch(
-        "/api/dashboard/admin/students"
-    );
-
-
-    const data = await response.json();
-
-
-    if (!response.ok) {
-
-        showMessage(
-            "studentMessage",
-            data.error || "تعذر تحميل الطلاب",
-            "#dc2626"
-        );
-
-        return;
-
-    }
-
-
-    students = data.students;
-
-    renderStudents(students);
-
-}
-
-
-function renderStudents(list) {
-
-    const table =
-        document.getElementById(
-            "studentsTable"
-        );
-
-
-    table.innerHTML = "";
-
-
-    if (list.length === 0) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    لا يوجد طلاب حاليًا
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    list.forEach(student => {
-
-        let statusText = "نشط";
-
-        let statusClass = "status-active";
-
-
-        if (student.status === "pending") {
-
-            statusText = "قيد المراجعة";
-
-            statusClass = "status-pending";
-
-        }
-
-        else if (
-            student.status === "rejected"
-        ) {
-
-            statusText = "مرفوض";
-
-            statusClass = "status-disabled";
-
-        }
-
-        else if (
-            !student.is_active
-        ) {
-
-            statusText = "معطل";
-
-            statusClass = "status-disabled";
-
-        }
-
-
-        const toggleText =
-            student.is_active
-                ? "تعطيل"
-                : "تفعيل";
-
-
-        table.innerHTML += `
-
-            <tr>
-
-                <td>
-                    ${student.id}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        student.username
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        student.email
-                    )}
-                </td>
-
-                <td>
-
-                    <span
-                        class="${statusClass}"
-                    >
-                        ${statusText}
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <button
-                        class="action edit"
+/* =====
