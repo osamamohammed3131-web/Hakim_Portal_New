@@ -56,6 +56,43 @@ def health():
 with app.app_context():
     db.create_all()
 
+    admin_username = os.getenv(
+        "ADMIN_USERNAME",
+        "admin"
+    )
+
+    admin_email = os.getenv(
+        "ADMIN_EMAIL",
+        "admin@hakim.academy"
+    )
+
+    admin_password = os.getenv(
+        "ADMIN_PASSWORD"
+    )
+
+    if admin_password:
+        admin = User.query.filter_by(
+            username=admin_username
+        ).first()
+
+        if not admin:
+            admin = User(
+                username=admin_username,
+                email=admin_email,
+                role="admin"
+            )
+
+            admin.set_password(admin_password)
+
+            db.session.add(admin)
+
+        else:
+            admin.role = "admin"
+            admin.email = admin_email
+            admin.set_password(admin_password)
+
+        db.session.commit()
+
 
 if __name__ == "__main__":
     app.run(
