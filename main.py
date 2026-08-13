@@ -1,3 +1,4 @@
+import os
 from flask import Flask, redirect, url_for, render_template_string, request, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from extensions import db
@@ -28,10 +29,11 @@ def login():
             login_user(user)
             return redirect(url_for('home'))
         flash('خطأ في البيانات')
-    return render_template_string('''<form method="POST">
-        <input type="email" name="email" placeholder="البريد"><br>
-        <input type="password" name="password" placeholder="كلمة المرور"><br>
-        <button type="submit">تسجيل الدخول</button></form>''')
+    return render_template_string('''<form method="POST" style="text-align:center; margin-top:50px; font-family:Tahoma;">
+        <h2>تسجيل الدخول - منصة حكيم</h2>
+        <input type="email" name="email" placeholder="البريد الإلكتروني" style="padding:10px; margin:5px; width:250px;"><br>
+        <input type="password" name="password" placeholder="كلمة المرور" style="padding:10px; margin:5px; width:250px;"><br>
+        <button type="submit" style="padding:10px 20px; background:#0284c7; color:white; border:none; border-radius:5px; cursor:pointer;">دخول</button></form>''')
 
 @app.route('/')
 def home():
@@ -44,12 +46,12 @@ def home():
 @app.route('/admin')
 @login_required
 def admin_dashboard():
-    return render_template_string('<h1>لوحة تحكم المشرف العام</h1><a href="/logout">خروج</a>')
+    return render_template_string('<h1>لوحة تحكم المشرف العام</h1><p>أهلاً بك: {{ current_user.email }}</p><a href="/logout">تسجيل الخروج</a>')
 
 @app.route('/student')
 @login_required
 def student_dashboard():
-    return render_template_string('<h1>لوحة الطالب الأكاديمية</h1><a href="/logout">خروج</a>')
+    return render_template_string('<h1>لوحة الطالب الأكاديمية</h1><p>أهلاً بك: {{ current_user.email }}</p><a href="/logout">تسجيل الخروج</a>')
 
 @app.route('/logout')
 def logout():
@@ -66,4 +68,5 @@ with app.app_context():
         db.session.commit()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
