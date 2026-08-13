@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, session
 
 from auth import login_required, role_required
-from models import User
+from models import User, StudyPlan
 from extensions import db
 
 
@@ -11,6 +11,10 @@ dashboard = Blueprint(
     url_prefix="/api/dashboard"
 )
 
+
+# =========================================================
+# لوحة الطالب
+# =========================================================
 
 @dashboard.get("/student")
 @login_required
@@ -40,6 +44,10 @@ def student_dashboard():
         ]
     })
 
+
+# =========================================================
+# لوحة المشرف
+# =========================================================
 
 @dashboard.get("/admin")
 @role_required("admin", "superadmin")
@@ -82,7 +90,9 @@ def admin_dashboard():
 @role_required("admin", "superadmin")
 def get_students():
 
-    students = User.query.filter_by(role="student").order_by(
+    students = User.query.filter_by(
+        role="student"
+    ).order_by(
         User.id.desc()
     ).all()
 
@@ -93,6 +103,7 @@ def get_students():
                 "username": student.username,
                 "email": student.email,
                 "role": student.role,
+                "status": student.status,
                 "is_active": student.is_active
             }
             for student in students
@@ -115,12 +126,18 @@ def create_student():
             "error": "اسم المستخدم والبريد وكلمة المرور مطلوبة"
         }), 400
 
-    if User.query.filter_by(username=username).first():
+    if User.query.filter_by(
+        username=username
+    ).first():
+
         return jsonify({
             "error": "اسم المستخدم مستخدم مسبقًا"
         }), 409
 
-    if User.query.filter_by(email=email).first():
+    if User.query.filter_by(
+        email=email
+    ).first():
+
         return jsonify({
             "error": "البريد الإلكتروني مستخدم مسبقًا"
         }), 409
@@ -129,7 +146,8 @@ def create_student():
         username=username,
         email=email,
         role="student",
-        is_active=True
+        status="pending",
+        is_active=False
     )
 
     student.set_password(password)
@@ -138,12 +156,13 @@ def create_student():
     db.session.commit()
 
     return jsonify({
-        "message": "تم إنشاء حساب الطالب بنجاح",
+        "message": "تم إنشاء طلب الطالب وهو الآن قيد المراجعة",
         "student": {
             "id": student.id,
             "username": student.username,
             "email": student.email,
             "role": student.role,
+            "status": student.status,
             "is_active": student.is_active
         }
     }), 201
@@ -165,9 +184,20 @@ def update_student(student_id):
 
     data = request.get_json(silent=True) or {}
 
-    username = data.get("username", "").strip()
-    email = data.get("email", "").strip().lower()
-    password = data.get("password", "")
+    username = data.get(
+        "username",
+        ""
+    ).strip()
+
+    email = data.get(
+        "email",
+        ""
+    ).strip().lower()
+
+    password = data.get(
+        "password",
+        ""
+    )
 
     if not username or not email:
         return jsonify({
@@ -209,6 +239,7 @@ def update_student(student_id):
             "username": student.username,
             "email": student.email,
             "role": student.role,
+            "status": student.status,
             "is_active": student.is_active
         }
     })
@@ -230,6 +261,11 @@ def toggle_student(student_id):
 
     student.is_active = not student.is_active
 
+    if student.is_active:
+        student.status = "active"
+    else:
+        student.status = "rejected"
+
     db.session.commit()
 
     return jsonify({
@@ -239,6 +275,155 @@ def toggle_student(student_id):
             "username": student.username,
             "email": student.email,
             "role": student.role,
+            "status": student.status,
             "is_active": student.is_active
+        }
+    })
+
+
+# =========================================================
+# إدارة الخطط A / B
+# =========================================================
+
+@dashboard.get("/admin/study-plans")
+@role_required("admin", "superadmin")
+def get_study_plans():
+
+    plans = StudyPlan.query.order_by(
+        StudyPlan.id.asc()
+    ).all()
+
+    return jsonify({
+        "study_plans": [
+            {
+                "id": plan.id,
+                "name": plan.name,
+                "description": plan.description,
+                "is_active": plan.is_active,
+                "subjects_count": len(plan.subjects)
+            }
+            for plan in plans
+        ]
+    })
+
+
+@dashboard.post("/admin/study-plans")
+@role_required("admin", "superadmin")
+def create_study_plan():
+
+    data = request.get_json(silent=True) or {}
+
+    name = data.get(
+        "name",
+        ""
+    ).strip()
+
+    description = data.get(
+        "description",
+        ""
+    ).strip()
+
+    if not name:
+        return jsonify({
+            "error": "اسم الخطة مطلوب"
+        }), 400
+
+    if name not in ("A", "B"):
+        return jsonify({
+            "error": "اسم الخطة يجب أن يكون A أو B"
+        }), 400
+
+    existing_plan = StudyPlan.query.filter_by(
+        name=name
+    ).first()
+
+    if existing_plan:
+        return jsonify({
+            "error": f"الخطة {name} موجودة مسبقًا"
+        }), 409
+
+    plan = StudyPlan(
+        name=name,
+        description=description,
+        is_active=True
+    )
+
+    db.session.add(plan)
+    db.session.commit()
+
+    return jsonify({
+        "message": f"تم إنشاء الخطة {name} بنجاح",
+        "study_plan": {
+            "id": plan.id,
+            "name": plan.name,
+            "description": plan.description,
+            "is_active": plan.is_active
+        }
+    }), 201
+
+
+@dashboard.put("/admin/study-plans/<int:plan_id>")
+@role_required("admin", "superadmin")
+def update_study_plan(plan_id):
+
+    plan = StudyPlan.query.get(plan_id)
+
+    if not plan:
+        return jsonify({
+            "error": "الخطة غير موجودة"
+        }), 404
+
+    data = request.get_json(silent=True) or {}
+
+    description = data.get(
+        "description",
+        ""
+    ).strip()
+
+    is_active = data.get(
+        "is_active"
+    )
+
+    if "description" in data:
+        plan.description = description
+
+    if is_active is not None:
+        plan.is_active = bool(is_active)
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "تم تحديث الخطة بنجاح",
+        "study_plan": {
+            "id": plan.id,
+            "name": plan.name,
+            "description": plan.description,
+            "is_active": plan.is_active
+        }
+    })
+
+
+@dashboard.post("/admin/study-plans/<int:plan_id>/toggle")
+@role_required("admin", "superadmin")
+def toggle_study_plan(plan_id):
+
+    plan = StudyPlan.query.get(plan_id)
+
+    if not plan:
+        return jsonify({
+            "error": "الخطة غير موجودة"
+        }), 404
+
+    plan.is_active = not plan.is_active
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "تم تحديث حالة الخطة",
+        "study_plan": {
+            "id": plan.id,
+            "name": plan.name,
+            "description": plan.description,
+            "is_active": plan.is_active
         }
     })
