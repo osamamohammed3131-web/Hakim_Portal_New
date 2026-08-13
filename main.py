@@ -96,6 +96,43 @@ def health():
 with app.app_context():
     db.create_all()
 
+    # إنشاء أو تصحيح حساب المشرف تلقائيًا
+    admin_username = os.getenv("ADMIN_USERNAME", "admin")
+    admin_email = os.getenv(
+        "ADMIN_EMAIL",
+        "admin@hakim.academy"
+    )
+    admin_password = os.getenv(
+        "ADMIN_PASSWORD",
+        "change-this-admin-password"
+    )
+
+    admin = User.query.filter_by(
+        username=admin_username
+    ).first()
+
+    if admin:
+        # الحساب موجود، نحوله إلى مشرف
+        admin.role = "admin"
+        admin.email = admin_email
+        admin.is_active = True
+        admin.set_password(admin_password)
+
+    else:
+        # الحساب غير موجود، ننشئه كمشرف
+        admin = User(
+            username=admin_username,
+            email=admin_email,
+            role="admin",
+            is_active=True
+        )
+
+        admin.set_password(admin_password)
+
+        db.session.add(admin)
+
+    db.session.commit()
+
 
 if __name__ == "__main__":
     app.run(
