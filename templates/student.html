@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>لوحة الطالب - حكيم أكاديمي</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #1769d1;
+            font-size: 25px;
+        }
+
+        .user {
+            color: #555;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .welcome h2 {
+            margin-top: 0;
+            color: #1769d1;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 25px;
+            min-height: 130px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #1769d1;
+        }
+
+        .card p {
+            color: #777;
+            line-height: 1.7;
+        }
+
+        .logout {
+            margin-top: 25px;
+            background: #1769d1;
+            color: white;
+            border: 0;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Hakim Academy</h1>
+
+    <div class="user">
+        الطالب: {{ user.username }}
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+        <h2>مرحبًا بك في لوحة الطالب</h2>
+
+        <p>
+            هذه هي لوحة الطالب في حكيم أكاديمي،
+            ومن هنا ستصل إلى الخدمات الأكاديمية الخاصة بك.
+        </p>
+    </div>
+
+    <div class="sections">
+
+        <div class="card">
+            <h3>السنة التمهيدية</h3>
+            <p>الوصول إلى معلومات السنة التمهيدية.</p>
+        </div>
+
+        <div class="card">
+            <h3>الخطة الدراسية</h3>
+            <p>استعراض الخطة والمواد الدراسية.</p>
+        </div>
+
+        <div class="card">
+            <h3>الجدول الذكي</h3>
+            <p>تنظيم ومتابعة الجدول الدراسي.</p>
+        </div>
+
+        <div class="card">
+            <h3>المحاضرات</h3>
+            <p>الوصول إلى المحاضرات والمحتوى التعليمي.</p>
+        </div>
+
+        <div class="card">
+            <h3>بوابة الأنظمة</h3>
+            <p>الوصول إلى الأنظمة والخدمات الأكاديمية.</p>
+        </div>
+
+        <div class="card">
+            <h3>المساعد الأكاديمي</h3>
+            <p>مساعدتك في رحلتك الأكاديمية.</p>
+        </div>
+
+        <div class="card">
+            <h3>التدريب والتجارب</h3>
+            <p>الوصول إلى أدوات التدريب والتجارب.</p>
+        </div>
+
+        <div class="card">
+            <h3>التقدم والمتابعة</h3>
+            <p>متابعة تقدمك الأكاديمي.</p>
+        </div>
+
+    </div>
+
+    <button class="logout" onclick="logout()">
+        تسجيل الخروج
+    </button>
+
+</div>
+
+<script>
+async function logout() {
+    await fetch("/api/auth/logout", {
+        method: "POST"
+    });
+
+    window.location.href = "/login";
+}
+</script>
+
+</body>
+</html>
