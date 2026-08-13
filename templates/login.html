@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>تسجيل الدخول - حكيم أكاديمي</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #1769d1;
+            font-size: 28px;
+        }
+
+        .container {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            padding: 35px;
+            border-radius: 22px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .login-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #1769d1;
+        }
+
+        .login-card p {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #1769d1;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #1769d1;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1258b0;
+        }
+
+        #message {
+            margin-top: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #1769d1;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Hakim Academy</h1>
+</header>
+
+<div class="container">
+
+    <div class="login-card">
+
+        <h2>تسجيل الدخول</h2>
+
+        <p>
+            ادخل إلى حسابك في حكيم أكاديمي
+        </p>
+
+        <form id="loginForm">
+
+            <label for="username">
+                اسم المستخدم
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="اسم المستخدم"
+                required
+            >
+
+            <label for="password">
+                كلمة المرور
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="كلمة المرور"
+                required
+            >
+
+            <button type="submit">
+                تسجيل الدخول
+            </button>
+
+        </form>
+
+        <div id="message"></div>
+
+        <a class="back" href="/">
+            العودة إلى الرئيسية
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+    const form = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        message.textContent = "جارٍ تسجيل الدخول...";
+        message.style.color = "#1769d1";
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                message.textContent = data.error || "فشل تسجيل الدخول";
+                message.style.color = "#dc2626";
+                return;
+            }
+
+            message.textContent = "تم تسجيل الدخول بنجاح";
+            message.style.color = "#16a34a";
+
+            if (
+                data.user.role === "admin" ||
+                data.user.role === "superadmin"
+            ) {
+                window.location.href = "/api/dashboard/admin";
+            } else {
+                window.location.href = "/api/dashboard/student";
+            }
+
+        } catch (error) {
+
+            message.textContent =
+                "تعذر الاتصال بالخادم";
+
+            message.style.color = "#dc2626";
+        }
+    });
+</script>
+
+</body>
+</html>
