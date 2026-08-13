@@ -6,17 +6,53 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(30), nullable=False, default="student")
-    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    username = db.Column(
+        db.String(100),
+        unique=True,
+        nullable=False
+    )
+
+    email = db.Column(
+        db.String(255),
+        unique=True,
+        nullable=False
+    )
+
+    password_hash = db.Column(
+        db.String(255),
+        nullable=False
+    )
+
+    role = db.Column(
+        db.String(30),
+        nullable=False,
+        default="student"
+    )
+
+    # pending = قيد المراجعة
+    # active = مقبول ونشط
+    # rejected = مرفوض
+    status = db.Column(
+        db.String(30),
+        nullable=False,
+        default="pending"
+    )
+
+    is_active = db.Column(
+        db.Boolean,
+        default=True,
+        nullable=False
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(
+            self.password_hash,
+            password
+        )
 
 
 class StudyPlan(db.Model):
@@ -74,7 +110,10 @@ class Lecture(db.Model):
     start_time = db.Column(db.Time, nullable=True)
     end_time = db.Column(db.Time, nullable=True)
 
-    content_url = db.Column(db.String(500), nullable=True)
+    content_url = db.Column(
+        db.String(500),
+        nullable=True
+    )
 
     is_active = db.Column(
         db.Boolean,
@@ -84,7 +123,10 @@ class Lecture(db.Model):
 
     subject = db.relationship(
         "Subject",
-        backref=db.backref("lectures", lazy=True)
+        backref=db.backref(
+            "lectures",
+            lazy=True
+        )
     )
 
 
@@ -140,15 +182,24 @@ class ScheduleItem(db.Model):
 
     user = db.relationship(
         "User",
-        backref=db.backref("schedule_items", lazy=True)
+        backref=db.backref(
+            "schedule_items",
+            lazy=True
+        )
     )
 
     subject = db.relationship(
         "Subject",
-        backref=db.backref("schedule_items", lazy=True)
+        backref=db.backref(
+            "schedule_items",
+            lazy=True
+        )
     )
 
     lecture = db.relationship(
         "Lecture",
-        backref=db.backref("schedule_items", lazy=True)
+        backref=db.backref(
+            "schedule_items",
+            lazy=True
+        )
     )
