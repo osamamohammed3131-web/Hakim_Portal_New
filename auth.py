@@ -1,5 +1,9 @@
+from functools import wraps
+
 from flask import Blueprint, request, jsonify, session
 from models import User
+from extensions import db
+
 
 auth = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -11,15 +15,11 @@ def register():
     username = data.get("username", "").strip()
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
-    role = data.get("role", "student")
 
     if not username or not email or not password:
         return jsonify({
             "error": "اسم المستخدم والبريد وكلمة المرور مطلوبة"
         }), 400
-
-    if role not in {"student", "admin", "superadmin"}:
-        role = "student"
 
     if User.query.filter_by(username=username).first():
         return jsonify({
@@ -34,17 +34,16 @@ def register():
     user = User(
         username=username,
         email=email,
-        role=role
+        role="student"
     )
 
     user.set_password(password)
 
-    from extensions import db
     db.session.add(user)
     db.session.commit()
 
     return jsonify({
-        "message": "تم إنشاء الحساب بنجاح",
+        "message": "تم إنشاء حساب الطالب بنجاح",
         "user": {
             "id": user.id,
             "username": user.username,
@@ -105,7 +104,7 @@ def current_user():
             "authenticated": False
         }), 401
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
 
     if not user or not user.is_active:
         session.clear()
@@ -123,3 +122,59 @@ def current_user():
             "role": user.role
         }
     })
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        user_id = session.get("user_id")
+
+        if not user_id:
+            return jsonify({
+                "error": "يجب تسجيل الدخول أولًا"
+            }), 401
+
+        user = db.session.get(User, user_id)
+
+        if not user or not user.is_active:
+            session.clear()
+
+            return jsonify({
+                "error": "الحساب غير صالح"
+            }), 401
+
+        return view(*args, **kwargs)
+
+    return wrapped_view
+
+
+def role_required(*allowed_roles):
+    def decorator(view):
+        @wraps(view)
+        def wrapped_view(*args, **kwargs):
+            user_id = session.get("user_id")
+
+            if not user_id:
+                return jsonify({
+                    "error": "يجب تسجيل الدخول أولًا"
+                }), 401
+
+            user = db.session.get(User, user_id)
+
+            if not user or not user.is_active:
+                session.clear()
+
+                return jsonify({
+                    "error": "الحساب غير صالح"
+                }), 401
+
+            if user.role not in allowed_roles:
+                return jsonify({
+                    "error": "ليس لديك صلاحية للوصول إلى هذه الصفحة"
+                }), 403
+
+            return view(*args, **kwargs)
+
+        return wrapped_view
+
+    return decorator
