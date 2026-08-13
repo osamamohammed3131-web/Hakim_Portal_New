@@ -33,6 +33,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         header h1 {
@@ -116,7 +117,7 @@
         }
 
         .logout:hover {
-            background: #1258b0;
+            opacity: 0.9;
         }
 
         /* =====================================================
@@ -155,7 +156,7 @@
         }
 
         .add-button:hover {
-            background: #1258b0;
+            opacity: 0.9;
         }
 
         .back-button {
@@ -166,10 +167,6 @@
             border-radius: 9px;
             cursor: pointer;
             margin-bottom: 20px;
-        }
-
-        .back-button:hover {
-            background: #4b5563;
         }
 
         /* =====================================================
@@ -201,7 +198,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 700px;
+            min-width: 750px;
         }
 
         th,
@@ -234,13 +231,8 @@
             font-weight: bold;
         }
 
-        .status-rejected {
-            color: #dc2626;
-            font-weight: bold;
-        }
-
         /* =====================================================
-           أزرار الإجراءات
+           الأزرار
         ===================================================== */
 
         .action {
@@ -249,10 +241,6 @@
             border-radius: 8px;
             cursor: pointer;
             margin: 2px;
-        }
-
-        .action:hover {
-            opacity: 0.85;
         }
 
         .edit {
@@ -266,7 +254,7 @@
         }
 
         /* =====================================================
-           بطاقات الخطط
+           الخطط
         ===================================================== */
 
         .plans-grid {
@@ -303,16 +291,16 @@
             padding: 12px;
             background: #f5f7fb;
             border-radius: 10px;
-            line-height: 1.9;
+            line-height: 1.8;
         }
 
         .plan-status {
-            margin-top: 8px;
+            margin-top: 10px;
             font-weight: bold;
         }
 
         /* =====================================================
-           النوافذ المنبثقة
+           النوافذ
         ===================================================== */
 
         .modal {
@@ -332,8 +320,6 @@
             background: white;
             border-radius: 20px;
             padding: 25px;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         .modal-box h2 {
@@ -390,16 +376,8 @@
             color: white;
         }
 
-        .save:hover {
-            background: #1258b0;
-        }
-
         .cancel {
             background: #e5e7eb;
-        }
-
-        .cancel:hover {
-            background: #d1d5db;
         }
 
         /* =====================================================
@@ -409,43 +387,13 @@
         .message {
             margin-top: 15px;
             font-weight: bold;
-            min-height: 20px;
+            min-height: 22px;
         }
 
-        .empty-message {
-            padding: 25px;
+        .empty {
             text-align: center;
             color: #777;
-        }
-
-        /* =====================================================
-           الجوال
-        ===================================================== */
-
-        @media (max-width: 600px) {
-
-            header {
-                padding: 18px;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            header h1 {
-                font-size: 22px;
-            }
-
-            .container {
-                padding: 0 12px;
-            }
-
-            .welcome {
-                padding: 22px;
-            }
-
-            .management-section {
-                padding: 18px;
-            }
-
+            padding: 25px;
         }
 
     </style>
@@ -456,10 +404,6 @@
 <body>
 
 
-<!-- =========================================================
-     رأس الصفحة
-========================================================= -->
-
 <header>
 
     <h1>
@@ -467,7 +411,8 @@
     </h1>
 
     <div class="user">
-        المشرف: {{ user.username }}
+        المشرف:
+        {{ user.username }}
     </div>
 
 </header>
@@ -498,8 +443,6 @@
         <div class="sections">
 
 
-            <!-- الإحصائيات -->
-
             <div class="card">
 
                 <h3>
@@ -512,8 +455,6 @@
 
             </div>
 
-
-            <!-- إدارة الطلاب -->
 
             <div
                 class="card"
@@ -531,8 +472,6 @@
             </div>
 
 
-            <!-- إدارة الخطط -->
-
             <div
                 class="card"
                 onclick="openStudyPlans()"
@@ -549,8 +488,6 @@
             </div>
 
 
-            <!-- المواد -->
-
             <div class="card">
 
                 <h3>
@@ -563,8 +500,6 @@
 
             </div>
 
-
-            <!-- الكتب -->
 
             <div class="card">
 
@@ -579,8 +514,6 @@
             </div>
 
 
-            <!-- الجداول -->
-
             <div class="card">
 
                 <h3>
@@ -593,8 +526,6 @@
 
             </div>
 
-
-            <!-- AI -->
 
             <div class="card">
 
@@ -609,8 +540,6 @@
             </div>
 
 
-            <!-- الدعم -->
-
             <div class="card">
 
                 <h3>
@@ -623,8 +552,6 @@
 
             </div>
 
-
-            <!-- التدريب -->
 
             <div class="card">
 
@@ -639,8 +566,6 @@
             </div>
 
 
-            <!-- الأخبار -->
-
             <div class="card">
 
                 <h3>
@@ -653,8 +578,6 @@
 
             </div>
 
-
-            <!-- الصلاحيات -->
 
             <div class="card">
 
@@ -669,8 +592,6 @@
             </div>
 
 
-            <!-- السجل -->
-
             <div class="card">
 
                 <h3>
@@ -683,8 +604,6 @@
 
             </div>
 
-
-            <!-- الإعدادات -->
 
             <div class="card">
 
@@ -830,8 +749,8 @@
 
 
         <div
-            class="plans-grid"
             id="plansContainer"
+            class="plans-grid"
         ></div>
 
 
@@ -846,9 +765,9 @@
 </div>
 
 
-<!-- =========================================================
+<!-- =====================================================
      تسجيل الخروج
-========================================================= -->
+====================================================== -->
 
 <button
     class="logout"
@@ -858,9 +777,9 @@
 </button>
 
 
-<!-- =========================================================
-     نافذة الطالب
-========================================================= -->
+<!-- =====================================================
+     نافذة إضافة / تعديل الطالب
+====================================================== -->
 
 <div
     id="studentModal"
@@ -922,7 +841,6 @@
                 حفظ
             </button>
 
-
             <button
                 class="cancel"
                 onclick="closeModal('studentModal')"
@@ -937,9 +855,9 @@
 </div>
 
 
-<!-- =========================================================
-     نافذة الخطة
-========================================================= -->
+<!-- =====================================================
+     نافذة إضافة / تعديل الخطة
+====================================================== -->
 
 <div
     id="planModal"
@@ -999,7 +917,6 @@
                 حفظ
             </button>
 
-
             <button
                 class="cancel"
                 onclick="closeModal('planModal')"
@@ -1025,4 +942,96 @@ let students = [];
 let studyPlans = [];
 
 
-/* =====
+/* =========================================================
+   التنقل بين الأقسام
+========================================================= */
+
+function showOnlySection(sectionId) {
+
+    document.getElementById(
+        "mainDashboard"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "studentsSection"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "studyPlansSection"
+    ).style.display = "none";
+
+
+    const section = document.getElementById(
+        sectionId
+    );
+
+
+    if (section) {
+
+        section.style.display = "block";
+
+    }
+
+}
+
+
+function closeManagementSections() {
+
+    document.getElementById(
+        "studentsSection"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "studyPlansSection"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "mainDashboard"
+    ).style.display = "block";
+
+}
+
+
+/* =========================================================
+   إدارة الطلاب
+========================================================= */
+
+async function openStudents() {
+
+    showOnlySection(
+        "studentsSection"
+    );
+
+
+    await loadStudents();
+
+}
+
+
+async function loadStudents() {
+
+    const table = document.getElementById(
+        "studentsTable"
+    );
+
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="5" class="empty">
+                جاري تحميل الطلاب...
+            </td>
+        </tr>
+    `;
+
+
+    try {
+
+        const response = await fetch(
+            "/api/dashboard/admin/students",
+            {
+                method: "GET",
+                credentials: "same-origin"
