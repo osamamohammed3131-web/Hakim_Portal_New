@@ -108,7 +108,11 @@
             font-size: 15px;
         }
 
-        #studentsSection {
+        /* =====================================================
+           الأقسام الداخلية
+        ===================================================== */
+
+        .management-section {
             display: none;
             margin-top: 30px;
             background: white;
@@ -117,7 +121,7 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.05);
         }
 
-        .students-header {
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -125,7 +129,7 @@
             flex-wrap: wrap;
         }
 
-        .students-header h2 {
+        .section-header h2 {
             color: #1769d1;
             margin: 0;
         }
@@ -139,6 +143,20 @@
             cursor: pointer;
         }
 
+        .back-button {
+            background: #6b7280;
+            color: white;
+            border: 0;
+            padding: 10px 18px;
+            border-radius: 9px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        /* =====================================================
+           البحث
+        ===================================================== */
+
         .search {
             width: 100%;
             padding: 13px;
@@ -147,6 +165,10 @@
             border-radius: 10px;
             font-size: 16px;
         }
+
+        /* =====================================================
+           الجداول
+        ===================================================== */
 
         .table-wrapper {
             overflow-x: auto;
@@ -169,6 +191,10 @@
             background: #f5f7fb;
         }
 
+        /* =====================================================
+           الحالات
+        ===================================================== */
+
         .status-active {
             color: #16a34a;
             font-weight: bold;
@@ -178,6 +204,15 @@
             color: #dc2626;
             font-weight: bold;
         }
+
+        .status-pending {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           الأزرار
+        ===================================================== */
 
         .action {
             border: 0;
@@ -197,15 +232,64 @@
             color: #92400e;
         }
 
-        .back-button {
-            background: #6b7280;
-            color: white;
-            border: 0;
-            padding: 10px 18px;
-            border-radius: 9px;
-            cursor: pointer;
-            margin-bottom: 20px;
+        .activate {
+            background: #dcfce7;
+            color: #166534;
         }
+
+        .disable {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* =====================================================
+           بطاقات الخطط
+        ===================================================== */
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(280px, 1fr)
+            );
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .plan-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 25px;
+            background: #ffffff;
+        }
+
+        .plan-card h3 {
+            color: #1769d1;
+            margin-top: 0;
+            font-size: 23px;
+        }
+
+        .plan-description {
+            color: #666;
+            line-height: 1.8;
+            min-height: 55px;
+        }
+
+        .plan-meta {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f5f7fb;
+            border-radius: 10px;
+        }
+
+        .plan-status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* =====================================================
+           النوافذ
+        ===================================================== */
 
         .modal {
             display: none;
@@ -238,12 +322,20 @@
             font-weight: bold;
         }
 
-        .modal-box input {
+        .modal-box input,
+        .modal-box textarea,
+        .modal-box select {
             width: 100%;
             padding: 12px;
             border: 1px solid #d1d5db;
             border-radius: 9px;
             font-size: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        .modal-box textarea {
+            min-height: 110px;
+            resize: vertical;
         }
 
         .modal-buttons {
@@ -252,738 +344,4 @@
             margin-top: 20px;
         }
 
-        .modal-buttons button {
-            flex: 1;
-            padding: 12px;
-            border: 0;
-            border-radius: 9px;
-            cursor: pointer;
-        }
-
-        .save {
-            background: #1769d1;
-            color: white;
-        }
-
-        .cancel {
-            background: #e5e7eb;
-        }
-
-        #message {
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-    </style>
-
-</head>
-
-<body>
-
-<header>
-
-    <h1>Hakim Academy</h1>
-
-    <div class="user">
-        المشرف: {{ user.username }}
-    </div>
-
-</header>
-
-
-<div class="container">
-
-    <div class="welcome">
-
-        <h2>
-            مرحبًا بك في لوحة المشرف
-        </h2>
-
-        <p>
-            من هنا يمكنك إدارة المحتوى والخطط والطلاب والخدمات الأكاديمية.
-        </p>
-
-    </div>
-
-
-    <div class="sections">
-
-        <div class="card">
-            <h3>الإحصائيات العامة</h3>
-            <p>عرض الإحصائيات والمعلومات العامة للمنصة.</p>
-        </div>
-
-
-        <div
-            class="card"
-            onclick="openStudents()"
-        >
-
-            <h3>إدارة الطلاب</h3>
-
-            <p>
-                إدارة حسابات الطلاب ومتابعة بياناتهم.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>إدارة الخطط A/B</h3>
-
-            <p>
-                إدارة الخطط الدراسية والمسارات الأكاديمية.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>إدارة المواد</h3>
-
-            <p>
-                إضافة وتعديل المواد الدراسية.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>إدارة الكتب والملفات</h3>
-
-            <p>
-                إدارة الملفات والمراجع التعليمية.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>إدارة الجداول والمحاضرات</h3>
-
-            <p>
-                إدارة الجداول والمحاضرات والمواعيد.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>مركز معرفة AI</h3>
-
-            <p>
-                إدارة قاعدة المعرفة والمحتوى الذكي.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>قاعدة معرفة الدعم</h3>
-
-            <p>
-                إدارة الأسئلة والمعلومات الخاصة بالدعم.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>بنك التدريب</h3>
-
-            <p>
-                إدارة مواد التدريب والتجارب.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>الأخبار والتحديثات</h3>
-
-            <p>
-                إدارة الأخبار والتنبيهات والتحديثات.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>الصلاحيات</h3>
-
-            <p>
-                إدارة صلاحيات المشرفين والمستخدمين.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>سجل العمليات</h3>
-
-            <p>
-                متابعة العمليات التي تتم داخل المنصة.
-            </p>
-
-        </div>
-
-
-        <div class="card">
-
-            <h3>الإعدادات</h3>
-
-            <p>
-                إدارة إعدادات المنصة.
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- إدارة الطلاب -->
-
-    <div id="studentsSection">
-
-        <button
-            class="back-button"
-            onclick="closeStudents()"
-        >
-            ← العودة للوحة المشرف
-        </button>
-
-
-        <div class="students-header">
-
-            <h2>
-                إدارة الطلاب
-            </h2>
-
-            <button
-                class="add-button"
-                onclick="openAddStudent()"
-            >
-                + إضافة طالب
-            </button>
-
-        </div>
-
-
-        <input
-            id="searchInput"
-            class="search"
-            type="text"
-            placeholder="ابحث باسم المستخدم أو البريد الإلكتروني..."
-            oninput="filterStudents()"
-        >
-
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-
-                    <tr>
-
-                        <th>الرقم</th>
-
-                        <th>اسم المستخدم</th>
-
-                        <th>البريد الإلكتروني</th>
-
-                        <th>الحالة</th>
-
-                        <th>الإجراءات</th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="studentsTable">
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <div id="message"></div>
-
-    </div>
-
-</div>
-
-
-<button
-    class="logout"
-    onclick="logout()"
->
-    تسجيل الخروج
-</button>
-
-
-<!-- نافذة إضافة/تعديل الطالب -->
-
-<div
-    id="studentModal"
-    class="modal"
->
-
-    <div class="modal-box">
-
-        <h2 id="modalTitle">
-            إضافة طالب
-        </h2>
-
-
-        <input
-            type="hidden"
-            id="studentId"
-        >
-
-
-        <label>
-            اسم المستخدم
-        </label>
-
-        <input
-            type="text"
-            id="studentUsername"
-            placeholder="اسم المستخدم"
-        >
-
-
-        <label>
-            البريد الإلكتروني
-        </label>
-
-        <input
-            type="email"
-            id="studentEmail"
-            placeholder="البريد الإلكتروني"
-        >
-
-
-        <label>
-            كلمة المرور
-        </label>
-
-        <input
-            type="password"
-            id="studentPassword"
-            placeholder="كلمة المرور"
-        >
-
-
-        <div class="modal-buttons">
-
-            <button
-                class="save"
-                onclick="saveStudent()"
-            >
-                حفظ
-            </button>
-
-            <button
-                class="cancel"
-                onclick="closeModal()"
-            >
-                إلغاء
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<script>
-
-let students = [];
-
-
-async function openStudents() {
-
-    document.querySelector(".sections").style.display = "none";
-
-    document.getElementById("studentsSection").style.display = "block";
-
-    await loadStudents();
-
-}
-
-
-function closeStudents() {
-
-    document.getElementById("studentsSection").style.display = "none";
-
-    document.querySelector(".sections").style.display = "grid";
-
-}
-
-
-async function loadStudents() {
-
-    const response = await fetch(
-        "/api/dashboard/admin/students"
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-
-        showMessage(
-            data.error || "تعذر تحميل الطلاب",
-            "#dc2626"
-        );
-
-        return;
-
-    }
-
-    students = data.students;
-
-    renderStudents(students);
-
-}
-
-
-function renderStudents(list) {
-
-    const table =
-        document.getElementById("studentsTable");
-
-    table.innerHTML = "";
-
-
-    if (list.length === 0) {
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    لا يوجد طلاب حاليًا
-                </td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-
-    list.forEach(student => {
-
-        const status = student.is_active
-            ? `<span class="status-active">نشط</span>`
-            : `<span class="status-disabled">معطل</span>`;
-
-
-        const toggleText = student.is_active
-            ? "تعطيل"
-            : "تفعيل";
-
-
-        table.innerHTML += `
-
-            <tr>
-
-                <td>${student.id}</td>
-
-                <td>${escapeHtml(student.username)}</td>
-
-                <td>${escapeHtml(student.email)}</td>
-
-                <td>${status}</td>
-
-                <td>
-
-                    <button
-                        class="action edit"
-                        onclick="editStudent(${student.id})"
-                    >
-                        تعديل
-                    </button>
-
-                    <button
-                        class="action toggle"
-                        onclick="toggleStudent(${student.id})"
-                    >
-                        ${toggleText}
-                    </button>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
-
-}
-
-
-function filterStudents() {
-
-    const value =
-        document
-            .getElementById("searchInput")
-            .value
-            .toLowerCase()
-            .trim();
-
-
-    const filtered = students.filter(student =>
-
-        student.username
-            .toLowerCase()
-            .includes(value)
-
-        ||
-
-        student.email
-            .toLowerCase()
-            .includes(value)
-
-    );
-
-
-    renderStudents(filtered);
-
-}
-
-
-function openAddStudent() {
-
-    document.getElementById("modalTitle").textContent =
-        "إضافة طالب";
-
-    document.getElementById("studentId").value = "";
-
-    document.getElementById("studentUsername").value = "";
-
-    document.getElementById("studentEmail").value = "";
-
-    document.getElementById("studentPassword").value = "";
-
-    document.getElementById("studentModal").style.display =
-        "flex";
-
-}
-
-
-function editStudent(id) {
-
-    const student =
-        students.find(s => s.id === id);
-
-    if (!student) {
-        return;
-    }
-
-
-    document.getElementById("modalTitle").textContent =
-        "تعديل بيانات الطالب";
-
-    document.getElementById("studentId").value =
-        student.id;
-
-    document.getElementById("studentUsername").value =
-        student.username;
-
-    document.getElementById("studentEmail").value =
-        student.email;
-
-    document.getElementById("studentPassword").value =
-        "";
-
-
-    document.getElementById("studentModal").style.display =
-        "flex";
-
-}
-
-
-function closeModal() {
-
-    document.getElementById("studentModal").style.display =
-        "none";
-
-}
-
-
-async function saveStudent() {
-
-    const id =
-        document.getElementById("studentId").value;
-
-    const username =
-        document.getElementById("studentUsername").value.trim();
-
-    const email =
-        document.getElementById("studentEmail").value.trim();
-
-    const password =
-        document.getElementById("studentPassword").value;
-
-
-    if (!username || !email || (!id && !password)) {
-
-        alert(
-            "أدخل اسم المستخدم والبريد وكلمة المرور."
-        );
-
-        return;
-
-    }
-
-
-    const url = id
-        ? `/api/dashboard/admin/students/${id}`
-        : "/api/dashboard/admin/students";
-
-
-    const method = id
-        ? "PUT"
-        : "POST";
-
-
-    const response = await fetch(
-        url,
-        {
-            method: method,
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                username: username,
-                email: email,
-                password: password
-            })
-        }
-    );
-
-
-    const data = await response.json();
-
-
-    if (!response.ok) {
-
-        alert(
-            data.error ||
-            "حدث خطأ أثناء حفظ البيانات"
-        );
-
-        return;
-
-    }
-
-
-    closeModal();
-
-    await loadStudents();
-
-    showMessage(
-        data.message,
-        "#16a34a"
-    );
-
-}
-
-
-async function toggleStudent(id) {
-
-    const response = await fetch(
-        `/api/dashboard/admin/students/${id}/toggle`,
-        {
-            method: "POST"
-        }
-    );
-
-
-    const data = await response.json();
-
-
-    if (!response.ok) {
-
-        alert(
-            data.error ||
-            "تعذر تحديث حالة الطالب"
-        );
-
-        return;
-
-    }
-
-
-    await loadStudents();
-
-    showMessage(
-        data.message,
-        "#16a34a"
-    );
-
-}
-
-
-function showMessage(text, color) {
-
-    const message =
-        document.getElementById("message");
-
-    message.textContent = text;
-
-    message.style.color = color;
-
-}
-
-
-function escapeHtml(value) {
-
-    return String(value)
-
-        .replace(/&/g, "&amp;")
-
-        .replace(/</g, "&lt;")
-
-        .replace(/>/g, "&gt;")
-
-        .replace(/"/g, "&quot;")
-
-        .replace(/'/g, "&#039;");
-
-}
-
-
-async function logout() {
-
-    await fetch(
-        "/api/auth/logout",
-        {
-            method: "POST"
-        }
-    );
-
-    window.location.href = "/login";
-
-}
-
-</script>
-
-</body>
-
-</html>
+        .modal-buttons
