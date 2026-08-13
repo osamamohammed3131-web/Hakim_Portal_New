@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>إنشاء حساب - حكيم أكاديمي</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Tahoma, sans-serif;
+            background: #f4f6fa;
+            color: #172033;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 22px;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #1769d1;
+            font-size: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 35px 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #172033;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #737b8c;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            margin-bottom: 18px;
+            border: 1px solid #d7dce5;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            direction: rtl;
+        }
+
+        input:focus {
+            border-color: #1769d1;
+            box-shadow: 0 0 0 3px rgba(23, 105, 209, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: #1769d1;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #1258b1;
+        }
+
+        button:disabled {
+            background: #9aa4b2;
+            cursor: not-allowed;
+        }
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 13px;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .error {
+            display: block;
+            background: #fff1f1;
+            color: #b42318;
+            border: 1px solid #f5c2c0;
+        }
+
+        .success {
+            display: block;
+            background: #effcf3;
+            color: #18794e;
+            border: 1px solid #b7e4c7;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 22px;
+            color: #737b8c;
+        }
+
+        .login-link a {
+            color: #1769d1;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 30px auto;
+            }
+
+            .card {
+                padding: 28px 20px;
+            }
+
+            header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Hakim Academy</h1>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>إنشاء حساب طالب</h2>
+
+        <p class="subtitle">
+            أنشئ حسابك للوصول إلى منصة حكيم أكاديمي
+        </p>
+
+        <form id="registerForm">
+
+            <label for="username">اسم المستخدم</label>
+
+            <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="أدخل اسم المستخدم"
+                required
+                autocomplete="username"
+            >
+
+            <label for="email">البريد الإلكتروني</label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="أدخل البريد الإلكتروني"
+                required
+                autocomplete="email"
+            >
+
+            <label for="password">كلمة المرور</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="أدخل كلمة المرور"
+                required
+                autocomplete="new-password"
+            >
+
+            <button type="submit" id="registerButton">
+                إنشاء الحساب
+            </button>
+
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div class="login-link">
+            لديك حساب بالفعل؟
+            <a href="/login">تسجيل الدخول</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    const form = document.getElementById("registerForm");
+    const button = document.getElementById("registerButton");
+    const message = document.getElementById("message");
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const username =
+            document.getElementById("username").value.trim();
+
+        const email =
+            document.getElementById("email").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        if (!username || !email || !password) {
+            showMessage(
+                "فضلاً أكمل جميع البيانات المطلوبة",
+                "error"
+            );
+            return;
+        }
+
+        button.disabled = true;
+        button.textContent = "جاري إنشاء الحساب...";
+
+        try {
+            const response = await fetch(
+                "/api/auth/register",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                showMessage(
+                    data.error || "تعذر إنشاء الحساب",
+                    "error"
+                );
+
+                button.disabled = false;
+                button.textContent = "إنشاء الحساب";
+                return;
+            }
+
+            showMessage(
+                "تم إنشاء حساب الطالب بنجاح، جاري الانتقال إلى تسجيل الدخول...",
+                "success"
+            );
+
+            setTimeout(function () {
+                window.location.href = "/login";
+            }, 1500);
+
+        } catch (error) {
+            showMessage(
+                "حدث خطأ في الاتصال بالخادم. حاول مرة أخرى.",
+                "error"
+            );
+
+            button.disabled = false;
+            button.textContent = "إنشاء الحساب";
+        }
+    });
+</script>
+
+</body>
+</html>
