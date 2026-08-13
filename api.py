@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request, session
 
 from extensions import db
-from models import StudyPlan, Subject, ScheduleItem
+from models import StudyPlan, Subject, Lecture, ScheduleItem
 
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -45,11 +45,6 @@ def get_plan_subjects(plan_id):
             "error": "الخطة غير موجودة"
         }), 404
 
-    subjects = Subject.query.filter_by(
-        plan_id=plan.id,
-        is_active=True
-    ).all()
-
     return jsonify([
         {
             "id": subject.id,
@@ -57,7 +52,56 @@ def get_plan_subjects(plan_id):
             "code": subject.code,
             "description": subject.description,
         }
-        for subject in subjects
+        for subject in plan.subjects
+        if subject.is_active
+    ])
+
+
+@api.get("/subjects/<int:subject_id>/lectures")
+def get_subject_lectures(subject_id):
+    subject = Subject.query.filter_by(
+        id=subject_id,
+        is_active=True
+    ).first()
+
+    if not subject:
+        return jsonify({
+            "error": "المادة غير موجودة"
+        }), 404
+
+    lectures = Lecture.query.filter_by(
+        subject_id=subject.id,
+        is_active=True
+    ).order_by(
+        Lecture.week_number,
+        Lecture.lecture_date,
+        Lecture.start_time
+    ).all()
+
+    return jsonify([
+        {
+            "id": lecture.id,
+            "title": lecture.title,
+            "description": lecture.description,
+            "week_number": lecture.week_number,
+            "lecture_date": (
+                lecture.lecture_date.isoformat()
+                if lecture.lecture_date
+                else None
+            ),
+            "start_time": (
+                lecture.start_time.strftime("%H:%M")
+                if lecture.start_time
+                else None
+            ),
+            "end_time": (
+                lecture.end_time.strftime("%H:%M")
+                if lecture.end_time
+                else None
+            ),
+            "content_url": lecture.content_url,
+        }
+        for lecture in lectures
     ])
 
 
@@ -80,7 +124,7 @@ def create_schedule_item():
 
     if not all([
         subject_id,
-        day_of_week,
+        day_of_week is not None,
         start_time,
         end_time
     ]):
@@ -97,6 +141,18 @@ def create_schedule_item():
         return jsonify({
             "error": "المادة غير موجودة"
         }), 404
+
+    if lecture_id:
+        lecture = Lecture.query.filter_by(
+            id=lecture_id,
+            subject_id=subject.id,
+            is_active=True
+        ).first()
+
+        if not lecture:
+            return jsonify({
+                "error": "المحاضرة غير مرتبطة بالمادة المحددة"
+            }), 400
 
     try:
         start = datetime.strptime(
