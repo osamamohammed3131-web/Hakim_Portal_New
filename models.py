@@ -44,5 +44,30 @@ class Subject(db.Model):
         db.Integer,
         db.ForeignKey("study_plans.id"),
         nullable=False
+        class Lecture(db.Model):
+    __tablename__ = "lectures"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+
+    subject_id = db.Column(
+        db.Integer,
+        db.ForeignKey("subjects.id"),
+        nullable=False
+    )
+
+    week_number = db.Column(db.Integer, nullable=True)
+    lecture_date = db.Column(db.Date, nullable=True)
+    start_time = db.Column(db.Time, nullable=True)
+    end_time = db.Column(db.Time, nullable=True)
+
+    content_url = db.Column(db.String(500), nullable=True)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+
+    subject = db.relationship(
+        "Subject",
+        backref=db.backref("lectures", lazy=True)
+    )
     )
     is_active = db.Column(db.Boolean, default=True, nullable=False)
