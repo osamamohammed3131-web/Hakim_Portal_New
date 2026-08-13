@@ -4,6 +4,7 @@ from flask import Flask
 from extensions import db
 from api import api
 from auth import auth
+from dashboard import dashboard
 
 
 app = Flask(__name__)
@@ -21,16 +22,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
-# تشغيل قاعدة البيانات
 db.init_app(app)
 
-
-# تسجيل مسارات النظام
 app.register_blueprint(api)
 app.register_blueprint(auth)
+app.register_blueprint(dashboard)
 
 
-# تحميل نماذج قاعدة البيانات
 from models import User, StudyPlan, Subject, Lecture
 
 
@@ -44,7 +42,6 @@ def health():
     return "OK"
 
 
-# إنشاء الجداول عند تشغيل التطبيق
 with app.app_context():
     db.create_all()
 
