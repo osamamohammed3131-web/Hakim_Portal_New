@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
+from sqlalchemy import text
 
 from extensions import db
 from api import api
@@ -25,77 +26,164 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
+
+# =========================================================
+# تحديث قاعدة البيانات القديمة وإضافة status إلى users
+# =========================================================
+
+with app.app_context():
+
+    try:
+        db.session.execute(text("""
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS status VARCHAR(30)
+            NOT NULL DEFAULT 'active'
+        """))
+
+        db.session.commit()
+
+    except Exception:
+        db.session.rollback()
+        raise
+
+
+# =========================================================
+# تسجيل الـ Blueprints
+# =========================================================
+
 app.register_blueprint(api)
 app.register_blueprint(auth)
 app.register_blueprint(dashboard)
 
 
-from models import User, StudyPlan, Subject, Lecture, ScheduleItem
+# =========================================================
+# استيراد الموديلات
+# =========================================================
 
+from models import (
+    User,
+    StudyPlan,
+    Subject,
+    Lecture,
+    ScheduleItem
+)
+
+
+# =========================================================
+# الصفحة الرئيسية
+# =========================================================
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+# =========================================================
+# صفحة تسجيل الدخول
+# =========================================================
+
 @app.route("/login")
 def login_page():
     return render_template("login.html")
 
+
+# =========================================================
+# صفحة إنشاء الحساب
+# =========================================================
 
 @app.route("/register")
 def register_page():
     return render_template("register.html")
 
 
+# =========================================================
+# صفحة الطالب
+# =========================================================
+
+@app.route("/student")
+def student_page():
+
+    if not session.get("user_id"):
+        return redirect(url_for("login_page"))
+
+    user = db.session.get(
+        User,
+        session["user_id"]
+    )
+
+    if not user or not user.is_active:
+        session.clear()
+        return redirect(url_for("login_page"))
+
+    if user.role != "student":
+        return redirect(url_for("admin_page"))
+
+    return render_template(
+        "student.html",
+        user=user
+    )
+
+
+# =========================================================
+# صفحة المشرف
+# =========================================================
+
+@app.route("/admin")
+def admin_page():
+
+    if not session.get("user_id"):
+        return redirect(url_for("login_page"))
+
+    user = db.session.get(
+        User,
+        session["user_id"]
+    )
+
+    if not user or not user.is_active:
+        session.clear()
+        return redirect(url_for("login_page"))
+
+    if user.role not in (
+        "admin",
+        "superadmin"
+    ):
+        return redirect(url_for("student_page"))
+
+    return render_template(
+        "admin.html",
+        user=user
+    )
+
+
+# =========================================================
+# فحص حالة السيرفر
+# =========================================================
+
 @app.route("/health")
 def health():
     return "OK"
 
 
+# =========================================================
+# إنشاء الجداول إذا لم تكن موجودة
+# =========================================================
+
 with app.app_context():
     db.create_all()
 
-    # إنشاء/تصحيح حساب المشرف تلقائيًا
-    admin_username = os.getenv("ADMIN_USERNAME", "admin")
-    admin_email = os.getenv(
-        "ADMIN_EMAIL",
-        "admin@hakim.academy"
-    )
-    admin_password = os.getenv(
-        "ADMIN_PASSWORD",
-        "change-this-admin-password"
-    )
 
-    admin = User.query.filter_by(
-        username=admin_username
-    ).first()
-
-    if admin:
-        # إذا كان الحساب موجودًا كطالب، نحوله إلى مشرف
-        admin.role = "admin"
-        admin.email = admin_email
-        admin.is_active = True
-        admin.set_password(admin_password)
-
-    else:
-        # إذا لم يكن موجودًا، ننشئ حساب المشرف
-        admin = User(
-            username=admin_username,
-            email=admin_email,
-            role="admin",
-            is_active=True
-        )
-
-        admin.set_password(admin_password)
-
-        db.session.add(admin)
-
-    db.session.commit()
-
+# =========================================================
+# تشغيل التطبيق
+# =========================================================
 
 if __name__ == "__main__":
+
     app.run(
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 5000))
+        port=int(
+            os.getenv(
+                "PORT",
+                5000
+            )
+        )
     )
