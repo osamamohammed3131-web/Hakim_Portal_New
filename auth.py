@@ -1,67 +1,125 @@
-from flask import Blueprint, render_template, redirect, url_for, request
-from werkzeug.security import generate_password_hash, check_password_hash
-from extensions import db
+from flask import Blueprint, request, jsonify, session
 from models import User
 
-auth_bp = Blueprint('auth', __name__)
+auth = Blueprint("auth", __name__, url_prefix="/api/auth")
 
-def verified_student_required(f):
-    return f
 
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth.post("/register")
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        user_exists = User.query.filter_by(email=email).first()
-        if user_exists:
-            return 'البريد الإلكتروني مستخدم مسبقاً، <a href="/register">حاول مرة أخرى</a>'
-        
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, email=email, password=hashed_password)
-        
-        db.session.add(new_user)
-        db.session.commit()
-        return redirect(url_for('auth.login'))
-        
-    return '''
-    <div style="text-align: center; font-family: Tahoma; margin-top: 50px;">
-        <h2>تسجيل حساب جديد - منصة حكيم الأكاديمية</h2>
-        <form method="POST">
-            <input type="text" name="username" placeholder="اسم المستخدم" required style="padding: 8px; margin: 5px;"><br>
-            <input type="email" name="email" placeholder="البريد الإلكتروني" required style="padding: 8px; margin: 5px;"><br>
-            <input type="password" name="password" placeholder="كلمة المرور" required style="padding: 8px; margin: 5px;"><br>
-            <button type="submit" style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">تسجيل</button>
-        </form>
-        <br><a href="/login">لديك حساب بالفعل؟ تسجل الدخول</a>
-    </div>
-    '''
+    data = request.get_json(silent=True) or {}
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+    username = data.get("username", "").strip()
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+    role = data.get("role", "student")
+
+    if not username or not email or not password:
+        return jsonify({
+            "error": "اسم المستخدم والبريد وكلمة المرور مطلوبة"
+        }), 400
+
+    if role not in {"student", "admin", "superadmin"}:
+        role = "student"
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({
+            "error": "اسم المستخدم مستخدم مسبقًا"
+        }), 409
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({
+            "error": "البريد الإلكتروني مستخدم مسبقًا"
+        }), 409
+
+    user = User(
+        username=username,
+        email=email,
+        role=role
+    )
+
+    user.set_password(password)
+
+    from extensions import db
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({
+        "message": "تم إنشاء الحساب بنجاح",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    }), 201
+
+
+@auth.post("/login")
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        
-        user = User.query.filter_by(email=email).first()
-        if user and check_password_hash(user.password, password):
-            return redirect(url_for('dashboard.student_dashboard'))
-        return 'بيانات الدخول غير صحيحة، <a href="/login">حاول مرة أخرى</a>'
-        
-    return '''
-    <div style="text-align: center; font-family: Tahoma; margin-top: 50px;">
-        <h2>تسجيل الدخول - منصة حكيم الأكاديمية</h2>
-        <form method="POST">
-            <input type="email" name="email" placeholder="البريد الإلكتروني" required style="padding: 8px; margin: 5px;"><br>
-            <input type="password" name="password" placeholder="كلمة المرور" required style="padding: 8px; margin: 5px;"><br>
-            <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer;">دخول</button>
-        </form>
-        <br><a href="/register">ليس لديك حساب؟ سجل الآن</a>
-    </div>
-    '''
+    data = request.get_json(silent=True) or {}
 
-@auth_bp.route('/logout')
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user or not user.is_active:
+        return jsonify({
+            "error": "بيانات تسجيل الدخول غير صحيحة"
+        }), 401
+
+    if not user.check_password(password):
+        return jsonify({
+            "error": "بيانات تسجيل الدخول غير صحيحة"
+        }), 401
+
+    session["user_id"] = user.id
+    session["role"] = user.role
+
+    return jsonify({
+        "message": "تم تسجيل الدخول بنجاح",
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    })
+
+
+@auth.post("/logout")
 def logout():
-    return redirect(url_for('auth.login'))
+    session.clear()
+
+    return jsonify({
+        "message": "تم تسجيل الخروج بنجاح"
+    })
+
+
+@auth.get("/me")
+def current_user():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return jsonify({
+            "authenticated": False
+        }), 401
+
+    user = User.query.get(user_id)
+
+    if not user or not user.is_active:
+        session.clear()
+
+        return jsonify({
+            "authenticated": False
+        }), 401
+
+    return jsonify({
+        "authenticated": True,
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role
+        }
+    })
