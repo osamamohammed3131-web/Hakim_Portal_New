@@ -24,5 +24,7 @@ def home():
 
 
 @app.route("/health")
+with app.app_context():
+    db.create_all()
 def health():
     return "OK"
