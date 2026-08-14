@@ -7,6 +7,7 @@ from extensions import db
 from api import api
 from auth import auth
 from dashboard import dashboard
+from competition import competition
 
 
 app = Flask(__name__)
@@ -58,14 +59,12 @@ with app.app_context():
     # إنشاء الجداول الجديدة إذا لم تكن موجودة
     db.create_all()
 
-
     # -----------------------------------------------------
     # معرفة نوع قاعدة البيانات
     # -----------------------------------------------------
 
     engine = db.engine
     inspector = inspect(engine)
-
 
     # -----------------------------------------------------
     # جدول users
@@ -78,33 +77,19 @@ with app.app_context():
             for column in inspector.get_columns("users")
         }
 
-
         # -------------------------------------------------
         # إضافة status إذا كان غير موجود
         # -------------------------------------------------
 
         if "status" not in user_columns:
 
-            if engine.dialect.name == "postgresql":
-
-                db.session.execute(
-                    text("""
-                        ALTER TABLE users
-                        ADD COLUMN status VARCHAR(30)
-                        NOT NULL DEFAULT 'active'
-                    """)
-                )
-
-            else:
-
-                db.session.execute(
-                    text("""
-                        ALTER TABLE users
-                        ADD COLUMN status VARCHAR(30)
-                        NOT NULL DEFAULT 'active'
-                    """)
-                )
-
+            db.session.execute(
+                text("""
+                    ALTER TABLE users
+                    ADD COLUMN status VARCHAR(30)
+                    NOT NULL DEFAULT 'active'
+                """)
+            )
 
         # -------------------------------------------------
         # إضافة study_plan_id إذا كان غير موجود
@@ -119,7 +104,6 @@ with app.app_context():
                 """)
             )
 
-
         db.session.commit()
 
 
@@ -131,7 +115,12 @@ app.register_blueprint(api)
 
 app.register_blueprint(auth)
 
-app.register_blueprint(dashboard)# =========================================================
+app.register_blueprint(dashboard)
+
+app.register_blueprint(competition)
+
+
+# =========================================================
 # الصفحة الرئيسية
 # =========================================================
 
@@ -180,12 +169,10 @@ def student_page():
             url_for("login_page")
         )
 
-
     user = db.session.get(
         User,
         session["user_id"]
     )
-
 
     if not user or not user.is_active:
 
@@ -195,13 +182,11 @@ def student_page():
             url_for("login_page")
         )
 
-
     if user.role != "student":
 
         return redirect(
             url_for("admin_page")
         )
-
 
     return render_template(
         "student.html",
@@ -222,12 +207,10 @@ def admin_page():
             url_for("login_page")
         )
 
-
     user = db.session.get(
         User,
         session["user_id"]
     )
-
 
     if not user or not user.is_active:
 
@@ -237,7 +220,6 @@ def admin_page():
             url_for("login_page")
         )
 
-
     if user.role not in (
         "admin",
         "superadmin"
@@ -246,7 +228,6 @@ def admin_page():
         return redirect(
             url_for("student_page")
         )
-
 
     return render_template(
         "admin.html",
@@ -261,7 +242,10 @@ def admin_page():
 @app.route("/health")
 def health():
 
-    return "OK"# =========================================================
+    return "OK"
+
+
+# =========================================================
 # API لفحص حالة التطبيق وقاعدة البيانات
 # =========================================================
 
@@ -278,7 +262,6 @@ def database_health():
             "status": "ok",
             "database": "connected"
         }
-
 
     except Exception as error:
 
@@ -338,9 +321,13 @@ def app_info():
             "study_plans",
             "subjects",
             "lectures",
-            "smart_schedule"
+            "smart_schedule",
+            "ai_competition"
         ]
-    }# =========================================================
+    }
+
+
+# =========================================================
 # تشغيل التطبيق
 # =========================================================
 
@@ -352,7 +339,6 @@ if __name__ == "__main__":
             5000
         )
     )
-
 
     app.run(
         host="0.0.0.0",
