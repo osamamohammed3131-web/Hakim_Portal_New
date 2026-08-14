@@ -221,4 +221,157 @@ def receive_image(session_id):
         "question_number": current_question,
         "status": "processing",
         "message": "تم استلام الصورة"
-    })
+    })# =========================================================
+# اكتشاف تغير صورة السؤال
+#
+# إذا كانت الصورة نفسها:
+#     same_question = True
+#
+# إذا تغيرت الصورة:
+#     same_question = False
+#     ويتم اعتبارها سؤالًا جديدًا
+# =========================================================
+
+@competition.post("/session/<session_id>/image/check")
+def check_question_image(session_id):
+
+    import hashlib
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+
+        if not session:
+
+            return jsonify({
+                "success": False,
+                "error": "جلسة المنافسة غير موجودة"
+            }), 404
+
+
+        if "image" not in request.files:
+
+            return jsonify({
+                "success": False,
+                "error": "لم يتم إرسال صورة"
+            }), 400
+
+
+        image = request.files["image"]
+
+
+        image_bytes = image.read()
+
+
+        if not image_bytes:
+
+            return jsonify({
+                "success": False,
+                "error": "الصورة فارغة"
+            }), 400
+
+
+        # -------------------------------------------------
+        # إنشاء بصمة للصورة
+        # -------------------------------------------------
+
+        image_hash = hashlib.sha256(
+            image_bytes
+        ).hexdigest()
+
+
+        previous_hash = session.get(
+            "image_hash"
+        )
+
+
+        # -------------------------------------------------
+        # الصورة لم تتغير
+        # -------------------------------------------------
+
+        if (
+            previous_hash is not None
+            and previous_hash == image_hash
+        ):
+
+            return jsonify({
+                "success": True,
+                "same_question": True,
+                "new_question": False,
+
+                "session_id": session_id,
+
+                "device_number":
+                    session.get(
+                        "device_number"
+                    ),
+
+                "question_number":
+                    session.get(
+                        "question_number"
+                    ),
+
+                "answer":
+                    session.get(
+                        "answer"
+                    ),
+
+                "answer_status":
+                    session.get(
+                        "answer_status"
+                    ),
+
+                "message":
+                    "السؤال ما زال نفسه"
+            })
+
+
+        # -------------------------------------------------
+        # الصورة تغيرت
+        # -------------------------------------------------
+
+        session["image_hash"] = image_hash
+
+
+        # السؤال الجديد
+        if previous_hash is not None:
+
+            session["question_number"] += 1
+
+
+        session["answer"] = None
+
+        session["answer_status"] = "processing"
+
+        session["last_image_at"] = (
+            datetime.utcnow().isoformat()
+        )
+
+
+        return jsonify({
+            "success": True,
+            "same_question": False,
+            "new_question": True,
+
+            "session_id": session_id,
+
+            "device_number":
+                session.get(
+                    "device_number"
+                ),
+
+            "question_number":
+                session.get(
+                    "question_number"
+                ),
+
+            "answer": None,
+
+            "answer_status": "processing",
+
+            "message":
+                "تم اكتشاف سؤال جديد، جاهز للتحليل"
+        })
