@@ -5,10 +5,7 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>لوحة المشرف - حكيم أكاديمي</title>
 
@@ -116,14 +113,6 @@
             font-size: 15px;
         }
 
-        .logout:hover {
-            opacity: 0.9;
-        }
-
-        /* =====================================================
-           الأقسام الداخلية
-        ===================================================== */
-
         .management-section {
             display: none;
             margin-top: 30px;
@@ -155,10 +144,6 @@
             cursor: pointer;
         }
 
-        .add-button:hover {
-            opacity: 0.9;
-        }
-
         .back-button {
             background: #6b7280;
             color: white;
@@ -168,10 +153,6 @@
             cursor: pointer;
             margin-bottom: 20px;
         }
-
-        /* =====================================================
-           البحث
-        ===================================================== */
 
         .search {
             width: 100%;
@@ -186,10 +167,6 @@
         .search:focus {
             border-color: #1769d1;
         }
-
-        /* =====================================================
-           الجداول
-        ===================================================== */
 
         .table-wrapper {
             overflow-x: auto;
@@ -212,10 +189,6 @@
             background: #f5f7fb;
         }
 
-        /* =====================================================
-           الحالات
-        ===================================================== */
-
         .status-active {
             color: #16a34a;
             font-weight: bold;
@@ -230,10 +203,6 @@
             color: #d97706;
             font-weight: bold;
         }
-
-        /* =====================================================
-           الأزرار
-        ===================================================== */
 
         .action {
             border: 0;
@@ -253,10 +222,6 @@
             color: #92400e;
         }
 
-        /* =====================================================
-           الخطط
-        ===================================================== */
-
         .plans-grid {
             display: grid;
             grid-template-columns: repeat(
@@ -271,7 +236,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 18px;
             padding: 25px;
-            background: #ffffff;
+            background: white;
         }
 
         .plan-card h3 {
@@ -298,10 +263,6 @@
             margin-top: 10px;
             font-weight: bold;
         }
-
-        /* =====================================================
-           النوافذ
-        ===================================================== */
 
         .modal {
             display: none;
@@ -346,12 +307,6 @@
             outline: none;
         }
 
-        .modal-box input:focus,
-        .modal-box textarea:focus,
-        .modal-box select:focus {
-            border-color: #1769d1;
-        }
-
         .modal-box textarea {
             min-height: 110px;
             resize: vertical;
@@ -380,10 +335,6 @@
             background: #e5e7eb;
         }
 
-        /* =====================================================
-           الرسائل
-        ===================================================== */
-
         .message {
             margin-top: 15px;
             font-weight: bold;
@@ -396,34 +347,29 @@
             padding: 25px;
         }
 
+        .loading {
+            text-align: center;
+            color: #1769d1;
+            padding: 25px;
+        }
+
     </style>
 
 </head>
 
-
 <body>
-
 
 <header>
 
-    <h1>
-        Hakim Academy
-    </h1>
+    <h1>Hakim Academy</h1>
 
     <div class="user">
-        المشرف:
-        {{ user.username }}
+        المشرف: {{ user.username }}
     </div>
 
 </header>
 
-
 <div class="container">
-
-
-    <!-- =====================================================
-         لوحة المشرف الرئيسية
-    ====================================================== -->
 
     <div id="mainDashboard">
 
@@ -439,15 +385,11 @@
 
         </div>
 
-
         <div class="sections">
-
 
             <div class="card">
 
-                <h3>
-                    الإحصائيات العامة
-                </h3>
+                <h3>الإحصائيات العامة</h3>
 
                 <p>
                     عرض الإحصائيات والمعلومات العامة للمنصة.
@@ -455,15 +397,12 @@
 
             </div>
 
-
             <div
                 class="card"
                 onclick="openStudents()"
             >
 
-                <h3>
-                    إدارة الطلاب
-                </h3>
+                <h3>إدارة الطلاب</h3>
 
                 <p>
                     إدارة حسابات الطلاب ومتابعة بياناتهم.
@@ -471,15 +410,12 @@
 
             </div>
 
-
             <div
                 class="card"
                 onclick="openStudyPlans()"
             >
 
-                <h3>
-                    إدارة الخطط A/B
-                </h3>
+                <h3>إدارة الخطط A/B</h3>
 
                 <p>
                     إدارة الخطط الدراسية والمسارات الأكاديمية.
@@ -487,12 +423,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    إدارة المواد
-                </h3>
+                <h3>إدارة المواد</h3>
 
                 <p>
                     إضافة وتعديل المواد الدراسية.
@@ -500,12 +433,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    إدارة الكتب والملفات
-                </h3>
+                <h3>إدارة الكتب والملفات</h3>
 
                 <p>
                     إدارة الملفات والمراجع التعليمية.
@@ -513,12 +443,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    إدارة الجداول والمحاضرات
-                </h3>
+                <h3>إدارة الجداول والمحاضرات</h3>
 
                 <p>
                     إدارة الجداول والمحاضرات والمواعيد.
@@ -526,12 +453,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    مركز معرفة AI
-                </h3>
+                <h3>مركز معرفة AI</h3>
 
                 <p>
                     إدارة قاعدة المعرفة والمحتوى الذكي.
@@ -539,12 +463,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    قاعدة معرفة الدعم
-                </h3>
+                <h3>قاعدة معرفة الدعم</h3>
 
                 <p>
                     إدارة الأسئلة والمعلومات الخاصة بالدعم.
@@ -552,12 +473,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    بنك التدريب
-                </h3>
+                <h3>بنك التدريب</h3>
 
                 <p>
                     إدارة مواد التدريب والتجارب.
@@ -565,12 +483,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    الأخبار والتحديثات
-                </h3>
+                <h3>الأخبار والتحديثات</h3>
 
                 <p>
                     إدارة الأخبار والتنبيهات والتحديثات.
@@ -578,12 +493,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    الصلاحيات
-                </h3>
+                <h3>الصلاحيات</h3>
 
                 <p>
                     إدارة صلاحيات المشرفين والمستخدمين.
@@ -591,12 +503,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    سجل العمليات
-                </h3>
+                <h3>سجل العمليات</h3>
 
                 <p>
                     متابعة العمليات التي تتم داخل المنصة.
@@ -604,12 +513,9 @@
 
             </div>
 
-
             <div class="card">
 
-                <h3>
-                    الإعدادات
-                </h3>
+                <h3>الإعدادات</h3>
 
                 <p>
                     إدارة إعدادات المنصة.
@@ -617,13 +523,9 @@
 
             </div>
 
-
         </div>
 
-    </div>
-
-
-    <!-- =====================================================
+    </div><!-- =====================================================
          إدارة الطلاب
     ====================================================== -->
 
@@ -638,7 +540,6 @@
         >
             ← العودة للوحة المشرف
         </button>
-
 
         <div class="section-header">
 
@@ -655,7 +556,6 @@
 
         </div>
 
-
         <input
             id="searchInput"
             class="search"
@@ -663,7 +563,6 @@
             placeholder="ابحث باسم المستخدم أو البريد الإلكتروني..."
             oninput="filterStudents()"
         >
-
 
         <div class="table-wrapper">
 
@@ -697,15 +596,11 @@
 
                 </thead>
 
-
-                <tbody id="studentsTable">
-
-                </tbody>
+                <tbody id="studentsTable"></tbody>
 
             </table>
 
         </div>
-
 
         <div
             id="studentMessage"
@@ -716,7 +611,7 @@
 
 
     <!-- =====================================================
-         إدارة الخطط A/B
+         إدارة الخطط A / B
     ====================================================== -->
 
     <div
@@ -730,7 +625,6 @@
         >
             ← العودة للوحة المشرف
         </button>
-
 
         <div class="section-header">
 
@@ -747,12 +641,10 @@
 
         </div>
 
-
         <div
             id="plansContainer"
             class="plans-grid"
         ></div>
-
 
         <div
             id="planMessage"
@@ -760,7 +652,6 @@
         ></div>
 
     </div>
-
 
 </div>
 
@@ -792,12 +683,10 @@
             إضافة طالب
         </h2>
 
-
         <input
             type="hidden"
             id="studentId"
         >
-
 
         <label>
             اسم المستخدم
@@ -809,7 +698,6 @@
             placeholder="اسم المستخدم"
         >
 
-
         <label>
             البريد الإلكتروني
         </label>
@@ -820,7 +708,6 @@
             placeholder="البريد الإلكتروني"
         >
 
-
         <label>
             كلمة المرور
         </label>
@@ -830,7 +717,6 @@
             id="studentPassword"
             placeholder="كلمة المرور"
         >
-
 
         <div class="modal-buttons">
 
@@ -870,12 +756,10 @@
             إضافة خطة
         </h2>
 
-
         <input
             type="hidden"
             id="planId"
         >
-
 
         <label>
             الخطة
@@ -897,7 +781,6 @@
 
         </select>
 
-
         <label>
             وصف الخطة
         </label>
@@ -906,7 +789,6 @@
             id="planDescription"
             placeholder="اكتب وصف الخطة..."
         ></textarea>
-
 
         <div class="modal-buttons">
 
@@ -933,13 +815,62 @@
 
 <script>
 
-/* =========================================================
-   البيانات
-========================================================= */
-
 let students = [];
 
 let studyPlans = [];
+
+
+/* =========================================================
+   أدوات عامة
+========================================================= */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+function showMessage(
+    elementId,
+    text,
+    color = "#1769d1"
+) {
+
+    const element =
+        document.getElementById(elementId);
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = text;
+
+    element.style.color = color;
+
+}
+
+
+async function readJson(response) {
+
+    try {
+
+        return await response.json();
+
+    } catch (error) {
+
+        return {
+            error: "استجابة غير صالحة من الخادم"
+        };
+
+    }
+
+}
 
 
 /* =========================================================
@@ -948,30 +879,34 @@ let studyPlans = [];
 
 function showOnlySection(sectionId) {
 
-    document.getElementById(
-        "mainDashboard"
-    ).style.display = "none";
+    const mainDashboard =
+        document.getElementById("mainDashboard");
+
+    const studentsSection =
+        document.getElementById("studentsSection");
+
+    const studyPlansSection =
+        document.getElementById("studyPlansSection");
 
 
-    document.getElementById(
-        "studentsSection"
-    ).style.display = "none";
+    if (mainDashboard) {
+        mainDashboard.style.display = "none";
+    }
+
+    if (studentsSection) {
+        studentsSection.style.display = "none";
+    }
+
+    if (studyPlansSection) {
+        studyPlansSection.style.display = "none";
+    }
 
 
-    document.getElementById(
-        "studyPlansSection"
-    ).style.display = "none";
-
-
-    const section = document.getElementById(
-        sectionId
-    );
-
+    const section =
+        document.getElementById(sectionId);
 
     if (section) {
-
         section.style.display = "block";
-
     }
 
 }
@@ -979,19 +914,27 @@ function showOnlySection(sectionId) {
 
 function closeManagementSections() {
 
-    document.getElementById(
-        "studentsSection"
-    ).style.display = "none";
+    const mainDashboard =
+        document.getElementById("mainDashboard");
+
+    const studentsSection =
+        document.getElementById("studentsSection");
+
+    const studyPlansSection =
+        document.getElementById("studyPlansSection");
 
 
-    document.getElementById(
-        "studyPlansSection"
-    ).style.display = "none";
+    if (studentsSection) {
+        studentsSection.style.display = "none";
+    }
 
+    if (studyPlansSection) {
+        studyPlansSection.style.display = "none";
+    }
 
-    document.getElementById(
-        "mainDashboard"
-    ).style.display = "block";
+    if (mainDashboard) {
+        mainDashboard.style.display = "block";
+    }
 
 }
 
@@ -1006,7 +949,6 @@ async function openStudents() {
         "studentsSection"
     );
 
-
     await loadStudents();
 
 }
@@ -1014,14 +956,23 @@ async function openStudents() {
 
 async function loadStudents() {
 
-    const table = document.getElementById(
-        "studentsTable"
-    );
+    const table =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    if (!table) {
+        return;
+    }
 
 
     table.innerHTML = `
         <tr>
-            <td colspan="5" class="empty">
+            <td
+                colspan="5"
+                class="loading"
+            >
                 جاري تحميل الطلاب...
             </td>
         </tr>
@@ -1034,4 +985,1218 @@ async function loadStudents() {
             "/api/dashboard/admin/students",
             {
                 method: "GET",
-                credentials: "same-origin"
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        ${escapeHtml(
+                            data.error ||
+                            "تعذر تحميل الطلاب"
+                        )}
+                    </td>
+                </tr>
+            `;
+
+            showMessage(
+                "studentMessage",
+                data.error ||
+                "تعذر تحميل الطلاب",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        students =
+            Array.isArray(data.students)
+                ? data.students
+                : [];
+
+
+        renderStudents(
+            students
+        );
+
+
+    } catch (error) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+                    حدث خطأ أثناء الاتصال بالخادم
+                </td>
+            </tr>
+        `;
+
+        showMessage(
+            "studentMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+function renderStudents(list) {
+
+    const table =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    table.innerHTML = "";
+
+
+    if (!list.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="empty"
+                >
+                    لا يوجد طلاب حاليًا
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    list.forEach(
+        function(student) {
+
+            let statusText = "نشط";
+
+            let statusClass =
+                "status-active";
+
+
+            if (
+                student.status ===
+                "pending"
+            ) {
+
+                statusText =
+                    "قيد المراجعة";
+
+                statusClass =
+                    "status-pending";
+
+            }
+
+            else if (
+                student.status ===
+                "rejected"
+            ) {
+
+                statusText =
+                    "مرفوض";
+
+                statusClass =
+                    "status-disabled";
+
+            }
+
+            else if (
+                !student.is_active
+            ) {
+
+                statusText =
+                    "معطل";
+
+                statusClass =
+                    "status-disabled";
+
+            }
+
+
+            const toggleText =
+                student.is_active
+                    ? "تعطيل"
+                    : "تفعيل";
+
+
+            table.innerHTML += `
+
+                <tr>
+
+                    <td>
+                        ${student.id}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.username
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            student.email
+                        )}
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="${statusClass}"
+                        >
+                            ${statusText}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action edit"
+                            onclick="editStudent(${student.id})"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            class="action toggle"
+                            onclick="toggleStudent(${student.id})"
+                        >
+                            ${toggleText}
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+}
+
+
+function filterStudents() {
+
+    const input =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    const query =
+        input.value
+            .toLowerCase()
+            .trim();
+
+
+    const filtered =
+        students.filter(
+            function(student) {
+
+                const username =
+                    String(
+                        student.username || ""
+                    ).toLowerCase();
+
+                const email =
+                    String(
+                        student.email || ""
+                    ).toLowerCase();
+
+
+                return (
+                    username.includes(query) ||
+                    email.includes(query)
+                );
+
+            }
+        );
+
+
+    renderStudents(
+        filtered
+    );
+
+}
+
+
+function openAddStudent() {
+
+    document.getElementById(
+        "studentModalTitle"
+    ).textContent =
+        "إضافة طالب";
+
+
+    document.getElementById(
+        "studentId"
+    ).value = "";
+
+
+    document.getElementById(
+        "studentUsername"
+    ).value = "";
+
+
+    document.getElementById(
+        "studentEmail"
+    ).value = "";
+
+
+    document.getElementById(
+        "studentPassword"
+    ).value = "";
+
+
+    document.getElementById(
+        "studentModal"
+    ).style.display =
+        "flex";
+
+}
+
+
+function editStudent(studentId) {
+
+    const student =
+        students.find(
+            function(item) {
+                return item.id === studentId;
+            }
+        );
+
+
+    if (!student) {
+        return;
+    }
+
+
+    document.getElementById(
+        "studentModalTitle"
+    ).textContent =
+        "تعديل طالب";
+
+
+    document.getElementById(
+        "studentId"
+    ).value =
+        student.id;
+
+
+    document.getElementById(
+        "studentUsername"
+    ).value =
+        student.username || "";
+
+
+    document.getElementById(
+        "studentEmail"
+    ).value =
+        student.email || "";
+
+
+    document.getElementById(
+        "studentPassword"
+    ).value = "";
+
+
+    document.getElementById(
+        "studentModal"
+    ).style.display =
+        "flex";
+
+}async function saveStudent() {
+
+    const studentId =
+        document.getElementById(
+            "studentId"
+        ).value.trim();
+
+    const username =
+        document.getElementById(
+            "studentUsername"
+        ).value.trim();
+
+    const email =
+        document.getElementById(
+            "studentEmail"
+        ).value.trim();
+
+    const password =
+        document.getElementById(
+            "studentPassword"
+        ).value;
+
+
+    if (!username || !email) {
+
+        showMessage(
+            "studentMessage",
+            "اسم المستخدم والبريد الإلكتروني مطلوبان",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+
+    if (!studentId && !password) {
+
+        showMessage(
+            "studentMessage",
+            "كلمة المرور مطلوبة عند إضافة طالب",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+
+    const payload = {
+        username: username,
+        email: email
+    };
+
+
+    if (password) {
+        payload.password = password;
+    }
+
+
+    try {
+
+        let response;
+
+
+        if (studentId) {
+
+            response = await fetch(
+                `/api/dashboard/admin/students/${studentId}`,
+                {
+                    method: "PUT",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        "Accept":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify(payload)
+                }
+            );
+
+        } else {
+
+            response = await fetch(
+                "/api/dashboard/admin/students",
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                        "Accept":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify(payload)
+                }
+            );
+
+        }
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            showMessage(
+                "studentMessage",
+                data.error ||
+                    "تعذر حفظ بيانات الطالب",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        closeModal(
+            "studentModal"
+        );
+
+
+        showMessage(
+            "studentMessage",
+            data.message ||
+                "تم حفظ بيانات الطالب بنجاح",
+            "#16a34a"
+        );
+
+
+        await loadStudents();
+
+    } catch (error) {
+
+        showMessage(
+            "studentMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   تفعيل / تعطيل الطالب
+========================================================= */
+
+async function toggleStudent(studentId) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/dashboard/admin/students/${studentId}/toggle`,
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            showMessage(
+                "studentMessage",
+                data.error ||
+                    "تعذر تحديث حالة الطالب",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        showMessage(
+            "studentMessage",
+            data.message ||
+                "تم تحديث حالة الطالب",
+            "#16a34a"
+        );
+
+
+        await loadStudents();
+
+    } catch (error) {
+
+        showMessage(
+            "studentMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   إدارة الخطط
+========================================================= */
+
+async function openStudyPlans() {
+
+    showOnlySection(
+        "studyPlansSection"
+    );
+
+
+    await loadStudyPlans();
+
+}
+
+
+async function loadStudyPlans() {
+
+    const container =
+        document.getElementById(
+            "plansContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+        <div class="loading">
+            جاري تحميل الخطط...
+        </div>
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/dashboard/admin/study-plans",
+                {
+                    method: "GET",
+                    credentials: "same-origin",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    ${escapeHtml(
+                        data.error ||
+                        "تعذر تحميل الخطط"
+                    )}
+                </div>
+            `;
+
+            showMessage(
+                "planMessage",
+                data.error ||
+                    "تعذر تحميل الخطط",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        studyPlans =
+            Array.isArray(
+                data.study_plans
+            )
+                ? data.study_plans
+                : [];
+
+
+        renderStudyPlans(
+            studyPlans
+        );
+
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="empty">
+                حدث خطأ أثناء الاتصال بالخادم
+            </div>
+        `;
+
+        showMessage(
+            "planMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+function renderStudyPlans(list) {const container =
+        document.getElementById(
+            "plansContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    if (!list.length) {
+
+        container.innerHTML = `
+            <div class="empty">
+                لا توجد خطط حاليًا
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    list.forEach(
+        function(plan) {
+
+            const statusText =
+                plan.is_active
+                    ? "نشطة"
+                    : "معطلة";
+
+
+            const statusClass =
+                plan.is_active
+                    ? "status-active"
+                    : "status-disabled";
+
+
+            const toggleText =
+                plan.is_active
+                    ? "تعطيل"
+                    : "تفعيل";
+
+
+            const description =
+                plan.description ||
+                "لا يوجد وصف للخطة.";
+
+
+            container.innerHTML += `
+
+                <div class="plan-card">
+
+                    <h3>
+                        خطة ${escapeHtml(
+                            plan.name
+                        )}
+                    </h3>
+
+                    <div class="plan-description">
+                        ${escapeHtml(
+                            description
+                        )}
+                    </div>
+
+                    <div class="plan-meta">
+
+                        <div>
+                            عدد المواد:
+                            <strong>
+                                ${Number(
+                                    plan.subjects_count || 0
+                                )}
+                            </strong>
+                        </div>
+
+                        <div class="plan-status">
+
+                            الحالة:
+
+                            <span
+                                class="${statusClass}"
+                            >
+                                ${statusText}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        style="
+                            margin-top:15px;
+                            display:flex;
+                            gap:8px;
+                            flex-wrap:wrap;
+                        "
+                    >
+
+                        <button
+                            class="action edit"
+                            onclick="editPlan(${plan.id})"
+                        >
+                            تعديل
+                        </button>
+
+                        <button
+                            class="action toggle"
+                            onclick="togglePlan(${plan.id})"
+                        >
+                            ${toggleText}
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   إضافة خطة
+========================================================= */
+
+function openAddPlan() {
+
+    document.getElementById(
+        "planModalTitle"
+    ).textContent =
+        "إضافة خطة";
+
+
+    document.getElementById(
+        "planId"
+    ).value = "";
+
+
+    document.getElementById(
+        "planName"
+    ).value = "";
+
+
+    document.getElementById(
+        "planDescription"
+    ).value = "";
+
+
+    document.getElementById(
+        "planName"
+    ).disabled = false;
+
+
+    document.getElementById(
+        "planModal"
+    ).style.display =
+        "flex";
+
+}
+
+
+/* =========================================================
+   تعديل خطة
+========================================================= */
+
+function editPlan(planId) {
+
+    const plan =
+        studyPlans.find(
+            function(item) {
+                return item.id === planId;
+            }
+        );
+
+
+    if (!plan) {
+        return;
+    }
+
+
+    document.getElementById(
+        "planModalTitle"
+    ).textContent =
+        "تعديل خطة";
+
+
+    document.getElementById(
+        "planId"
+    ).value =
+        plan.id;
+
+
+    document.getElementById(
+        "planName"
+    ).value =
+        plan.name;
+
+
+    document.getElementById(
+        "planDescription"
+    ).value =
+        plan.description || "";
+
+
+    document.getElementById(
+        "planName"
+    ).disabled = true;
+
+
+    document.getElementById(
+        "planModal"
+    ).style.display =
+        "flex";
+
+}
+
+
+/* =========================================================
+   حفظ الخطة
+========================================================= */
+
+async function savePlan() {
+
+    const planId =
+        document.getElementById(
+            "planId"
+        ).value.trim();
+
+
+    const name =
+        document.getElementById(
+            "planName"
+        ).value;
+
+
+    const description =
+        document.getElementById(
+            "planDescription"
+        ).value.trim();
+
+
+    if (!planId && !name) {
+
+        showMessage(
+            "planMessage",
+            "اختر الخطة أولًا",
+            "#dc2626"
+        );
+
+        return;
+
+    }
+
+
+    const payload = {
+        name: name,
+        description: description
+    };
+
+
+    try {
+
+        let response;
+
+
+        if (planId) {
+
+            response =
+                await fetch(
+                    `/api/dashboard/admin/study-plans/${planId}`,
+                    {
+                        method: "PUT",
+                        credentials: "same-origin",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                            "Accept":
+                                "application/json"
+                        },
+                        body:
+                            JSON.stringify({
+                                description:
+                                    description
+                            })
+                    }
+                );
+
+        } else {
+
+            response =
+                await fetch(
+                    "/api/dashboard/admin/study-plans",
+                    {
+                        method: "POST",
+                        credentials: "same-origin",
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                            "Accept":
+                                "application/json"
+                        },
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+        }
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            showMessage(
+                "planMessage",
+                data.error ||
+                    "تعذر حفظ الخطة",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        closeModal(
+            "planModal"
+        );
+
+
+        showMessage(
+            "planMessage",
+            data.message ||
+                "تم حفظ الخطة بنجاح",
+            "#16a34a"
+        );
+
+
+        await loadStudyPlans();
+
+    } catch (error) {
+
+        showMessage(
+            "planMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   تفعيل / تعطيل الخطة
+========================================================= */
+
+async function togglePlan(planId) {
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/dashboard/admin/study-plans/${planId}/toggle`,
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await readJson(response);
+
+
+        if (!response.ok) {
+
+            showMessage(
+                "planMessage",
+                data.error ||
+                    "تعذر تحديث حالة الخطة",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        showMessage(
+            "planMessage",
+            data.message ||
+                "تم تحديث حالة الخطة",
+            "#16a34a"
+        );
+
+
+        await loadStudyPlans();
+
+    } catch (error) {
+
+        showMessage(
+            "planMessage",
+            "حدث خطأ أثناء الاتصال بالخادم",
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   النوافذ
+========================================================= */
+
+function closeModal(modalId) {
+
+    const modal =
+        document.getElementById(
+            modalId
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.style.display =
+        "none";
+
+}
+
+
+/* =========================================================
+   تسجيل الخروج
+========================================================= */
+
+async function logout() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/auth/logout",
+                {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (response.ok) {
+
+            window.location.href =
+                "/login";
+
+            return;
+
+        }
+
+
+        window.location.href =
+            "/login";
+
+
+    } catch (error) {
+
+        window.location.href =
+            "/login";
+
+    }
+
+}
+
+
+/* =========================================================
+   إغلاق النوافذ عند الضغط خارجها
+========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target.classList &&
+            event.target.classList.contains(
+                "modal"
+            )
+        ) {
+
+            event.target.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   تهيئة الصفحة
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        closeManagementSections();
+
+    }
+);
+
+</script>
+
+    
