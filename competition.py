@@ -114,7 +114,8 @@ def get_session(session_id):
         return jsonify({
             "success": True,
             "session": dict(session)
-        })def analyze_question_image(
+        })
+        def analyze_question_image(
     image_bytes,
     mime_type="image/jpeg"
 ):
