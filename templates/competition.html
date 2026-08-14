@@ -2,7 +2,6 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -13,344 +12,196 @@
     <title>Hakim AI Competition</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
-
             margin: 0;
-
-            font-family:
-                Arial,
-                sans-serif;
-
+            font-family: Arial, sans-serif;
             background: #f4f7fb;
-
             color: #1f2937;
         }
 
         header {
-
             background: white;
-
-            border-bottom:
-                1px solid #e5e7eb;
-
+            border-bottom: 1px solid #e5e7eb;
             padding: 18px 25px;
-
             display: flex;
-
-            justify-content:
-                space-between;
-
+            justify-content: space-between;
             align-items: center;
         }
 
         header h1 {
-
             margin: 0;
-
             color: #1769d1;
-
             font-size: 22px;
         }
 
         .device {
-
             font-size: 14px;
-
             color: #555;
         }
 
         .container {
-
             max-width: 1000px;
-
             margin: 30px auto;
-
             padding: 0 20px;
         }
 
         .card {
-
             background: white;
-
             border-radius: 20px;
-
             padding: 25px;
-
             margin-bottom: 20px;
-
-            box-shadow:
-                0 5px 25px
-                rgba(0, 0, 0, 0.06);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
         }
 
         .card h2 {
-
             margin-top: 0;
-
             color: #1769d1;
         }
 
         .status {
-
-            padding: 15px;
-
+            padding: 18px;
             border-radius: 12px;
-
             background: #f3f6fa;
-
-            line-height: 2;
+            line-height: 2.2;
         }
 
         .status strong {
-
             color: #1769d1;
         }
 
         .buttons {
-
             display: flex;
-
             gap: 12px;
-
             flex-wrap: wrap;
-
             margin-top: 20px;
         }
 
         button {
-
             border: 0;
-
             border-radius: 10px;
-
             padding: 14px 22px;
-
             font-size: 15px;
-
             cursor: pointer;
         }
 
         #startButton {
-
             background: #1769d1;
-
             color: white;
         }
 
         #stopButton {
-
             background: #dc2626;
-
             color: white;
         }
 
         button:disabled {
-
             opacity: 0.45;
-
             cursor: not-allowed;
         }
 
         #message {
-
             margin-top: 15px;
-
             min-height: 25px;
-
             font-weight: bold;
         }
 
         .preview {
-
             display: none;
-
             margin-top: 25px;
-
             background: #111827;
-
             border-radius: 15px;
-
             padding: 10px;
         }
 
         .preview video {
-
             width: 100%;
-
             max-height: 500px;
-
             display: block;
-
             border-radius: 10px;
-
-            background: #000;
         }
 
         /* نافذة الإجابة */
 
         #answerPopup {
-
             position: fixed;
-
             top: 25px;
-
             right: 25px;
-
-            width: 320px;
-
+            width: 330px;
             background: white;
-
             border-radius: 18px;
-
             padding: 20px;
-
-            box-shadow:
-                0 15px 45px
-                rgba(0, 0, 0, 0.22);
-
-            border:
-                2px solid #1769d1;
-
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22);
+            border: 3px solid #1769d1;
             z-index: 99999;
-
             display: none;
         }
 
         .popup-title {
-
             color: #1769d1;
-
             font-weight: bold;
-
-            font-size: 17px;
+            font-size: 18px;
         }
 
         .popup-question {
-
             margin-top: 8px;
-
             color: #777;
+            font-size: 14px;
+        }
 
-            font-size: 13px;
+        .popup-answer-label {
+            text-align: center;
+            margin-top: 18px;
+            color: #555;
+            font-size: 14px;
         }
 
         .popup-answer {
-
-            margin-top: 12px;
-
-            font-size: 42px;
-
+            margin-top: 5px;
+            font-size: 48px;
             font-weight: bold;
-
             text-align: center;
-
             color: #111827;
         }
 
-        .popup-timer {
-
-            margin-top: 8px;
-
+        .popup-status {
+            margin-top: 10px;
             text-align: center;
+            color: #16a34a;
+            font-weight: bold;
+        }
 
+        .popup-timer {
+            margin-top: 8px;
+            text-align: center;
             color: #777;
-
             font-size: 12px;
         }
 
         .small-note {
-
             color: #777;
-
             font-size: 13px;
-
             line-height: 1.8;
-
             margin-top: 15px;
         }
 
-        .loading {
-
+        .ai-ready {
             display: inline-block;
-
-            width: 10px;
-
-            height: 10px;
-
-            border-radius: 50%;
-
-            border: 2px solid #1769d1;
-
-            border-top-color: transparent;
-
-            animation:
-                spin 0.8s linear infinite;
-
-            margin-left: 6px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: bold;
         }
-
-        @keyframes spin {
-
-            to {
-                transform: rotate(360deg);
-            }
-
-        }
-
-        @media (max-width: 600px) {
-
-            header {
-
-                padding: 15px;
-
-            }
-
-            header h1 {
-
-                font-size: 18px;
-
-            }
-
-            .container {
-
-                margin-top: 15px;
-
-                padding: 0 10px;
-
-            }
-
-            .card {
-
-                padding: 18px;
-
-            }
-
-            #answerPopup {
-
-                right: 10px;
-
-                left: 10px;
-
-                width: auto;
-
-                top: 10px;
-
-            }
-
-        }
-
     </style>
-
 </head>
 
 
 <body>
-
 
 <header>
 
@@ -359,20 +210,14 @@
     </h1>
 
     <div class="device">
-
         الجهاز:
-
-        <strong id="deviceNumber">
-            ...
-        </strong>
-
+        <strong id="deviceNumber">...</strong>
     </div>
 
 </header>
 
 
 <div class="container">
-
 
     <div class="card">
 
@@ -381,17 +226,37 @@
         </h2>
 
         <p>
-
-            شارك النافذة أو الشاشة التي تعرض عليها
-            صور الأسئلة. سيقوم النظام بالتقاط الإطارات
-            تلقائيًا وإرسال السؤال للتحليل.
-
+            شارك نافذة معرض الصور التي تعرض عليها صور الأسئلة.
+            سيقوم النظام بالتقاط الصورة وتحليل السؤال تلقائيًا،
+            ثم تظهر الإجابة في نافذة Hakim AI.
         </p>
 
         <div class="small-note">
 
-            عند الضغط على زر مشاركة الشاشة، اختر
-            النافذة التي تحتوي على صورة السؤال.
+            <strong>
+                مهم:
+            </strong>
+
+            عند مشاركة الشاشة اختر
+            <strong>نافذة معرض الصور</strong>
+            فقط، وليس نافذة منصة Hakim نفسها،
+            حتى لا تظهر صورة الشاشة بشكل متكرر.
+
+        </div>
+
+        <div
+            class="small-note"
+            style="margin-top:12px;"
+        >
+
+            حالة الذكاء الاصطناعي:
+
+            <span
+                id="aiStatus"
+                class="ai-ready"
+            >
+                جاري الفحص...
+            </span>
 
         </div>
 
@@ -399,7 +264,6 @@
 
 
     <div class="card">
-
 
         <div class="status">
 
@@ -420,234 +284,3 @@
             <br>
 
             رقم السؤال:
-
-            <strong id="questionText">
-                1
-            </strong>
-
-        </div>
-
-
-        <div class="buttons">
-
-
-            <button
-                id="startButton"
-                onclick="startCompetition()"
-            >
-
-                🎥 بدء المنافسة ومشاركة الشاشة
-
-            </button>
-
-
-            <button
-                id="stopButton"
-                onclick="stopCompetition()"
-                disabled
-            >
-
-                ⛔ إيقاف المنافسة
-
-            </button>
-
-
-        </div>
-
-
-        <div id="message"></div>
-
-
-        <div
-            id="preview"
-            class="preview"
-        >
-
-            <video
-                id="screenVideo"
-                autoplay
-                muted
-                playsinline
-            ></video>
-
-        </div>
-
-
-    </div>
-
-
-</div>
-
-
-<!-- نافذة الإجابة -->
-
-<div id="answerPopup">
-
-    <div class="popup-title">
-
-        🤖 Hakim AI
-
-    </div>
-
-    <div
-        id="popupQuestion"
-        class="popup-question"
-    >
-
-        السؤال 1
-
-    </div>
-
-    <div
-        id="popupAnswer"
-        class="popup-answer"
-    >
-
-        —
-
-    </div>
-
-    <div
-        id="popupTimer"
-        class="popup-timer"
-    >
-
-        جاري التحليل...
-
-    </div>
-
-</div>
-
-
-<script>
-
-
-/* =========================================================
-   المتغيرات
-========================================================= */
-
-let sessionId = null;
-
-let deviceNumber = null;
-
-let screenStream = null;
-
-let competitionRunning = false;
-
-let captureTimer = null;
-
-let resultTimer = null;
-
-let answerHideTimer = null;
-
-let lastFrameSignature = null;
-
-let lastSubmittedSignature = null;
-
-let stableSignature = null;
-
-let stableCount = 0;
-
-let lastShownAnswer = null;
-
-let lastShownQuestion = null;
-
-
-/*
- * التقاط صورة كل ثانية.
- */
-
-const CAPTURE_INTERVAL = 1000;
-
-
-/*
- * ننتظر عدة لقطات متطابقة تقريبًا
- * قبل إرسال السؤال.
- *
- * هذا يمنع إرسال كل حركة صغيرة
- * في الشاشة كسؤال جديد.
- */
-
-const REQUIRED_STABLE_FRAMES = 2;
-
-
-/*
- * مدة ظهور الإجابة.
- */
-
-const ANSWER_DISPLAY_TIME = 10000;
-
-
-/* =========================================================
-   العناصر
-========================================================= */
-
-const statusText =
-    document.getElementById(
-        "statusText"
-    );
-
-
-const deviceNumberElement =
-    document.getElementById(
-        "deviceNumber"
-    );
-
-
-const deviceText =
-    document.getElementById(
-        "deviceText"
-    );
-
-
-const questionText =
-    document.getElementById(
-        "questionText"
-    );
-
-
-const startButton =
-    document.getElementById(
-        "startButton"
-    );
-
-
-const stopButton =
-    document.getElementById(
-        "stopButton"
-    );
-
-
-const messageElement =
-    document.getElementById(
-        "message"
-    );
-
-
-const preview =
-    document.getElementById(
-        "preview"
-    );
-
-
-const screenVideo =
-    document.getElementById(
-        "screenVideo"
-    );
-
-
-const answerPopup =
-    document.getElementById(
-        "answerPopup"
-    );
-
-
-const popupQuestion =
-    document.getElementById(
-        "popupQuestion"
-    );
-
-
-const popupAnswer =
-    document.getElementById(
-        "
