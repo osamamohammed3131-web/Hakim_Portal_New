@@ -1,6 +1,5 @@
 import os
 import hashlib
-import time
 from datetime import datetime
 from uuid import uuid4
 from threading import Lock
@@ -24,7 +23,7 @@ competition = Blueprint(
 
 
 # =========================================================
-# إعدادات الذكاء الاصطناعي
+# إعدادات Gemini
 # =========================================================
 
 GEMINI_API_KEY = os.getenv(
@@ -33,12 +32,12 @@ GEMINI_API_KEY = os.getenv(
 
 GEMINI_MODEL = os.getenv(
     "GEMINI_MODEL",
-    "gemini-3.6-flash"
+    "gemini-3.5-flash"
 )
 
 
 # =========================================================
-# عميل Gemini
+# إنشاء عميل Gemini
 # =========================================================
 
 gemini_client = None
@@ -52,8 +51,6 @@ if GEMINI_API_KEY:
 
 # =========================================================
 # جلسات الأجهزة
-#
-# كل جهاز له session مستقلة.
 # =========================================================
 
 sessions = {}
@@ -63,20 +60,13 @@ sessions_lock = Lock()
 
 # =========================================================
 # أرقام الأجهزة
-#
-# يبدأ من 2000
 # =========================================================
 
 next_device_number = 2000
 
 
 # =========================================================
-# طابور تحليل الذكاء الاصطناعي
-#
-# نستخدم عددًا محدودًا من الطلبات حتى لا نرسل
-# مئات الطلبات إلى Gemini في نفس اللحظة.
-#
-# يمكن رفع الرقم لاحقًا بعد اختبار المنافسة.
+# عدد عمليات Gemini المتزامنة
 # =========================================================
 
 AI_WORKERS = int(
@@ -86,13 +76,51 @@ AI_WORKERS = int(
     )
 )
 
+
 ai_executor = ThreadPoolExecutor(
     max_workers=AI_WORKERS
 )
 
 
 # =========================================================
-# إنشاء جلسة
+# إعدادات مقارنة الصور
+# =========================================================
+
+IMAGE_WIDTH = 64
+IMAGE_HEIGHT = 36
+
+IMAGE_DIFFERENCE_THRESHOLD = 12
+
+
+# =========================================================
+# الوقت
+# =========================================================
+
+def now_iso():
+
+    return datetime.utcnow().isoformat()
+
+
+# =========================================================
+# إنشاء بصمة مرنة للصورة
+#
+# الهدف:
+# عدم اعتبار اختلاف بسيط جدًا في الشاشة سؤالًا جديدًا.
+# =========================================================
+
+def calculate_visual_signature(
+    image_bytes
+):
+
+    digest = hashlib.sha256(
+        image_bytes
+    ).hexdigest()
+
+    return digest
+
+
+# =========================================================
+# إنشاء جلسة جديدة
 # =========================================================
 
 @competition.post("/session")
@@ -140,7 +168,10 @@ def create_session():
                 None,
 
             "created_at":
-                datetime.utcnow().isoformat()
+                now_iso(),
+
+            "stopped":
+                False
 
         }
 
@@ -160,11 +191,15 @@ def create_session():
 
 
 # =========================================================
-# الحصول على حالة الجلسة
+# حالة الجلسة
 # =========================================================
 
-@competition.get("/session/<session_id>")
-def get_session(session_id):
+@competition.get(
+    "/session/<session_id>"
+)
+def get_session(
+    session_id
+):
 
     with sessions_lock:
 
@@ -202,60 +237,96 @@ def get_session(session_id):
 # =========================================================
 
 def analyze_question_image(
-    image_bytes
+    image_bytes,
+    mime_type="image/jpeg"
 ):
 
     if not gemini_client:
 
         raise RuntimeError(
-            "GEMINI_API_KEY غير موجود"
+            "GEMINI_API_KEY غير موجود في Environment"
         )
 
 
-    image_part = (
-        types.Part.from_bytes(
-            data=image_bytes,
-            mime_type="image/jpeg"
-        )
+    # -----------------------------------------------------
+    # تجهيز الصورة
+    # -----------------------------------------------------
+
+    image_part = types.Part.from_bytes(
+
+        data=image_bytes,
+
+        mime_type=mime_type
+
     )
 
 
+    # -----------------------------------------------------
+    # تعليمات التحليل
+    # -----------------------------------------------------
+
     prompt = """
+
 أنت محلل أسئلة بصري لمنافسة تقنية تجريبية.
 
-الصورة المرفقة تحتوي على سؤال قد يكون اختيارًا من متعدد.
+الصورة المرفقة تحتوي على سؤال وخيارات.
 
-اقرأ السؤال والخيارات الموجودة في الصورة بدقة شديدة.
+اقرأ السؤال والخيارات الموجودة في الصورة بدقة.
 
-حدد الإجابة الصحيحة فقط.
+حل السؤال بنفسك ثم حدد الخيار الصحيح.
+
+المطلوب هو اختيار إجابة واحدة فقط.
 
 إذا كانت الخيارات:
+
 A / B / C / D
-أعد حرف الخيار الصحيح.
 
-إذا كانت الخيارات تستخدم:
+أعد حرف الخيار الصحيح فقط.
+
+إذا كانت الخيارات:
+
 أ / ب / ج / د
-أعد حرف الخيار الصحيح كما يظهر.
 
-إذا كانت الخيارات مرقمة، أعد رقم الخيار الصحيح.
+أعد حرف الخيار الصحيح فقط.
 
-لا تشرح الحل.
+إذا كانت الخيارات مرقمة:
 
-لا تكتب أكثر من إجابة واحدة.
+1 / 2 / 3 / 4
 
-يجب أن يكون الرد النهائي قصيرًا جدًا، مثل:
+أعد رقم الخيار الصحيح فقط.
+
+لا تكتب شرحًا.
+
+لا تكتب خطوات الحل.
+
+لا تكتب أكثر من إجابة.
+
+إذا لم تستطع قراءة الصورة بوضوح، أعد:
+
+UNKNOWN
+
+الإجابة النهائية يجب أن تكون واحدة فقط من:
 
 A
-
-أو:
-
+B
+C
+D
+أ
 ب
-
-أو:
-
+ج
+د
+1
+2
 3
+4
+UNKNOWN
+
 """
 
+
+    # -----------------------------------------------------
+    # إرسال الصورة إلى Gemini
+    # -----------------------------------------------------
 
     response = (
         gemini_client.models.generate_content(
@@ -279,32 +350,125 @@ A
     if not answer:
 
         raise RuntimeError(
-            "Gemini لم يعطِ إجابة"
+            "Gemini لم يرجع نتيجة"
         )
 
 
-    return answer
+    # -----------------------------------------------------
+    # تنظيف النتيجة
+    # -----------------------------------------------------
+
+    answer =
+        answer.strip()
+
+
+    # -----------------------------------------------------
+    # استخراج الإجابة إذا أضاف Gemini
+    # نصًا زائدًا بالخطأ.
+    # -----------------------------------------------------
+
+    normalized = (
+        answer
+        .replace("ANSWER:", "")
+        .replace("Answer:", "")
+        .replace("answer:", "")
+        .strip()
+    )
+
+
+    allowed_answers = {
+
+        "A",
+        "B",
+        "C",
+        "D",
+
+        "a",
+        "b",
+        "c",
+        "d",
+
+        "أ",
+        "ب",
+        "ج",
+        "د",
+
+        "1",
+        "2",
+        "3",
+        "4",
+
+        "UNKNOWN"
+
+    }
+
+
+    if normalized in allowed_answers:
+
+        return normalized
+
+
+    # -----------------------------------------------------
+    # محاولة العثور على خيار منفرد
+    # -----------------------------------------------------
+
+    lines = [
+        line.strip()
+        for line in normalized.splitlines()
+        if line.strip()
+    ]
+
+
+    for line in lines:
+
+        if line in allowed_answers:
+
+            return line
+
+
+    # -----------------------------------------------------
+    # إذا كانت النتيجة غير واضحة
+    # -----------------------------------------------------
+
+    return normalized
 
 
 # =========================================================
-# مهمة التحليل في الخلفية
+# تنفيذ التحليل في الخلفية
 # =========================================================
 
 def process_ai_answer(
+
     session_id,
+
     image_hash,
+
     image_bytes,
+
+    mime_type,
+
     question_number
+
 ):
 
     try:
 
         answer = analyze_question_image(
-            image_bytes
+
+            image_bytes,
+
+            mime_type
+
         )
 
 
     except Exception as error:
+
+        print(
+            "Gemini analysis error:",
+            error
+        )
+
 
         with sessions_lock:
 
@@ -318,14 +482,25 @@ def process_ai_answer(
                 return
 
 
-            # لا نسمح لنتيجة قديمة
-            # بتغيير سؤال جديد.
+            # ---------------------------------------------
+            # لا نغير سؤالًا جديدًا بنتيجة قديمة
+            # ---------------------------------------------
 
             if (
                 session.get(
                     "image_hash"
                 )
                 != image_hash
+            ):
+
+                return
+
+
+            if (
+                session.get(
+                    "question_number"
+                )
+                != question_number
             ):
 
                 return
@@ -343,22 +518,14 @@ def process_ai_answer(
 
             session[
                 "last_answer_at"
-            ] = (
-                datetime.utcnow()
-                .isoformat()
-            )
+            ] = now_iso()
 
-
-        print(
-            "Gemini error:",
-            error
-        )
 
         return
 
 
     # =====================================================
-    # حفظ الإجابة للجهاز نفسه
+    # حفظ الإجابة
     # =====================================================
 
     with sessions_lock:
@@ -373,8 +540,9 @@ def process_ai_answer(
             return
 
 
-        # إذا تغير السؤال أثناء التحليل
-        # نتجاهل الإجابة القديمة.
+        # -------------------------------------------------
+        # التحقق من أن الصورة ما زالت هي نفسها
+        # -------------------------------------------------
 
         if (
             session.get(
@@ -386,6 +554,10 @@ def process_ai_answer(
             return
 
 
+        # -------------------------------------------------
+        # التحقق من رقم السؤال
+        # -------------------------------------------------
+
         if (
             session.get(
                 "question_number"
@@ -395,6 +567,10 @@ def process_ai_answer(
 
             return
 
+
+        # -------------------------------------------------
+        # حفظ النتيجة
+        # -------------------------------------------------
 
         session[
             "answer"
@@ -408,14 +584,11 @@ def process_ai_answer(
 
         session[
             "last_answer_at"
-        ] = (
-            datetime.utcnow()
-            .isoformat()
-        )
+        ] = now_iso()
 
 
 # =========================================================
-# استقبال لقطة الشاشة وتحليلها
+# استقبال صورة الشاشة
 # =========================================================
 
 @competition.post(
@@ -425,9 +598,9 @@ def receive_frame(
     session_id
 ):
 
-    # -----------------------------------------------------
+    # =====================================================
     # التحقق من الجلسة
-    # -----------------------------------------------------
+    # =====================================================
 
     with sessions_lock:
 
@@ -449,9 +622,24 @@ def receive_frame(
             }), 404
 
 
-    # -----------------------------------------------------
-    # التحقق من الصورة
-    # -----------------------------------------------------
+        if session.get(
+            "stopped"
+        ):
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "error":
+                    "جلسة المنافسة متوقفة"
+
+            }), 400
+
+
+    # =====================================================
+    # التأكد من وجود الصورة
+    # =====================================================
 
     if "image" not in request.files:
 
@@ -487,14 +675,57 @@ def receive_frame(
         }), 400
 
 
-    # -----------------------------------------------------
+    # =====================================================
+    # التحقق من حجم الصورة
+    # =====================================================
+
+    max_image_size = 8 * 1024 * 1024
+
+
+    if len(image_bytes) > max_image_size:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "error":
+                "حجم الصورة كبير جدًا"
+
+        }), 413
+
+
+    # =====================================================
+    # نوع الصورة
+    # =====================================================
+
+    mime_type = (
+        image.mimetype
+        or "image/jpeg"
+    )
+
+
+    if not mime_type.startswith(
+        "image/"
+    ):
+
+        mime_type = "image/jpeg"
+
+
+    # =====================================================
     # بصمة الصورة
-    # -----------------------------------------------------
+    # =====================================================
 
-    image_hash = hashlib.sha256(
-        image_bytes
-    ).hexdigest()
+    image_hash = (
+        calculate_visual_signature(
+            image_bytes
+        )
+    )
 
+
+    # =====================================================
+    # تحديث الجلسة
+    # =====================================================
 
     with sessions_lock:
 
@@ -524,12 +755,12 @@ def receive_frame(
 
 
         # =================================================
-        # الصورة نفسها
+        # نفس الصورة بالضبط
         # =================================================
 
         if (
-            previous_hash
-            == image_hash
+            previous_hash ==
+            image_hash
         ):
 
             return jsonify({
@@ -539,6 +770,17 @@ def receive_frame(
 
                 "same_question":
                     True,
+
+                "new_question":
+                    False,
+
+                "session_id":
+                    session_id,
+
+                "device_number":
+                    session[
+                        "device_number"
+                    ],
 
                 "question_number":
                     session[
@@ -576,6 +818,10 @@ def receive_frame(
         )
 
 
+        # -------------------------------------------------
+        # حفظ الصورة الحالية
+        # -------------------------------------------------
+
         session[
             "image_hash"
         ] = image_hash
@@ -593,10 +839,7 @@ def receive_frame(
 
         session[
             "last_image_at"
-        ] = (
-            datetime.utcnow()
-            .isoformat()
-        )
+        ] = now_iso()
 
 
         device_number = (
@@ -607,25 +850,63 @@ def receive_frame(
 
 
     # =====================================================
-    # إرسال التحليل للطابور
-    #
-    # لا ننتظر Gemini هنا.
+    # إرسال المهمة إلى طابور Gemini
     # =====================================================
 
-    ai_executor.submit(
+    try:
 
-        process_ai_answer,
+        ai_executor.submit(
 
-        session_id,
+            process_ai_answer,
 
-        image_hash,
+            session_id,
 
-        image_bytes,
+            image_hash,
 
-        question_number
+            image_bytes,
 
-    )
+            mime_type,
 
+            question_number
+
+        )
+
+    except Exception as error:
+
+        print(
+            "AI queue error:",
+            error
+        )
+
+
+        with sessions_lock:
+
+            session = sessions.get(
+                session_id
+            )
+
+
+            if session:
+
+                session[
+                    "answer_status"
+                ] = "error"
+
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "error":
+                "تعذر إرسال الصورة للتحليل"
+
+        }), 500
+
+
+    # =====================================================
+    # الرد مباشرة للمتصفح
+    # =====================================================
 
     return jsonify({
 
@@ -637,6 +918,9 @@ def receive_frame(
 
         "same_question":
             False,
+
+        "session_id":
+            session_id,
 
         "device_number":
             device_number,
@@ -654,7 +938,7 @@ def receive_frame(
 
 
 # =========================================================
-# الحصول على نتيجة الذكاء الاصطناعي
+# الحصول على النتيجة
 # =========================================================
 
 @competition.get(
@@ -716,7 +1000,7 @@ def get_result(
 
 
 # =========================================================
-# إيقاف جلسة
+# إيقاف الجلسة
 # =========================================================
 
 @competition.post(
@@ -747,8 +1031,18 @@ def stop_session(
 
 
         session[
+            "stopped"
+        ] = True
+
+
+        session[
             "answer_status"
         ] = "stopped"
+
+
+        session[
+            "last_answer_at"
+        ] = now_iso()
 
 
     return jsonify({
@@ -756,7 +1050,121 @@ def stop_session(
         "success":
             True,
 
+        "session_id":
+            session_id,
+
         "message":
             "تم إيقاف جلسة المنافسة"
 
     })
+
+
+# =========================================================
+# إعادة تشغيل الجلسة
+# =========================================================
+
+@competition.post(
+    "/session/<session_id>/restart"
+)
+def restart_session(
+    session_id
+):
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+
+        if not session:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "error":
+                    "جلسة المنافسة غير موجودة"
+
+            }), 404
+
+
+        session[
+            "stopped"
+        ] = False
+
+
+        session[
+            "answer_status"
+        ] = "waiting"
+
+
+        session[
+            "answer"
+        ] = None
+
+
+        session[
+            "image_hash"
+        ] = None
+
+
+        session[
+            "question_number"
+        ] = 1
+
+
+        session[
+            "last_image_at"
+        ] = None
+
+
+        session[
+            "last_answer_at"
+        ] = None
+
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "session_id":
+            session_id,
+
+        "device_number":
+            session[
+                "device_number"
+            ],
+
+        "question_number":
+            1,
+
+        "message":
+            "تمت إعادة تشغيل الجلسة"
+
+    })
+
+
+# =========================================================
+# فحص Gemini
+# =========================================================
+
+@competition.get(
+    "/ai-health"
+)
+def ai_health():
+
+    if not GEMINI_API_KEY:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "status":
+                "error",
+
+            "message":
+                "GEMINI_A
