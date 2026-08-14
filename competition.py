@@ -554,4 +554,434 @@ def receive_frame(session_id):
 
     mime_type = (
         image.mimetype
-        or "
+        or "image/jpeg"
+    )
+
+
+    if not mime_type.startswith(
+        "image/"
+    ):
+
+        mime_type = "image/jpeg"
+
+
+    # -----------------------------------------------------
+    # إنشاء بصمة للصورة
+    # -----------------------------------------------------
+
+    image_hash = hashlib.sha256(
+        image_bytes
+    ).hexdigest()
+
+
+    # -----------------------------------------------------
+    # تحديث الجلسة
+    # -----------------------------------------------------
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+        if not session:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "error":
+                    "الجلسة غير موجودة"
+
+            }), 404
+
+
+        previous_hash = (
+            session.get(
+                "image_hash"
+            )
+        )
+
+
+        # =================================================
+        # الصورة نفسها
+        # =================================================
+
+        if (
+            previous_hash
+            == image_hash
+        ):
+
+            return jsonify({
+
+                "success":
+                    True,
+
+                "same_question":
+                    True,
+
+                "new_question":
+                    False,
+
+                "session_id":
+                    session_id,
+
+                "device_number":
+                    session[
+                        "device_number"
+                    ],
+
+                "question_number":
+                    session[
+                        "question_number"
+                    ],
+
+                "answer":
+                    session[
+                        "answer"
+                    ],
+
+                "answer_status":
+                    session[
+                        "answer_status"
+                    ]
+
+            })
+
+
+        # =================================================
+        # سؤال جديد
+        # =================================================
+
+        if previous_hash is not None:
+
+            session[
+                "question_number"
+            ] += 1
+
+
+        question_number = (
+            session[
+                "question_number"
+            ]
+        )
+
+
+        # -------------------------------------------------
+        # تحديث معلومات السؤال
+        # -------------------------------------------------
+
+        session[
+            "image_hash"
+        ] = image_hash
+
+
+        session[
+            "answer"
+        ] = None
+
+
+        session[
+            "answer_status"
+        ] = "processing"
+
+
+        session[
+            "last_image_at"
+        ] = (
+            datetime.utcnow()
+            .isoformat()
+        )
+
+
+        device_number = (
+            session[
+                "device_number"
+            ]
+        )
+
+
+    # =====================================================
+    # إرسال الصورة إلى طابور Gemini
+    #
+    # لا ننتظر Gemini داخل الطلب.
+    # =====================================================
+
+    ai_executor.submit(
+
+        process_ai_answer,
+
+        session_id,
+
+        image_hash,
+
+        image_bytes,
+
+        mime_type,
+
+        question_number
+
+    )
+
+
+    # =====================================================
+    # الرد مباشرة للمتصفح
+    # =====================================================
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "new_question":
+            True,
+
+        "same_question":
+            False,
+
+        "session_id":
+            session_id,
+
+        "device_number":
+            device_number,
+
+        "question_number":
+            question_number,
+
+        "answer":
+            None,
+
+        "answer_status":
+            "processing",
+
+        "message":
+            "تم استلام السؤال وبدأ التحليل"
+
+    }), 202
+
+
+# =========================================================
+# الحصول على نتيجة التحليل
+# =========================================================
+
+@competition.get(
+    "/session/<session_id>/result"
+)
+def get_result(session_id):
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+
+        if not session:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "error":
+                    "الجلسة غير موجودة"
+
+            }), 404
+
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "session_id":
+                session_id,
+
+            "device_number":
+                session[
+                    "device_number"
+                ],
+
+            "question_number":
+                session[
+                    "question_number"
+                ],
+
+            "answer":
+                session[
+                    "answer"
+                ],
+
+            "answer_status":
+                session[
+                    "answer_status"
+                ],
+
+            "last_image_at":
+                session[
+                    "last_image_at"
+                ],
+
+            "last_answer_at":
+                session[
+                    "last_answer_at"
+                ]
+
+        })
+
+
+# =========================================================
+# إيقاف جلسة المنافسة
+# =========================================================
+
+@competition.post(
+    "/session/<session_id>/stop"
+)
+def stop_session(session_id):
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+
+        if not session:
+
+            return jsonify({
+
+                "success":
+                    False,
+
+                "error":
+                    "الجلسة غير موجودة"
+
+            }), 404
+
+
+        session[
+            "answer_status"
+        ] = "stopped"
+
+
+        session[
+            "answer"
+        ] = None
+
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "session_id":
+            session_id,
+
+        "message":
+            "تم إيقاف جلسة المنافسة"
+
+    })
+
+
+# =========================================================
+# فحص اتصال Gemini
+# =========================================================
+
+@competition.get(
+    "/ai-health"
+)
+def ai_health():
+
+    if not GEMINI_API_KEY:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "ai":
+                "Gemini",
+
+            "status":
+                "missing_api_key",
+
+            "message":
+                "GEMINI_API_KEY غير موجود"
+
+        }), 503
+
+
+    if not gemini_client:
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "ai":
+                "Gemini",
+
+            "status":
+                "not_initialized"
+
+        }), 503
+
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "ai":
+            "Gemini",
+
+        "status":
+            "ready",
+
+        "model":
+            GEMINI_MODEL
+
+    })
+
+
+# =========================================================
+# معلومات المنافسة
+# =========================================================
+
+@competition.get(
+    "/info"
+)
+def competition_info():
+
+    with sessions_lock:
+
+        active_sessions = len(
+            sessions
+        )
+
+
+    return jsonify({
+
+        "success":
+            True,
+
+        "name":
+            "Hakim AI Competition",
+
+        "status":
+            "running",
+
+        "ai":
+            "Gemini",
+
+        "model":
+            GEMINI_MODEL,
+
+        "active_sessions":
+            active_sessions,
+
+        "ai_workers":
+            AI_WORKERS
+
+    })
