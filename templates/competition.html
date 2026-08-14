@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+<html
+    lang="ar"
+    dir="rtl"
+>
 
 <head>
 
@@ -10,7 +14,10 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Hakim AI Competition</title>
+    <title>
+        Hakim AI Competition
+    </title>
+
 
     <style>
 
@@ -18,164 +25,395 @@
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #1f2937;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            background:
+                #f4f7fb;
+
+            color:
+                #1f2937;
+
         }
+
 
         header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+
+            background:
+                white;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            padding:
+                18px 25px;
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            align-items:
+                center;
+
         }
+
 
         header h1 {
+
             margin: 0;
-            color: #1769d1;
-            font-size: 23px;
+
+            color:
+                #1769d1;
+
+            font-size:
+                22px;
+
         }
 
-        .device-info {
-            color: #555;
-            font-size: 14px;
+
+        .device {
+
+            font-size:
+                14px;
+
+            color:
+                #555;
+
         }
+
 
         .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 20px;
+
+            max-width:
+                1000px;
+
+            margin:
+                30px auto;
+
+            padding:
+                0 20px;
+
         }
 
-        .welcome {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+
+        .card {
+
+            background:
+                white;
+
+            border-radius:
+                20px;
+
+            padding:
+                25px;
+
+            margin-bottom:
+                20px;
+
+            box-shadow:
+                0 5px 25px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.06
+                );
+
         }
 
-        .welcome h2 {
-            margin-top: 0;
-            color: #1769d1;
+
+        .card h2 {
+
+            margin-top:
+                0;
+
+            color:
+                #1769d1;
+
         }
 
-        .welcome p {
-            line-height: 1.8;
-            color: #666;
-        }
-
-        .control-panel {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
 
         .status {
-            padding: 15px;
-            border-radius: 12px;
-            background: #f5f7fb;
-            margin-bottom: 20px;
-            line-height: 1.8;
+
+            padding:
+                15px;
+
+            border-radius:
+                12px;
+
+            background:
+                #f3f6fa;
+
+            line-height:
+                2;
+
         }
+
 
         .status strong {
-            color: #1769d1;
+
+            color:
+                #1769d1;
+
         }
+
 
         .buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+
+            display:
+                flex;
+
+            gap:
+                12px;
+
+            flex-wrap:
+                wrap;
+
+            margin-top:
+                20px;
+
         }
+
 
         button {
-            border: 0;
-            border-radius: 10px;
-            padding: 13px 20px;
-            font-size: 15px;
-            cursor: pointer;
+
+            border:
+                0;
+
+            border-radius:
+                10px;
+
+            padding:
+                14px 22px;
+
+            font-size:
+                15px;
+
+            cursor:
+                pointer;
+
         }
 
-        .start {
-            background: #1769d1;
-            color: white;
+
+        #startButton {
+
+            background:
+                #1769d1;
+
+            color:
+                white;
+
         }
 
-        .stop {
-            background: #dc2626;
-            color: white;
+
+        #stopButton {
+
+            background:
+                #dc2626;
+
+            color:
+                white;
+
         }
 
-        .stop:disabled,
-        .start:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+
+        button:disabled {
+
+            opacity:
+                0.45;
+
+            cursor:
+                not-allowed;
+
         }
+
+
+        #message {
+
+            margin-top:
+                15px;
+
+            min-height:
+                25px;
+
+            font-weight:
+                bold;
+
+        }
+
 
         .preview {
-            margin-top: 25px;
-            background: #111827;
-            border-radius: 15px;
-            padding: 10px;
-            display: none;
+
+            display:
+                none;
+
+            margin-top:
+                25px;
+
+            background:
+                #111827;
+
+            border-radius:
+                15px;
+
+            padding:
+                10px;
+
         }
+
 
         .preview video {
-            width: 100%;
-            max-height: 550px;
-            display: block;
-            border-radius: 10px;
-            background: black;
+
+            width:
+                100%;
+
+            max-height:
+                500px;
+
+            display:
+                block;
+
+            border-radius:
+                10px;
+
         }
 
-        .result-box {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 300px;
-            background: white;
-            border-radius: 15px;
-            padding: 18px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.18);
-            border: 1px solid #e5e7eb;
-            display: none;
-            z-index: 9999;
+
+        /* =================================================
+           نافذة الإجابة
+        ================================================= */
+
+        #answerPopup {
+
+            position:
+                fixed;
+
+            top:
+                25px;
+
+            right:
+                25px;
+
+            width:
+                320px;
+
+            background:
+                white;
+
+            border-radius:
+                18px;
+
+            padding:
+                20px;
+
+            box-shadow:
+                0 15px 45px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    0.22
+                );
+
+            border:
+                2px solid #1769d1;
+
+            z-index:
+                99999;
+
+            display:
+                none;
+
         }
 
-        .result-box h3 {
-            margin: 0 0 10px;
-            color: #1769d1;
+
+        .popup-title {
+
+            color:
+                #1769d1;
+
+            font-weight:
+                bold;
+
+            font-size:
+                17px;
+
         }
 
-        .result-answer {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 10px;
+
+        .popup-question {
+
+            margin-top:
+                8px;
+
+            color:
+                #777;
+
+            font-size:
+                13px;
+
         }
 
-        .question-number {
-            color: #777;
-            font-size: 14px;
+
+        .popup-answer {
+
+            margin-top:
+                12px;
+
+            font-size:
+                42px;
+
+            font-weight:
+                bold;
+
+            text-align:
+                center;
+
+            color:
+                #111827;
+
         }
 
-        .timer {
-            color: #777;
-            margin-top: 8px;
-            font-size: 13px;
+
+        .popup-timer {
+
+            margin-top:
+                8px;
+
+            text-align:
+                center;
+
+            color:
+                #777;
+
+            font-size:
+                12px;
+
         }
 
-        .message {
-            margin-top: 15px;
-            min-height: 22px;
-            font-weight: bold;
+
+        .small-note {
+
+            color:
+                #777;
+
+            font-size:
+                13px;
+
+            line-height:
+                1.8;
+
+            margin-top:
+                15px;
+
         }
 
     </style>
@@ -192,11 +430,13 @@
         Hakim AI Competition
     </h1>
 
-    <div class="device-info">
+
+    <div class="device">
 
         الجهاز:
+
         <strong id="deviceNumber">
-            جاري التحديد...
+            ...
         </strong>
 
     </div>
@@ -207,36 +447,62 @@
 <div class="container">
 
 
-    <div class="welcome">
+    <div class="card">
 
         <h2>
             منصة المنافسة الذكية
         </h2>
 
+
         <p>
-            شارك الشاشة التي تعرض عليها صور المنافسة،
-            وسيقوم النظام بمراقبتها بعد موافقتك واكتشاف
-            تغير الصور تلقائيًا.
+
+            شارك النافذة أو الشاشة التي تعرض عليها
+            صور الأسئلة. سيقوم النظام بالتقاط الإطارات
+            تلقائيًا وتحليل السؤال الجديد بواسطة الذكاء
+            الاصطناعي.
+
         </p>
+
+
+        <div class="small-note">
+
+            الأفضل أثناء المنافسة اختيار نافذة معرض
+            الصور فقط بدل مشاركة الشاشة كاملة.
+
+        </div>
 
     </div>
 
 
-    <div class="control-panel">
+    <div class="card">
 
 
         <div class="status">
 
             الحالة:
+
             <strong id="statusText">
-                لم تبدأ مشاركة الشاشة
+                جاري إنشاء الجلسة...
             </strong>
+
 
             <br>
 
-            الجلسة:
-            <strong id="sessionId">
-                جاري إنشاء الجلسة...
+
+            رقم الجهاز:
+
+            <strong id="deviceText">
+                ...
+            </strong>
+
+
+            <br>
+
+
+            رقم السؤال:
+
+            <strong id="questionText">
+                1
             </strong>
 
         </div>
@@ -244,31 +510,32 @@
 
         <div class="buttons">
 
+
             <button
                 id="startButton"
-                class="start"
                 onclick="startCompetition()"
             >
+
                 🎥 بدء المنافسة ومشاركة الشاشة
+
             </button>
 
 
             <button
                 id="stopButton"
-                class="stop"
                 onclick="stopCompetition()"
                 disabled
             >
-                ⛔ إيقاف مشاركة الشاشة
+
+                ⛔ إيقاف المنافسة
+
             </button>
+
 
         </div>
 
 
-        <div
-            id="message"
-            class="message"
-        ></div>
+        <div id="message"></div>
 
 
         <div
@@ -292,35 +559,51 @@
 </div>
 
 
+<!-- =====================================================
+     نافذة الإجابة
+===================================================== -->
+
 <div
-    id="resultBox"
-    class="result-box"
+    id="answerPopup"
 >
 
-    <h3>
-        🤖 حكيم AI
-    </h3>
+
+    <div class="popup-title">
+
+        🤖 Hakim AI
+
+    </div>
+
 
     <div
-        id="questionNumber"
-        class="question-number"
+        id="popupQuestion"
+        class="popup-question"
     >
+
         السؤال 1
+
     </div>
 
+
     <div
-        id="resultAnswer"
-        class="result-answer"
+        id="popupAnswer"
+        class="popup-answer"
     >
+
         —
+
     </div>
 
+
     <div
-        id="resultTimer"
-        class="timer"
+        id="popupTimer"
+        class="popup-timer"
     >
-        النتيجة تجريبية
+
+        ستختفي النتيجة تلقائيًا
+
     </div>
+
 
 </div>
 
@@ -328,7 +611,7 @@
 <script>
 
 /* =========================================================
-   متغيرات المنافسة
+   متغيرات
 ========================================================= */
 
 let sessionId = null;
@@ -339,9 +622,38 @@ let screenStream = null;
 
 let competitionRunning = false;
 
+let captureTimer = null;
+
+let resultTimer = null;
+
+let lastFrameSignature = null;
+
+let lastSubmittedSignature = null;
+
+let lastShownAnswer = null;
+
+let lastShownQuestion = null;
+
+
+/*
+ * كل كم ملي ثانية نأخذ إطارًا من الشاشة.
+ *
+ * نستخدم ثانية واحدة كبداية.
+ */
+
+const CAPTURE_INTERVAL = 1000;
+
+
+/*
+ * إعادة إظهار الإجابة كل 10 ثوانٍ
+ * إذا كان السؤال ما زال نفسه.
+ */
+
+const ANSWER_DISPLAY_TIME = 10000;
+
 
 /* =========================================================
-   عناصر الصفحة
+   العناصر
 ========================================================= */
 
 const statusText =
@@ -349,35 +661,48 @@ const statusText =
         "statusText"
     );
 
-const sessionIdElement =
-    document.getElementById(
-        "sessionId"
-    );
 
 const deviceNumberElement =
     document.getElementById(
         "deviceNumber"
     );
 
+
+const deviceText =
+    document.getElementById(
+        "deviceText"
+    );
+
+
+const questionText =
+    document.getElementById(
+        "questionText"
+    );
+
+
 const startButton =
     document.getElementById(
         "startButton"
     );
+
 
 const stopButton =
     document.getElementById(
         "stopButton"
     );
 
+
 const messageElement =
     document.getElementById(
         "message"
     );
 
+
 const preview =
     document.getElementById(
         "preview"
     );
+
 
 const screenVideo =
     document.getElementById(
@@ -385,16 +710,41 @@ const screenVideo =
     );
 
 
+const answerPopup =
+    document.getElementById(
+        "answerPopup"
+    );
+
+
+const popupQuestion =
+    document.getElementById(
+        "popupQuestion"
+    );
+
+
+const popupAnswer =
+    document.getElementById(
+        "popupAnswer"
+    );
+
+
+const popupTimer =
+    document.getElementById(
+        "popupTimer"
+    );
+
+
 /* =========================================================
-   رسالة
+   الرسائل
 ========================================================= */
 
 function showMessage(
-    text,
+    message,
     color = "#1769d1"
 ) {
 
-    messageElement.textContent = text;
+    messageElement.textContent =
+        message;
 
     messageElement.style.color =
         color;
@@ -406,19 +756,17 @@ function showMessage(
    إنشاء جلسة
 ========================================================= */
 
-async function createCompetitionSession() {
+async function createSession() {
 
     try {
 
-        const response = await fetch(
-            "/api/competition/session",
-            {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json"
+        const response =
+            await fetch(
+                "/api/competition/session",
+                {
+                    method: "POST"
                 }
-            }
-        );
+            );
 
 
         const data =
@@ -429,7 +777,7 @@ async function createCompetitionSession() {
 
             throw new Error(
                 data.error ||
-                "تعذر إنشاء الجلسة"
+                "تعذر إنشاء جلسة المنافسة"
             );
 
         }
@@ -439,32 +787,32 @@ async function createCompetitionSession() {
             data.session_id;
 
 
-        sessionIdElement.textContent =
-            sessionId;
-
-
-        /*
-         * رقم الجهاز هنا مؤقت.
-         *
-         * في الخطوة القادمة سنجعل
-         * النظام يوزع أرقام الأجهزة
-         * تلقائيًا من 2000 فما فوق.
-         */
-
         deviceNumber =
-            2000;
+            data.device_number;
 
 
         deviceNumberElement.textContent =
             deviceNumber;
 
 
+        deviceText.textContent =
+            deviceNumber;
+
+
+        statusText.textContent =
+            "الجلسة جاهزة";
+
+
         showMessage(
-            "تم إنشاء جلسة المنافسة بنجاح."
+            "تم إنشاء جلسة الجهاز بنجاح."
         );
 
 
     } catch (error) {
+
+        statusText.textContent =
+            "خطأ";
+
 
         showMessage(
             error.message,
@@ -477,19 +825,36 @@ async function createCompetitionSession() {
 
 
 /* =========================================================
-   بدء مشاركة الشاشة
+   بدء المنافسة
 ========================================================= */
 
 async function startCompetition() {
 
-    if (competitionRunning) {
+    if (
+        competitionRunning
+    ) {
+
         return;
+
+    }
+
+
+    if (!sessionId) {
+
+        showMessage(
+            "الجلسة لم تجهز بعد.",
+            "#dc2626"
+        );
+
+        return;
+
     }
 
 
     try {
 
-        startButton.disabled = true;
+        startButton.disabled =
+            true;
 
 
         statusText.textContent =
@@ -497,20 +862,17 @@ async function startCompetition() {
 
 
         showMessage(
-            "اختر الشاشة أو النافذة التي تعرض صور المنافسة."
+            "اختر نافذة معرض الصور أو الشاشة المطلوبة."
         );
 
-
-        /*
-         * المتصفح سيظهر نافذة مشاركة الشاشة
-         * ويطلب موافقة المستخدم.
-         */
 
         screenStream =
             await navigator.mediaDevices.getDisplayMedia({
 
                 video: {
+
                     frameRate: 5
+
                 },
 
                 audio: false
@@ -522,11 +884,15 @@ async function startCompetition() {
             screenStream;
 
 
+        await screenVideo.play();
+
+
         preview.style.display =
             "block";
 
 
-        competitionRunning = true;
+        competitionRunning =
+            true;
 
 
         stopButton.disabled =
@@ -538,22 +904,30 @@ async function startCompetition() {
 
 
         showMessage(
-            "تمت مشاركة الشاشة بنجاح."
+            "تمت مشاركة الشاشة. جاري مراقبة الأسئلة..."
         );
 
 
         /*
-         * إذا أوقف المستخدم المشاركة
-         * من شريط المتصفح نفسه.
+         * بدء التقاط الإطارات
          */
 
-        const videoTrack =
-            screenStream.getVideoTracks()[0];
+        startFrameCapture();
 
 
-        if (videoTrack) {
+        /*
+         * مراقبة إيقاف المشاركة
+         * من المتصفح نفسه.
+         */
 
-            videoTrack.addEventListener(
+        const track =
+            screenStream
+                .getVideoTracks()[0];
+
+
+        if (track) {
+
+            track.addEventListener(
                 "ended",
                 () => {
 
@@ -567,38 +941,27 @@ async function startCompetition() {
 
     } catch (error) {
 
-        competitionRunning = false;
-
         startButton.disabled =
             false;
 
+
         stopButton.disabled =
             true;
+
+
+        competitionRunning =
+            false;
 
 
         statusText.textContent =
             "لم تبدأ مشاركة الشاشة";
 
 
-        if (
-            error.name ===
-            "NotAllowedError"
-        ) {
-
-            showMessage(
-                "لم يتم السماح بمشاركة الشاشة.",
-                "#dc2626"
-            );
-
-        } else {
-
-            showMessage(
-                "تعذر بدء مشاركة الشاشة: " +
-                error.message,
-                "#dc2626"
-            );
-
-        }
+        showMessage(
+            "لم يتم بدء مشاركة الشاشة: " +
+            error.message,
+            "#dc2626"
+        );
 
     }
 
@@ -606,70 +969,463 @@ async function startCompetition() {
 
 
 /* =========================================================
-   إيقاف المنافسة
+   التقاط الإطار
 ========================================================= */
 
-function stopCompetition() {
+function startFrameCapture() {
 
-    competitionRunning = false;
+    if (captureTimer) {
 
-
-    if (screenStream) {
-
-        screenStream
-            .getTracks()
-            .forEach(
-                track => track.stop()
-            );
-
-        screenStream = null;
+        clearInterval(
+            captureTimer
+        );
 
     }
 
 
-    screenVideo.srcObject =
-        null;
+    /*
+     * نلتقط أول إطار مباشرة.
+     */
+
+    captureCurrentFrame();
 
 
-    preview.style.display =
-        "none";
+    captureTimer =
+        setInterval(
+            captureCurrentFrame,
+            CAPTURE_INTERVAL
+        );
+
+}
 
 
-    startButton.disabled =
-        false;
+/* =========================================================
+   استخراج إطار من الشاشة
+========================================================= */
+
+async function captureCurrentFrame() {
+
+    if (
+        !competitionRunning
+        ||
+        !screenVideo.videoWidth
+        ||
+        !screenVideo.videoHeight
+    ) {
+
+        return;
+
+    }
 
 
-    stopButton.disabled =
-        true;
+    /*
+     * Canvas صغير لتقليل حجم البيانات.
+     */
+
+    const canvas =
+        document.createElement(
+            "canvas"
+        );
 
 
-    statusText.textContent =
-        "تم إيقاف مشاركة الشاشة";
+    const width = 960;
+
+    const height =
+        Math.round(
+            (
+                screenVideo.videoHeight
+                /
+                screenVideo.videoWidth
+            )
+            *
+            width
+        );
 
 
-    showMessage(
-        "تم إيقاف مشاركة الشاشة."
+    canvas.width =
+        width;
+
+
+    canvas.height =
+        height;
+
+
+    const context =
+        canvas.getContext(
+            "2d",
+            {
+                willReadFrequently:
+                    true
+            }
+        );
+
+
+    context.drawImage(
+        screenVideo,
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /*
+     * نحسب بصمة بسيطة للصورة
+     * من بكسلات قليلة.
+     */
+
+    const signature =
+        createFrameSignature(
+            canvas,
+            context
+        );
+
+
+    /*
+     * إذا كانت الصورة مطابقة تقريبًا
+     * لا نرسلها للخادم.
+     */
+
+    if (
+        signature
+        ===
+        lastFrameSignature
+    ) {
+
+        /*
+         * السؤال نفسه.
+         *
+         * إذا كان لدينا إجابة،
+         * نتحقق من النتيجة.
+         */
+
+        checkResult();
+
+        return;
+
+    }
+
+
+    lastFrameSignature =
+        signature;
+
+
+    /*
+     * السؤال تغير.
+     *
+     * نرسل الصورة.
+     */
+
+    if (
+        signature
+        !==
+        lastSubmittedSignature
+    ) {
+
+        lastSubmittedSignature =
+            signature;
+
+
+        await sendFrame(
+            canvas
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   بصمة الإطار
+========================================================= */
+
+function createFrameSignature(
+    canvas,
+    context
+) {
+
+    const sampleWidth =
+        32;
+
+
+    const sampleHeight =
+        18;
+
+
+    const sampleCanvas =
+        document.createElement(
+            "canvas"
+        );
+
+
+    sampleCanvas.width =
+        sampleWidth;
+
+
+    sampleCanvas.height =
+        sampleHeight;
+
+
+    const sampleContext =
+        sampleCanvas.getContext(
+            "2d"
+        );
+
+
+    sampleContext.drawImage(
+        canvas,
+        0,
+        0,
+        sampleWidth,
+        sampleHeight
+    );
+
+
+    const data =
+        sampleContext.getImageData(
+            0,
+            0,
+            sampleWidth,
+            sampleHeight
+        ).data;
+
+
+    let hash = 0;
+
+
+    for (
+        let i = 0;
+        i < data.length;
+        i += 16
+    ) {
+
+        hash =
+            (
+                hash
+                +
+                data[i]
+                +
+                data[i + 1]
+                +
+                data[i + 2]
+            )
+            %
+            1000000007;
+
+    }
+
+
+    return String(
+        hash
     );
 
 }
 
 
 /* =========================================================
-   بدء الصفحة
+   إرسال الإطار إلى الخادم
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+async function sendFrame(
+    canvas
+) {
 
-        createCompetitionSession();
+    if (!sessionId) {
+
+        return;
 
     }
-);
-
-</script>
 
 
-</body>
+    try {
 
-</html>
+        const blob =
+            await new Promise(
+                resolve => {
+
+                    canvas.toBlob(
+                        resolve,
+                        "image/jpeg",
+                        0.78
+                    );
+
+                }
+            );
+
+
+        if (!blob) {
+
+            return;
+
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "image",
+            blob,
+            "screen.jpg"
+        );
+
+
+        const response =
+            await fetch(
+
+                "/api/competition/session/"
+                +
+                sessionId
+                +
+                "/frame",
+
+                {
+
+                    method:
+                        "POST",
+
+                    body:
+                        formData
+
+                }
+
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            showMessage(
+                data.error ||
+                "تعذر إرسال الصورة",
+                "#dc2626"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            data.question_number
+        ) {
+
+            questionText.textContent =
+                data.question_number;
+
+        }
+
+
+        if (
+            data.answer
+        ) {
+
+            showAnswer(
+                data.question_number,
+                data.answer
+            );
+
+        }
+
+
+        if (
+            data.answer_status
+            ===
+            "processing"
+        ) {
+
+            statusText.textContent =
+                "جاري تحليل السؤال " +
+                data.question_number +
+                "...";
+
+        }
+
+
+        /*
+         * بعد الإرسال نبدأ متابعة النتيجة.
+         */
+
+        checkResult();
+
+    } catch (error) {
+
+        console.error(
+            "sendFrame error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   فحص نتيجة Gemini
+========================================================= */
+
+async function checkResult() {
+
+    if (
+        !sessionId
+        ||
+        !competitionRunning
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                "/api/competition/session/"
+                +
+                sessionId
+                +
+                "/result",
+
+                {
+
+                    method:
+                        "GET",
+
+                    cache:
+                        "no-store"
+
+                }
+
+            );
+
+
+        if (!response.ok) {
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            data.question_number
+        ) {
+
+            questionText.textContent =
+                data.question_number;
+
+        }
+
+
+        if (
+            data.answer_status
+            ===
