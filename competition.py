@@ -40,7 +40,6 @@ sessions = {}
 
 sessions_lock = Lock()
 
-
 next_device_number = 2000
 
 
@@ -64,7 +63,10 @@ ai_executor = ThreadPoolExecutor(
 
 
 def utc_now():
-    return datetime.utcnow().isoformat()@competition.post("/session")
+    return datetime.utcnow().isoformat()
+
+
+@competition.post("/session")
 def create_session():
 
     global next_device_number
@@ -115,7 +117,9 @@ def get_session(session_id):
             "success": True,
             "session": dict(session)
         })
-        def analyze_question_image(
+
+
+def analyze_question_image(
     image_bytes,
     mime_type="image/jpeg"
 ):
@@ -125,73 +129,87 @@ def get_session(session_id):
             "GEMINI_API_KEY غير موجود"
         )
 
+
     image_part = types.Part.from_bytes(
         data=image_bytes,
         mime_type=mime_type
     )
 
+
     prompt = """
-أنت محلل بصري لأسئلة منافسة تقنية.
+أنت نظام ذكاء اصطناعي مشارك في منافسة تقنية
+لاختبار دقة تحليل الأسئلة.
 
-الصورة المرفقة تحتوي على سؤال وقد تحتوي على خيارات.
+الصورة تحتوي على سؤال وقد تحتوي على عدة خيارات.
 
-اقرأ السؤال والخيارات الموجودة في الصورة بدقة شديدة،
+اقرأ السؤال كاملًا واقرأ جميع الخيارات بدقة،
 ثم حدد الإجابة الصحيحة.
 
 القواعد:
 
-1. اقرأ السؤال كاملًا.
-2. اقرأ جميع الخيارات.
-3. حل السؤال داخليًا قبل اختيار الإجابة.
-4. أعد خيارًا واحدًا فقط.
-5. لا تكتب شرحًا.
-6. لا تكتب أي نص إضافي.
+- حل السؤال قبل اختيار الإجابة.
+- لا تعتمد على ترتيب عشوائي.
+- اقرأ النص الموجود في الصورة كاملًا.
+- إذا كانت الخيارات A/B/C/D أعد الحرف الصحيح.
+- إذا كانت الخيارات أ/ب/ج/د أعد الحرف الصحيح.
+- إذا كانت الخيارات مرقمة أعد رقم الخيار الصحيح.
+- لا تكتب شرحًا.
+- لا تكتب مقدمة.
+- لا تكتب أكثر من إجابة واحدة.
 
-إذا كانت الخيارات:
-
-A / B / C / D
-
-أعد حرف الخيار الصحيح فقط.
-
-إذا كانت الخيارات:
-
-أ / ب / ج / د
-
-أعد الحرف الصحيح كما يظهر في الصورة.
-
-إذا كانت الخيارات مرقمة:
-
-1 / 2 / 3 / 4
-
-أعد رقم الخيار الصحيح.
-
-الإجابة النهائية يجب أن تكون قصيرة جدًا.
+الرد النهائي يجب أن يكون الإجابة فقط.
 """
+
 
     response = gemini_client.models.generate_content(
         model=GEMINI_MODEL,
         contents=[
             image_part,
             prompt
-        ]
+        ],
+        config=types.GenerateContentConfig(
+            temperature=0,
+            max_output_tokens=20
+        )
     )
+
 
     answer = (
         response.text or ""
     ).strip()
+
 
     if not answer:
         raise RuntimeError(
             "Gemini لم يرجع إجابة"
         )
 
+
     answer = answer.replace(
         "**",
         ""
-    ).replace(
+    )
+
+    answer = answer.replace(
         "`",
         ""
+    )
+
+    answer = answer.replace(
+        "ANSWER:",
+        ""
+    )
+
+    answer = answer.replace(
+        "Answer:",
+        ""
+    )
+
+    answer = answer.replace(
+        "الإجابة:",
+        ""
     ).strip()
+
 
     lines = [
         line.strip()
@@ -199,15 +217,21 @@ A / B / C / D
         if line.strip()
     ]
 
+
     if lines:
         answer = lines[0]
+
 
     if not answer:
         raise RuntimeError(
             "إجابة Gemini فارغة"
         )
 
-    return answerdef process_ai_answer(
+
+    return answer
+
+
+def process_ai_answer(
     session_id,
     image_hash,
     image_bytes,
@@ -285,7 +309,9 @@ A / B / C / D
         ):
             return
 
-        session["answer"] = answer
+        session[
+            "answer"
+        ] = answer
 
         session[
             "answer_status"
@@ -293,12 +319,19 @@ A / B / C / D
 
         session[
             "last_answer_at"
-        ] = utc_now()@competition.post("/session/<session_id>/frame")
+        ] = utc_now()
+
+
+@competition.post(
+    "/session/<session_id>/frame"
+)
 def receive_frame(session_id):
 
     with sessions_lock:
 
-        session = sessions.get(session_id)
+        session = sessions.get(
+            session_id
+        )
 
         if not session:
             return jsonify({
@@ -314,6 +347,7 @@ def receive_frame(session_id):
 
 
     if "image" not in request.files:
+
         return jsonify({
             "success": False,
             "error": "لم يتم إرسال صورة"
@@ -324,7 +358,9 @@ def receive_frame(session_id):
 
     image_bytes = image.read()
 
+
     if not image_bytes:
+
         return jsonify({
             "success": False,
             "error": "الصورة فارغة"
@@ -336,7 +372,10 @@ def receive_frame(session_id):
         or "image/jpeg"
     )
 
-    if not mime_type.startswith("image/"):
+
+    if not mime_type.startswith(
+        "image/"
+    ):
         mime_type = "image/jpeg"
 
 
@@ -347,7 +386,9 @@ def receive_frame(session_id):
 
     with sessions_lock:
 
-        session = sessions.get(session_id)
+        session = sessions.get(
+            session_id
+        )
 
         if not session:
             return jsonify({
@@ -390,6 +431,7 @@ def receive_frame(session_id):
 
 
         if previous_hash is not None:
+
             session[
                 "question_number"
             ] += 1
@@ -442,7 +484,12 @@ def receive_frame(session_id):
         "answer": None,
         "answer_status": "processing",
         "message": "تم استلام السؤال وبدأ التحليل"
-    }), 202@competition.get("/session/<session_id>/result")
+    }), 202
+
+
+@competition.get(
+    "/session/<session_id>/result"
+)
 def get_result(session_id):
 
     with sessions_lock:
@@ -483,7 +530,9 @@ def get_result(session_id):
         })
 
 
-@competition.post("/session/<session_id>/stop")
+@competition.post(
+    "/session/<session_id>/stop"
+)
 def stop_session(session_id):
 
     with sessions_lock:
@@ -500,13 +549,17 @@ def stop_session(session_id):
             }), 404
 
 
-        session["stopped"] = True
+        session[
+            "stopped"
+        ] = True
 
         session[
             "answer_status"
         ] = "stopped"
 
-        session["answer"] = None
+        session[
+            "answer"
+        ] = None
 
 
     return jsonify({
@@ -516,7 +569,9 @@ def stop_session(session_id):
     })
 
 
-@competition.get("/ai-health")
+@competition.get(
+    "/ai-health"
+)
 def ai_health():
 
     if not GEMINI_API_KEY:
@@ -546,7 +601,9 @@ def ai_health():
     })
 
 
-@competition.get("/info")
+@competition.get(
+    "/info"
+)
 def competition_info():
 
     with sessions_lock:
