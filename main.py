@@ -56,18 +56,13 @@ from models import (
 
 with app.app_context():
 
-    # إنشاء الجداول الجديدة إذا لم تكن موجودة
     db.create_all()
-
-    # -----------------------------------------------------
-    # معرفة نوع قاعدة البيانات
-    # -----------------------------------------------------
 
     engine = db.engine
     inspector = inspect(engine)
 
     # -----------------------------------------------------
-    # جدول users
+    # تحديث جدول users
     # -----------------------------------------------------
 
     if inspector.has_table("users"):
@@ -77,9 +72,7 @@ with app.app_context():
             for column in inspector.get_columns("users")
         }
 
-        # -------------------------------------------------
-        # إضافة status إذا كان غير موجود
-        # -------------------------------------------------
+        # إضافة status إذا لم يكن موجودًا
 
         if "status" not in user_columns:
 
@@ -91,9 +84,7 @@ with app.app_context():
                 """)
             )
 
-        # -------------------------------------------------
-        # إضافة study_plan_id إذا كان غير موجود
-        # -------------------------------------------------
+        # إضافة study_plan_id إذا لم يكن موجودًا
 
         if "study_plan_id" not in user_columns:
 
@@ -153,6 +144,18 @@ def register_page():
 
     return render_template(
         "register.html"
+    )
+
+
+# =========================================================
+# صفحة المنافسة
+# =========================================================
+
+@app.route("/competition")
+def competition_page():
+
+    return render_template(
+        "competition.html"
     )
 
 
@@ -246,7 +249,7 @@ def health():
 
 
 # =========================================================
-# API لفحص حالة التطبيق وقاعدة البيانات
+# فحص قاعدة البيانات
 # =========================================================
 
 @app.route("/database-health")
@@ -275,15 +278,18 @@ def database_health():
 
 
 # =========================================================
-# معالجة أخطاء قاعدة البيانات أثناء الطلبات
+# معالجة أخطاء الخادم
 # =========================================================
 
 @app.errorhandler(500)
 def internal_server_error(error):
 
     try:
+
         db.session.rollback()
+
     except Exception:
+
         pass
 
     return {
@@ -292,7 +298,7 @@ def internal_server_error(error):
 
 
 # =========================================================
-# تنظيف جلسة قاعدة البيانات بعد الطلب
+# تنظيف جلسة قاعدة البيانات
 # =========================================================
 
 @app.teardown_appcontext
@@ -301,8 +307,11 @@ def shutdown_session(exception=None):
     if exception:
 
         try:
+
             db.session.rollback()
+
         except Exception:
+
             pass
 
 
@@ -316,6 +325,7 @@ def app_info():
     return {
         "name": "Hakim Academy",
         "status": "running",
+
         "features": [
             "students",
             "study_plans",
