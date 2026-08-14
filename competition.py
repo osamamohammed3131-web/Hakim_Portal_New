@@ -6,6 +6,7 @@ from threading import Lock
 from concurrent.futures import ThreadPoolExecutor
 
 from flask import Blueprint, jsonify, request
+
 from google import genai
 from google.genai import types
 
@@ -13,15 +14,19 @@ from google.genai import types
 competition = Blueprint(
     "competition",
     __name__,
-    url_prefix="/api/competition",
+    url_prefix="/api/competition"
 )
 
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv(
+    "GEMINI_API_KEY"
+)
+
 GEMINI_MODEL = os.getenv(
     "GEMINI_MODEL",
     "gemini-3.6-flash"
 )
+
 
 gemini_client = None
 
@@ -32,14 +37,26 @@ if GEMINI_API_KEY:
 
 
 sessions = {}
+
 sessions_lock = Lock()
+
 
 next_device_number = 2000
 
-AI_WORKERS = max(
-    1,
-    int(os.getenv("AI_WORKERS", "8"))
-)
+
+try:
+    AI_WORKERS = max(
+        1,
+        int(
+            os.getenv(
+                "AI_WORKERS",
+                "8"
+            )
+        )
+    )
+except Exception:
+    AI_WORKERS = 8
+
 
 ai_executor = ThreadPoolExecutor(
     max_workers=AI_WORKERS
@@ -47,10 +64,7 @@ ai_executor = ThreadPoolExecutor(
 
 
 def utc_now():
-    return datetime.utcnow().isoformat()
-
-
-@competition.post("/session")
+    return datetime.utcnow().isoformat()@competition.post("/session")
 def create_session():
 
     global next_device_number
@@ -64,173 +78,119 @@ def create_session():
         next_device_number += 1
 
         sessions[session_id] = {
-
-            "session_id":
-                session_id,
-
-            "device_number":
-                device_number,
-
-            "image_hash":
-                None,
-
-            "question_number":
-                1,
-
-            "answer":
-                None,
-
-            "answer_status":
-                "waiting",
-
-            "last_image_at":
-                None,
-
-            "last_answer_at":
-                None,
-
-            "created_at":
-                utc_now(),
-
-            "stopped":
-                False
+            "session_id": session_id,
+            "device_number": device_number,
+            "image_hash": None,
+            "question_number": 1,
+            "answer": None,
+            "answer_status": "waiting",
+            "last_image_at": None,
+            "last_answer_at": None,
+            "created_at": utc_now(),
+            "stopped": False
         }
 
-
     return jsonify({
-
-        "success":
-            True,
-
-        "session_id":
-            session_id,
-
-        "device_number":
-            device_number,
-
-        "question_number":
-            1
-
+        "success": True,
+        "session_id": session_id,
+        "device_number": device_number,
+        "question_number": 1
     }), 201
 
 
-@competition.get(
-    "/session/<session_id>"
-)
+@competition.get("/session/<session_id>")
 def get_session(session_id):
 
     with sessions_lock:
 
-        session = sessions.get(
-            session_id
-        )
+        session = sessions.get(session_id)
 
         if not session:
-
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "جلسة المنافسة غير موجودة"
-
+                "success": False,
+                "error": "جلسة المنافسة غير موجودة"
             }), 404
 
-
         return jsonify({
-
-            "success":
-                True,
-
-            "session":
-                dict(session)
-
-        })
-
-
-def analyze_question_image(
+            "success": True,
+            "session": dict(session)
+        })def analyze_question_image(
     image_bytes,
     mime_type="image/jpeg"
 ):
 
     if not gemini_client:
-
         raise RuntimeError(
-            "GEMINI_API_KEY غير موجود في Environment Variables"
+            "GEMINI_API_KEY غير موجود"
         )
 
-
-    image_part = (
-        types.Part.from_bytes(
-            data=image_bytes,
-            mime_type=mime_type
-        )
+    image_part = types.Part.from_bytes(
+        data=image_bytes,
+        mime_type=mime_type
     )
-
 
     prompt = """
-أنت محلل أسئلة لمنافسة تقنية تجريبية.
+أنت محلل بصري لأسئلة منافسة تقنية.
 
-الصورة تحتوي على سؤال وخيارات.
-اقرأ السؤال والخيارات بدقة شديدة، ثم حدد الخيار الصحيح.
+الصورة المرفقة تحتوي على سؤال وقد تحتوي على خيارات.
 
-قواعد الإخراج:
+اقرأ السؤال والخيارات الموجودة في الصورة بدقة شديدة،
+ثم حدد الإجابة الصحيحة.
 
-- إذا كانت الخيارات A/B/C/D أعد حرف الخيار فقط.
-- إذا كانت الخيارات أ/ب/ج/د أعد حرف الخيار فقط.
-- إذا كانت الخيارات مرقمة أعد رقم الخيار فقط.
-- لا تشرح.
-- لا تكتب أي نص إضافي.
-- لا تكتب أكثر من إجابة واحدة.
+القواعد:
 
-مثال:
+1. اقرأ السؤال كاملًا.
+2. اقرأ جميع الخيارات.
+3. حل السؤال داخليًا قبل اختيار الإجابة.
+4. أعد خيارًا واحدًا فقط.
+5. لا تكتب شرحًا.
+6. لا تكتب أي نص إضافي.
 
-A
+إذا كانت الخيارات:
 
-أو:
+A / B / C / D
 
-ب
+أعد حرف الخيار الصحيح فقط.
 
-أو:
+إذا كانت الخيارات:
 
-3
+أ / ب / ج / د
+
+أعد الحرف الصحيح كما يظهر في الصورة.
+
+إذا كانت الخيارات مرقمة:
+
+1 / 2 / 3 / 4
+
+أعد رقم الخيار الصحيح.
+
+الإجابة النهائية يجب أن تكون قصيرة جدًا.
 """
 
-
-    response = (
-        gemini_client.models.generate_content(
-
-            model=GEMINI_MODEL,
-
-            contents=[
-                image_part,
-                prompt
-            ]
-
-        )
+    response = gemini_client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=[
+            image_part,
+            prompt
+        ]
     )
-
 
     answer = (
         response.text or ""
     ).strip()
 
-
     if not answer:
-
         raise RuntimeError(
-            "Gemini لم يعطِ إجابة"
+            "Gemini لم يرجع إجابة"
         )
 
-
-    answer = (
-        answer
-        .replace("ANSWER:", "")
-        .replace("الإجابة:", "")
-        .strip()
-    )
-
+    answer = answer.replace(
+        "**",
+        ""
+    ).replace(
+        "`",
+        ""
+    ).strip()
 
     lines = [
         line.strip()
@@ -238,30 +198,28 @@ A
         if line.strip()
     ]
 
-
     if lines:
-
         answer = lines[0]
 
+    if not answer:
+        raise RuntimeError(
+            "إجابة Gemini فارغة"
+        )
 
-    return answer
-
-
-def process_ai_answer(
+    return answerdef process_ai_answer(
     session_id,
     image_hash,
     image_bytes,
-    question_number,
-    mime_type
+    mime_type,
+    question_number
 ):
 
     try:
 
         answer = analyze_question_image(
             image_bytes,
-            mime_type=mime_type
+            mime_type
         )
-
 
     except Exception as error:
 
@@ -277,29 +235,17 @@ def process_ai_answer(
             )
 
             if not session:
-
                 return
 
-
-            if (
-                session.get(
-                    "image_hash"
-                )
-                != image_hash
-            ):
-
+            if session.get(
+                "image_hash"
+            ) != image_hash:
                 return
 
-
-            if (
-                session.get(
-                    "question_number"
-                )
-                != question_number
-            ):
-
+            if session.get(
+                "question_number"
+            ) != question_number:
                 return
-
 
             session["answer"] = None
 
@@ -311,7 +257,6 @@ def process_ai_answer(
                 "last_answer_at"
             ] = utc_now()
 
-
         return
 
 
@@ -321,38 +266,23 @@ def process_ai_answer(
             session_id
         )
 
-
         if not session:
-
             return
 
-
-        if (
-            session.get(
-                "image_hash"
-            )
-            != image_hash
-        ):
-
+        if session.get(
+            "image_hash"
+        ) != image_hash:
             return
 
-
-        if (
-            session.get(
-                "question_number"
-            )
-            != question_number
-        ):
-
+        if session.get(
+            "question_number"
+        ) != question_number:
             return
-
 
         if session.get(
             "stopped"
         ):
-
             return
-
 
         session["answer"] = answer
 
@@ -362,80 +292,41 @@ def process_ai_answer(
 
         session[
             "last_answer_at"
-        ] = utc_now()
-
-
-@competition.post(
-    "/session/<session_id>/frame"
-)
+        ] = utc_now()@competition.post("/session/<session_id>/frame")
 def receive_frame(session_id):
 
     with sessions_lock:
 
-        session = sessions.get(
-            session_id
-        )
-
+        session = sessions.get(session_id)
 
         if not session:
-
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "جلسة المنافسة غير موجودة"
-
+                "success": False,
+                "error": "جلسة المنافسة غير موجودة"
             }), 404
 
-
-        if session.get(
-            "stopped"
-        ):
-
+        if session.get("stopped"):
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "الجلسة متوقفة"
-
+                "success": False,
+                "error": "الجلسة متوقفة"
             }), 409
 
 
     if "image" not in request.files:
-
         return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                "لم يتم إرسال صورة"
-
+            "success": False,
+            "error": "لم يتم إرسال صورة"
         }), 400
 
 
-    image = request.files[
-        "image"
-    ]
-
+    image = request.files["image"]
 
     image_bytes = image.read()
 
-
     if not image_bytes:
-
         return jsonify({
-
-            "success":
-                False,
-
-            "error":
-                "الصورة فارغة"
-
+            "success": False,
+            "error": "الصورة فارغة"
         }), 400
 
 
@@ -443,6 +334,9 @@ def receive_frame(session_id):
         image.mimetype
         or "image/jpeg"
     )
+
+    if not mime_type.startswith("image/"):
+        mime_type = "image/jpeg"
 
 
     image_hash = hashlib.sha256(
@@ -452,172 +346,102 @@ def receive_frame(session_id):
 
     with sessions_lock:
 
-        session = sessions.get(
-            session_id
-        )
-
+        session = sessions.get(session_id)
 
         if not session:
-
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "الجلسة غير موجودة"
-
+                "success": False,
+                "error": "الجلسة غير موجودة"
             }), 404
 
-
-        if session.get(
-            "stopped"
-        ):
-
+        if session.get("stopped"):
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "الجلسة متوقفة"
-
+                "success": False,
+                "error": "الجلسة متوقفة"
             }), 409
 
 
-        previous_hash = (
-            session.get(
-                "image_hash"
-            )
+        previous_hash = session.get(
+            "image_hash"
         )
 
 
-        if (
-            previous_hash
-            == image_hash
-        ):
+        if previous_hash == image_hash:
 
             return jsonify({
-
-                "success":
-                    True,
-
-                "new_question":
-                    False,
-
-                "same_question":
-                    True,
-
-                "device_number":
-                    session[
-                        "device_number"
-                    ],
-
-                "question_number":
-                    session[
-                        "question_number"
-                    ],
-
-                "answer":
-                    session[
-                        "answer"
-                    ],
-
-                "answer_status":
-                    session[
-                        "answer_status"
-                    ]
-
+                "success": True,
+                "same_question": True,
+                "new_question": False,
+                "session_id": session_id,
+                "device_number": session[
+                    "device_number"
+                ],
+                "question_number": session[
+                    "question_number"
+                ],
+                "answer": session[
+                    "answer"
+                ],
+                "answer_status": session[
+                    "answer_status"
+                ]
             })
 
 
         if previous_hash is not None:
-
             session[
                 "question_number"
             ] += 1
 
 
-        question_number = (
-            session[
-                "question_number"
-            ]
-        )
+        question_number = session[
+            "question_number"
+        ]
 
 
         session[
             "image_hash"
         ] = image_hash
 
-
         session[
             "answer"
         ] = None
 
-
         session[
             "answer_status"
         ] = "processing"
-
 
         session[
             "last_image_at"
         ] = utc_now()
 
 
-        device_number = (
-            session[
-                "device_number"
-            ]
-        )
+        device_number = session[
+            "device_number"
+        ]
 
 
     ai_executor.submit(
-
         process_ai_answer,
-
         session_id,
-
         image_hash,
-
         image_bytes,
-
-        question_number,
-
-        mime_type
-
+        mime_type,
+        question_number
     )
 
 
     return jsonify({
-
-        "success":
-            True,
-
-        "new_question":
-            True,
-
-        "same_question":
-            False,
-
-        "device_number":
-            device_number,
-
-        "question_number":
-            question_number,
-
-        "answer":
-            None,
-
-        "answer_status":
-            "processing"
-
-    }), 202
-
-
-@competition.get(
-    "/session/<session_id>/result"
-)
+        "success": True,
+        "new_question": True,
+        "same_question": False,
+        "session_id": session_id,
+        "device_number": device_number,
+        "question_number": question_number,
+        "answer": None,
+        "answer_status": "processing",
+        "message": "تم استلام السؤال وبدأ التحليل"
+    }), 202@competition.get("/session/<session_id>/result")
 def get_result(session_id):
 
     with sessions_lock:
@@ -626,54 +450,39 @@ def get_result(session_id):
             session_id
         )
 
-
         if not session:
 
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "الجلسة غير موجودة"
-
+                "success": False,
+                "error": "الجلسة غير موجودة"
             }), 404
 
 
         return jsonify({
-
-            "success":
-                True,
-
-            "session_id":
-                session_id,
-
-            "device_number":
-                session[
-                    "device_number"
-                ],
-
-            "question_number":
-                session[
-                    "question_number"
-                ],
-
-            "answer":
-                session[
-                    "answer"
-                ],
-
-            "answer_status":
-                session[
-                    "answer_status"
-                ]
-
+            "success": True,
+            "session_id": session_id,
+            "device_number": session[
+                "device_number"
+            ],
+            "question_number": session[
+                "question_number"
+            ],
+            "answer": session[
+                "answer"
+            ],
+            "answer_status": session[
+                "answer_status"
+            ],
+            "last_image_at": session[
+                "last_image_at"
+            ],
+            "last_answer_at": session[
+                "last_answer_at"
+            ]
         })
 
 
-@competition.post(
-    "/session/<session_id>/stop"
-)
+@competition.post("/session/<session_id>/stop")
 def stop_session(session_id):
 
     with sessions_lock:
@@ -682,36 +491,76 @@ def stop_session(session_id):
             session_id
         )
 
-
         if not session:
 
             return jsonify({
-
-                "success":
-                    False,
-
-                "error":
-                    "الجلسة غير موجودة"
-
+                "success": False,
+                "error": "الجلسة غير موجودة"
             }), 404
 
 
-        session[
-            "stopped"
-        ] = True
-
+        session["stopped"] = True
 
         session[
             "answer_status"
         ] = "stopped"
 
+        session["answer"] = None
+
 
     return jsonify({
+        "success": True,
+        "session_id": session_id,
+        "message": "تم إيقاف جلسة المنافسة"
+    })
 
-        "success":
-            True,
 
-        "message":
-            "تم إيقاف جلسة المنافسة"
+@competition.get("/ai-health")
+def ai_health():
 
+    if not GEMINI_API_KEY:
+
+        return jsonify({
+            "success": False,
+            "ai": "Gemini",
+            "status": "missing_api_key",
+            "message": "GEMINI_API_KEY غير موجود"
+        }), 503
+
+
+    if not gemini_client:
+
+        return jsonify({
+            "success": False,
+            "ai": "Gemini",
+            "status": "not_initialized"
+        }), 503
+
+
+    return jsonify({
+        "success": True,
+        "ai": "Gemini",
+        "status": "ready",
+        "model": GEMINI_MODEL
+    })
+
+
+@competition.get("/info")
+def competition_info():
+
+    with sessions_lock:
+
+        active_sessions = len(
+            sessions
+        )
+
+
+    return jsonify({
+        "success": True,
+        "name": "Hakim AI Competition",
+        "status": "running",
+        "ai": "Gemini",
+        "model": GEMINI_MODEL,
+        "active_sessions": active_sessions,
+        "ai_workers": AI_WORKERS
     })
