@@ -1,4 +1,4 @@
 Flask
 Flask-SQLAlchemy
 psycopg2-binary
-openai
+google-genai
