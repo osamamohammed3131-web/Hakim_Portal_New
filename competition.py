@@ -474,4 +474,240 @@ ANSWER: D
     )
 
 
-    return answer
+    return answer# =========================================================
+# تحليل السؤال وربط النتيجة بنفس الجهاز
+# =========================================================
+
+@competition.post("/session/<session_id>/analyze")
+def analyze_session_image(session_id):
+
+    # -----------------------------------------------------
+    # استقبال الجلسة
+    # -----------------------------------------------------
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+        if not session:
+            return jsonify({
+                "success": False,
+                "error": "جلسة المنافسة غير موجودة"
+            }), 404
+
+
+    # -----------------------------------------------------
+    # التأكد من وجود الصورة
+    # -----------------------------------------------------
+
+    if "image" not in request.files:
+
+        return jsonify({
+            "success": False,
+            "error": "لم يتم إرسال صورة"
+        }), 400
+
+
+    image = request.files["image"]
+
+    image_bytes = image.read()
+
+
+    if not image_bytes:
+
+        return jsonify({
+            "success": False,
+            "error": "الصورة فارغة"
+        }), 400
+
+
+    # -----------------------------------------------------
+    # إنشاء بصمة للصورة
+    # -----------------------------------------------------
+
+    import hashlib
+
+    image_hash = hashlib.sha256(
+        image_bytes
+    ).hexdigest()
+
+
+    # -----------------------------------------------------
+    # التحقق من السؤال الحالي
+    # -----------------------------------------------------
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+        previous_hash = session.get(
+            "image_hash"
+        )
+
+
+        # -------------------------------------------------
+        # نفس السؤال
+        # -------------------------------------------------
+
+        if (
+            previous_hash == image_hash
+            and session.get("answer") is not None
+        ):
+
+            return jsonify({
+                "success": True,
+
+                "same_question": True,
+
+                "new_question": False,
+
+                "session_id": session_id,
+
+                "device_number":
+                    session.get(
+                        "device_number"
+                    ),
+
+                "question_number":
+                    session.get(
+                        "question_number"
+                    ),
+
+                "answer":
+                    session.get(
+                        "answer"
+                    ),
+
+                "answer_status":
+                    "completed",
+
+                "message":
+                    "السؤال نفسه، تم استخدام الإجابة السابقة"
+            })
+
+
+        # -------------------------------------------------
+        # سؤال جديد
+        # -------------------------------------------------
+
+        if previous_hash is not None:
+
+            session["question_number"] += 1
+
+
+        current_question = (
+            session["question_number"]
+        )
+
+
+        session["image_hash"] = image_hash
+
+        session["answer"] = None
+
+        session["answer_status"] = "processing"
+
+        session["last_image_at"] = (
+            datetime.utcnow().isoformat()
+        )
+
+
+        device_number = (
+            session.get("device_number")
+        )
+
+
+    # -----------------------------------------------------
+    # تحليل الصورة
+    #
+    # مهم:
+    # لا نضع استدعاء OpenAI داخل sessions_lock
+    # حتى لا نوقف بقية الأجهزة أثناء انتظار الذكاء الاصطناعي.
+    # -----------------------------------------------------
+
+    try:
+
+        answer = analyze_question_image(
+            image_bytes
+        )
+
+    except Exception as error:
+
+        with sessions_lock:
+
+            session = sessions.get(
+                session_id
+            )
+
+            if session:
+
+                session["answer_status"] = (
+                    "error"
+                )
+
+
+        return jsonify({
+            "success": False,
+            "error": "حدث خطأ أثناء تحليل الصورة"
+        }), 500
+
+
+    # -----------------------------------------------------
+    # حفظ النتيجة للجهاز نفسه
+    # -----------------------------------------------------
+
+    with sessions_lock:
+
+        session = sessions.get(
+            session_id
+        )
+
+        if not session:
+
+            return jsonify({
+                "success": False,
+                "error": "جلسة المنافسة انتهت"
+            }), 404
+
+
+        session["answer"] = answer
+
+        session["answer_status"] = (
+            "completed"
+        )
+
+        session["last_answer_at"] = (
+            datetime.utcnow().isoformat()
+        )
+
+
+    # -----------------------------------------------------
+    # إرسال النتيجة
+    # -----------------------------------------------------
+
+    return jsonify({
+
+        "success": True,
+
+        "same_question": False,
+
+        "new_question": True,
+
+        "session_id": session_id,
+
+        "device_number": device_number,
+
+        "question_number":
+            current_question,
+
+        "answer": answer,
+
+        "answer_status":
+            "completed",
+
+        "message":
+            "تم تحليل السؤال بنجاح"
+    })
