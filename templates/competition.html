@@ -1,117 +1,941 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hakim AI Competition</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#1f2937}
+header{background:#fff;border-bottom:1px solid #e5e7eb;padding:18px 25px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;color:#1769d1;font-size:22px}
+.device{font-size:14px;color:#555}
+.container{max-width:1000px;margin:30px auto;padding:0 20px}
+.card{background:#fff;border-radius:20px;padding:25px;margin-bottom:20px;box-shadow:0 5px 25px rgba(0,0,0,.06)}
+.card h2{margin-top:0;color:#1769d1}
+.status{padding:18px;border-radius:12px;background:#f3f6fa;line-height:2.2}
+.status strong{color:#1769d1}
+.buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+button{border:0;border-radius:10px;padding:14px 22px;font-size:15px;cursor:pointer}
+#startButton{background:#1769d1;color:#fff}
+#stopButton{background:#dc2626;color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+#message{margin-top:15px;min-height:25px;font-weight:bold}
+.preview{display:none;margin-top:25px;background:#111827;border-radius:15px;padding:10px}
+.preview video{width:100%;max-height:500px;display:block;border-radius:10px}
+.small-note{color:#777;font-size:13px;line-height:1.8;margin-top:15px}
+.ai-ready{display:inline-block;padding:5px 10px;border-radius:20px;background:#dcfce7;color:#15803d;font-size:12px;font-weight:bold}
+#answerPopup{position:fixed;top:25px;right:25px;width:330px;background:#fff;border-radius:18px;padding:20px;box-shadow:0 15px 45px rgba(0,0,0,.22);border:3px solid #1769d1;z-index:999999;display:none}
+.popup-title{color:#1769d1;font-weight:bold;font-size:18px}
+.popup-question{margin-top:8px;color:#777;font-size:14px}
+.popup-answer-label{text-align:center;margin-top:18px;color:#555;font-size:14px}
+.popup-answer{margin-top:5px;font-size:48px;font-weight:bold;text-align:center;color:#111827}
+.popup-status{margin-top:10px;text-align:center;color:#16a34a;font-weight:bold}
+.popup-timer{margin-top:8px;text-align:center;color:#777;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+<h1>Hakim AI Competition</h1>
+<div class="device">الجهاز: <strong id="deviceNumber">...</strong></div>
+</header>
+<div class="container"><div class="card">
+<h2>منصة المنافسة الذكية</h2>
+<p>شارك نافذة معرض الصور أو الشاشة المطلوبة. سيقوم النظام بالتقاط الإطارات الجديدة وإرسال السؤال للتحليل.</p>
+<div class="small-note">عند مشاركة الشاشة اختر النافذة التي تحتوي على صور الأسئلة فقط، إذا كان ذلك متاحًا في متصفحك.</div>
+<div class="small-note">
+حالة الذكاء الاصطناعي:
+<span id="aiStatus" class="ai-ready">جاري الفحص...</span>
+</div>
+<div id="floatingStatus" class="small-note">جاري فحص دعم النافذة العائمة...</div>
+</div>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<div class="card">
+<div class="status">
+الحالة:
+<strong id="statusText">جاري إنشاء الجلسة...</strong>
+<br>
+رقم الجهاز:
+<strong id="deviceText">...</strong>
+<br>
+رقم السؤال:
+<strong id="questionText">1</strong>
+</div>
 
-    <title>Hakim AI Competition</title>
+<div class="buttons">
+<button id="startButton" onclick="startCompetition()" disabled>
+🎥 بدء المنافسة ومشاركة الشاشة
+</button>
 
-    <style>
+<button id="stopButton" onclick="stopCompetition()" disabled>
+⛔ إيقاف المنافسة
+</button>
+</div>
 
-        * {
-            box-sizing: border-box;
-        }
+<div id="message"></div>
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #1f2937;
-        }
+<div id="preview" class="preview">
+<video id="screenVideo" autoplay muted playsinline></video>
+</div>
+</div>
 
-        header {
-            background: white;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 18px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+</div><div id="answerPopup">
+<div class="popup-title">🤖 Hakim AI</div>
+<div id="popupQuestion" class="popup-question">السؤال 1</div>
+<div class="popup-answer-label">الإجابة</div>
+<div id="popupAnswer" class="popup-answer">—</div>
+<div id="popupStatus" class="popup-status">جاهز</div>
+<div id="popupTimer" class="popup-timer">—</div>
+</div>
 
-        header h1 {
-            margin: 0;
-            color: #1769d1;
-            font-size: 22px;
-        }
+<script>
+let sessionId=null;
+let deviceNumber=null;
+let screenStream=null;
+let competitionRunning=false;
+let captureTimer=null;
+let resultTimer=null;
+let lastFrameSignature=null;
+let lastSubmittedSignature=null;
+let lastShownAnswer=null;
+let lastShownQuestion=null;
+let answerHideTimer=null;
+let answerCountdownTimer=null;
+let floatingWindow=null;
 
-        .device {
-            font-size: 14px;
-            color: #555;
-        }
+const CAPTURE_INTERVAL=1000;
+const ANSWER_DISPLAY_TIME=10000;
 
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+const statusText=document.getElementById("statusText");
+const deviceNumberElement=document.getElementById("deviceNumber");
+const deviceText=document.getElementById("deviceText");
+const questionText=document.getElementById("questionText");
+const startButton=document.getElementById("startButton");
+const stopButton=document.getElementById("stopButton");
+const messageElement=document.getElementById("message");
+const preview=document.getElementById("preview");
+const screenVideo=document.getElementById("screenVideo");
+const answerPopup=document.getElementById("answerPopup");
+const popupQuestion=document.getElementById("popupQuestion");
+const popupAnswer=document.getElementById("popupAnswer");
+const popupStatus=document.getElementById("popupStatus");
+const popupTimer=document.getElementById("popupTimer");
+const aiStatus=document.getElementById("aiStatus");
+const floatingStatus=document.getElementById("floatingStatus");
 
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow:
-                0 5px 25px rgba(0, 0, 0, 0.06);
-        }
+function showMessage(message,color="#1769d1"){
+messageElement.textContent=message;
+messageElement.style.color=color;
+}
 
-        .card h2 {
-            margin-top: 0;
-            color: #1769d1;
-        }
+async function createSession(){
+try{
+statusText.textContent="جاري إنشاء الجلسة...";
+const response=await fetch("/api/competition/session",{method:"POST",cache:"no-store"});
+const data=await response.json();
 
-        .status {
-            padding: 15px;
-            border-radius: 12px;
-            background: #f3f6fa;
-            line-height: 2;
-        }
+if(!response.ok||!data.success){
+throw new Error(data.error||"تعذر إنشاء جلسة المنافسة");
+}
 
-        .status strong {
-            color: #1769d1;
-        }
+sessionId=data.session_id;
+deviceNumber=data.device_number;
 
-        .buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
+deviceNumberElement.textContent=deviceNumber;
+deviceText.textContent=deviceNumber;
+questionText.textContent=data.question_number||1;
 
-        button {
-            border: 0;
-            border-radius: 10px;
-            padding: 14px 22px;
-            font-size: 15px;
-            cursor: pointer;
-        }
+statusText.textContent="الجلسة جاهزة";
+startButton.disabled=false;
 
-        #startButton {
-            background: #1769d1;
-            color: white;
-        }
+showMessage(
+"تم إنشاء الجلسة ورقم الجهاز "+deviceNumber+" تم تحديده تلقائيًا.",
+"#15803d"
+);
 
-        #stopButton {
-            background: #dc2626;
-            color: white;
-        }
+}catch(error){
+console.error("createSession:",error);
+statusText.textContent="تعذر إنشاء الجلسة";
+showMessage(error.message,"#dc2626");
+}
+}
 
-        button:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
+async function checkAIHealth(){
+try{
+const response=await fetch("/api/competition/ai-health",{cache:"no-store"});
+const data=await response.json();
 
-        #message {
-            margin-top: 15px;
-            min-height: 25px;
-            font-weight: bold;
-        }
+if(response.ok&&data.success&&data.status==="ready"){
+aiStatus.textContent="Gemini متصل";
+aiStatus.style.background="#dcfce7";
+aiStatus.style.color="#15803d";
+}else{
+aiStatus.textContent="Gemini غير جاهز";
+aiStatus.style.background="#fee2e2";
+aiStatus.style.color="#b91c1c";
+}
 
-        .preview {
-            display: none;
-            margin-top: 25px;
-            background: #111
+}catch(error){
+console.error("AI health:",error);
+aiStatus.textContent="تعذر الفحص";
+aiStatus.style.background="#fee2e2";
+aiStatus.style.color="#b91c1c";
+}
+}function checkFloatingSupport(){
+if("documentPictureInPicture"in window){
+floatingStatus.textContent="✓ المتصفح يدعم نافذة الإجابة العائمة.";
+}else{
+floatingStatus.textContent="المتصفح لا يدعم النافذة العائمة؛ ستظهر الإجابة داخل الصفحة.";
+}
+}
+
+async function openFloatingWindow(){
+if(!("documentPictureInPicture"in window)){
+return false;
+}
+
+if(floatingWindow&&!floatingWindow.closed){
+return true;
+}
+
+try{
+floatingWindow=await window.documentPictureInPicture.requestWindow({
+width:350,
+height:245
+});
+
+const doc=floatingWindow.document;
+doc.title="Hakim AI";
+
+const style=doc.createElement("style");
+
+style.textContent=`
+*{box-sizing:border-box}
+html,body{
+margin:0;
+padding:0;
+width:100%;
+height:100%;
+font-family:Arial,sans-serif;
+background:#fff
+}
+body{direction:rtl}
+#box{
+width:100%;
+height:100%;
+padding:18px;
+border:3px solid #1769d1;
+border-radius:18px;
+background:#fff
+}
+#title{
+color:#1769d1;
+font-size:18px;
+font-weight:bold
+}
+#question{
+margin-top:8px;
+color:#777;
+font-size:13px
+}
+#label{
+margin-top:14px;
+text-align:center;
+color:#555;
+font-size:13px
+}
+#answer{
+margin-top:4px;
+text-align:center;
+font-size:48px;
+font-weight:bold;
+color:#111827
+}
+#status{
+margin-top:7px;
+text-align:center;
+color:#16a34a;
+font-weight:bold;
+font-size:13px
+}
+#timer{
+margin-top:6px;
+text-align:center;
+color:#777;
+font-size:12px
+}
+`;
+
+doc.head.appendChild(style);
+
+const box=doc.createElement("div");
+box.id="box";
+
+const title=doc.createElement("div");
+title.id="title";
+title.textContent="🤖 Hakim AI";
+
+const question=doc.createElement("div");
+question.id="question";
+question.textContent="بانتظار السؤال...";
+
+const label=doc.createElement("div");
+label.id="label";
+label.textContent="الإجابة";
+
+const answer=doc.createElement("div");
+answer.id="answer";
+answer.textContent="—";
+
+const status=doc.createElement("div");
+status.id="status";
+status.textContent="جاهز";
+
+const timer=doc.createElement("div");
+timer.id="timer";
+timer.textContent="بانتظار السؤال";
+
+box.appendChild(title);
+box.appendChild(question);
+box.appendChild(label);
+box.appendChild(answer);
+box.appendChild(status);
+box.appendChild(timer);
+
+doc.body.appendChild(box);
+
+floatingWindow.addEventListener("pagehide",()=>{
+floatingWindow=null;
+});
+
+return true;
+
+}catch(error){
+console.error("Floating window:",error);
+showMessage(
+"تعذر فتح النافذة العائمة: "+error.message,
+"#dc2626"
+);
+return false;
+}
+}
+
+function updateFloatingWindow(question,answer,status,timerText){
+if(!floatingWindow||floatingWindow.closed){
+return;
+}
+
+const doc=floatingWindow.document;
+
+const questionElement=doc.getElementById("question");
+const answerElement=doc.getElementById("answer");
+const statusElement=doc.getElementById("status");
+const timerElement=doc.getElementById("timer");
+
+if(questionElement){
+questionElement.textContent="السؤال "+question;
+}
+
+if(answerElement){
+answerElement.textContent=answer;
+}
+
+if(statusElement){
+statusElement.textContent=status;
+}
+
+if(timerElement){
+timerElement.textContent=timerText;
+}
+}async function startCompetition(){
+
+if(competitionRunning){
+return;
+}
+
+if(!sessionId){
+showMessage(
+"الجلسة لم تجهز بعد.",
+"#dc2626"
+);
+return;
+}
+
+try{
+
+startButton.disabled=true;
+
+statusText.textContent=
+"جاري تجهيز المنافسة...";
+
+showMessage(
+"جاري فتح نافذة الإجابة وطلب مشاركة الشاشة..."
+);
+
+const floatingReady=
+await openFloatingWindow();
+
+if(!floatingReady){
+showMessage(
+"تعذر تجهيز نافذة الإجابة العائمة.",
+"#dc2626"
+);
+startButton.disabled=false;
+return;
+}
+
+statusText.textContent=
+"جاري طلب مشاركة الشاشة...";
+
+screenStream=
+await navigator.mediaDevices.getDisplayMedia({
+
+video:{
+frameRate:5
+},
+
+audio:false
+
+});
+
+screenVideo.srcObject=
+screenStream;
+
+await screenVideo.play();
+
+preview.style.display=
+"block";
+
+competitionRunning=true;
+
+stopButton.disabled=false;
+
+statusText.textContent=
+"مشاركة الشاشة تعمل";
+
+showMessage(
+"تم بدء المنافسة. يمكنك الآن إخفاء المتصفح وفتح معرض الصور.",
+"#15803d"
+);
+
+updateFloatingWindow(
+1,
+"—",
+"جاهز",
+"بانتظار السؤال"
+);
+
+startFrameCapture();
+
+const track=
+screenStream.getVideoTracks()[0];
+
+if(track){
+
+track.addEventListener(
+"ended",
+()=>{
+stopCompetition();
+}
+);
+
+}
+
+}catch(error){
+
+console.error(
+"startCompetition:",
+error
+);
+
+competitionRunning=false;
+
+startButton.disabled=false;
+stopButton.disabled=true;
+
+statusText.textContent=
+"لم تبدأ المنافسة";
+
+showMessage(
+"لم يتم بدء المنافسة: "+
+error.message,
+"#dc2626"
+);
+
+}
+}
+
+
+function startFrameCapture(){
+
+if(captureTimer){
+clearInterval(captureTimer);
+}
+
+captureCurrentFrame();
+
+captureTimer=
+setInterval(
+captureCurrentFrame,
+CAPTURE_INTERVAL
+);
+
+}
+
+
+async function captureCurrentFrame(){
+
+if(
+!competitionRunning||
+!screenVideo.videoWidth||
+!screenVideo.videoHeight
+){
+return;
+}
+
+const canvas=
+document.createElement("canvas");
+
+const width=960;
+
+const height=
+Math.round(
+(
+screenVideo.videoHeight/
+screenVideo.videoWidth
+)*
+width
+);
+
+canvas.width=width;
+canvas.height=height;
+
+const context=
+canvas.getContext("2d",{
+willReadFrequently:true
+});
+
+context.drawImage(
+screenVideo,
+0,
+0,
+width,
+height
+);
+
+const signature=
+createFrameSignature(
+canvas,
+context
+);
+
+if(
+signature===
+lastFrameSignature
+){
+
+checkResult();
+
+return;
+
+}
+
+lastFrameSignature=
+signature;
+
+if(
+signature!==
+lastSubmittedSignature
+){
+
+lastSubmittedSignature=
+signature;
+
+await sendFrame(canvas);
+
+}
+
+}function createFrameSignature(canvas,context){
+
+const sampleWidth=32;
+const sampleHeight=18;
+
+const sampleCanvas=
+document.createElement("canvas");
+
+sampleCanvas.width=sampleWidth;
+sampleCanvas.height=sampleHeight;
+
+const sampleContext=
+sampleCanvas.getContext("2d");
+
+sampleContext.drawImage(
+canvas,
+0,
+0,
+sampleWidth,
+sampleHeight
+);
+
+const data=
+sampleContext.getImageData(
+0,
+0,
+sampleWidth,
+sampleHeight
+).data;
+
+let hash=0;
+
+for(
+let i=0;
+i<data.length;
+i+=16
+){
+
+hash=
+(
+hash+
+data[i]+
+data[i+1]+
+data[i+2]
+)%1000000007;
+
+}
+
+return String(hash);
+}
+
+
+async function sendFrame(canvas){
+
+if(!sessionId){
+return;
+}
+
+try{
+
+const blob=
+await new Promise(
+resolve=>{
+canvas.toBlob(
+resolve,
+"image/jpeg",
+0.78
+);
+}
+);
+
+if(!blob){
+return;
+}
+
+const formData=
+new FormData();
+
+formData.append(
+"image",
+blob,
+"screen.jpg"
+);
+
+const response=
+await fetch(
+"/api/competition/session/"+
+sessionId+
+"/frame",
+{
+method:"POST",
+body:formData,
+cache:"no-store"
+}
+);
+
+const data=
+await response.json();
+
+if(!response.ok){
+
+showMessage(
+data.error||
+"تعذر إرسال الصورة",
+"#dc2626"
+);
+
+return;
+}
+
+if(
+data.question_number
+){
+
+questionText.textContent=
+data.question_number;
+
+}
+
+if(
+data.answer
+){
+
+showAnswer(
+data.question_number,
+data.answer
+);
+
+}
+
+if(
+data.answer_status===
+"processing"
+){
+
+statusText.textContent=
+"جاري تحليل السؤال "+
+data.question_number+
+"...";
+
+}
+
+checkResult();
+
+}catch(error){
+
+console.error(
+"sendFrame:",
+error
+);
+
+}
+}
+
+
+async function checkResult(){
+
+if(
+!sessionId||
+!competitionRunning
+){
+
+return;
+
+}
+
+try{
+
+const response=
+await fetch(
+"/api/competition/session/"+
+sessionId+
+"/result",
+{
+method:"GET",
+cache:"no-store"
+}
+);
+
+if(!response.ok){
+return;
+}
+
+const data=
+await response.json();
+
+if(
+data.question_number
+){
+
+questionText.textContent=
+data.question_number;
+
+}
+
+if(
+data.answer_status===
+"completed"&&
+data.answer
+){
+
+showAnswer(
+data.question_number,
+data.answer
+);
+
+statusText.textContent=
+"تم تحليل السؤال "+
+data.question_number;
+
+}else if(
+data.answer_status===
+"processing"
+){
+
+statusText.textContent=
+"جاري تحليل السؤال "+
+data.question_number+
+"...";
+
+}else if(
+data.answer_status===
+"error"
+){
+
+statusText.textContent=
+"تعذر تحليل السؤال "+
+data.question_number;
+
+}
+
+}catch(error){
+
+console.error(
+"checkResult:",
+error
+);
+
+}
+}function showAnswer(question,answer){
+
+if(!answer){
+return;
+}
+
+lastShownAnswer=answer;
+lastShownQuestion=question;
+
+popupQuestion.textContent=
+"السؤال "+question;
+
+popupAnswer.textContent=
+answer;
+
+popupStatus.textContent=
+"تم التحليل";
+
+let remaining=10;
+
+popupTimer.textContent=
+"تختفي خلال "+remaining+" ثوانٍ";
+
+if(answerHideTimer){
+clearTimeout(answerHideTimer);
+}
+
+if(answerCountdownTimer){
+clearInterval(answerCountdownTimer);
+}
+
+answerPopup.style.display=
+"block";
+
+updateFloatingWindow(
+question,
+answer,
+"تم التحليل",
+"تختفي خلال "+remaining+" ثوانٍ"
+);
+
+answerCountdownTimer=
+setInterval(
+()=>{
+
+remaining--;
+
+if(remaining>0){
+
+popupTimer.textContent=
+"تختفي خلال "+remaining+" ثوانٍ";
+
+updateFloatingWindow(
+question,
+answer,
+"تم التحليل",
+"تختفي خلال "+remaining+" ثوانٍ"
+);
+
+}else{
+
+clearInterval(
+answerCountdownTimer
+);
+
+answerCountdownTimer=null;
+
+popupTimer.textContent=
+"";
+
+updateFloatingWindow(
+question,
+"—",
+"جاهز",
+"بانتظار السؤال التالي"
+);
+
+}
+
+},
+1000
+);
+
+answerHideTimer=
+setTimeout(
+()=>{
+
+answerPopup.style.display=
+"none";
+
+},
+ANSWER_DISPLAY_TIME
+);
+
+}
+
+
+async function stopCompetition(){
+
+if(
+!competitionRunning&&
+!screenStream
+){
+return;
+}
+
+competitionRunning=false;
+
+if(captureTimer){
+clearInterval(
+captureTimer
+);
+captureTimer=null;
+}
+
+if(resultTimer){
+clearInterval(
+resultTimer
+);
+resultTimer=null;
+}
+
+if(answerHideTimer){
+clearTimeout(
+answerHideTimer
+);
+answerHideTimer=null;
+}
+
+if(answerCountdownTimer){
+clearInterval(
+answerCountdownTimer
+);
+answerCountdownTimer=null;
+}
+
+if(screenStream){
+
+screenStream
+.getTracks()
+.forEach(
+track=>track.stop
+ </script>
+</body>
+</html>
