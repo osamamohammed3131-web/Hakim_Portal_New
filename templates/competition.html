@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Hakim AI Competition</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #1769d1;
+            font-size: 23px;
+        }
+
+        .device-info {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .welcome h2 {
+            margin-top: 0;
+            color: #1769d1;
+        }
+
+        .welcome p {
+            line-height: 1.8;
+            color: #666;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 12px;
+            background: #f5f7fb;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .status strong {
+            color: #1769d1;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 13px 20px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .start {
+            background: #1769d1;
+            color: white;
+        }
+
+        .stop {
+            background: #dc2626;
+            color: white;
+        }
+
+        .stop:disabled,
+        .start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview {
+            margin-top: 25px;
+            background: #111827;
+            border-radius: 15px;
+            padding: 10px;
+            display: none;
+        }
+
+        .preview video {
+            width: 100%;
+            max-height: 550px;
+            display: block;
+            border-radius: 10px;
+            background: black;
+        }
+
+        .result-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 18px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.18);
+            border: 1px solid #e5e7eb;
+            display: none;
+            z-index: 9999;
+        }
+
+        .result-box h3 {
+            margin: 0 0 10px;
+            color: #1769d1;
+        }
+
+        .result-answer {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .question-number {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .timer {
+            color: #777;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .message {
+            margin-top: 15px;
+            min-height: 22px;
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>
+        Hakim AI Competition
+    </h1>
+
+    <div class="device-info">
+
+        الجهاز:
+        <strong id="deviceNumber">
+            جاري التحديد...
+        </strong>
+
+    </div>
+
+</header>
+
+
+<div class="container">
+
+
+    <div class="welcome">
+
+        <h2>
+            منصة المنافسة الذكية
+        </h2>
+
+        <p>
+            شارك الشاشة التي تعرض عليها صور المنافسة،
+            وسيقوم النظام بمراقبتها بعد موافقتك واكتشاف
+            تغير الصور تلقائيًا.
+        </p>
+
+    </div>
+
+
+    <div class="control-panel">
+
+
+        <div class="status">
+
+            الحالة:
+            <strong id="statusText">
+                لم تبدأ مشاركة الشاشة
+            </strong>
+
+            <br>
+
+            الجلسة:
+            <strong id="sessionId">
+                جاري إنشاء الجلسة...
+            </strong>
+
+        </div>
+
+
+        <div class="buttons">
+
+            <button
+                id="startButton"
+                class="start"
+                onclick="startCompetition()"
+            >
+                🎥 بدء المنافسة ومشاركة الشاشة
+            </button>
+
+
+            <button
+                id="stopButton"
+                class="stop"
+                onclick="stopCompetition()"
+                disabled
+            >
+                ⛔ إيقاف مشاركة الشاشة
+            </button>
+
+        </div>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <div
+            id="preview"
+            class="preview"
+        >
+
+            <video
+                id="screenVideo"
+                autoplay
+                muted
+                playsinline
+            ></video>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+<div
+    id="resultBox"
+    class="result-box"
+>
+
+    <h3>
+        🤖 حكيم AI
+    </h3>
+
+    <div
+        id="questionNumber"
+        class="question-number"
+    >
+        السؤال 1
+    </div>
+
+    <div
+        id="resultAnswer"
+        class="result-answer"
+    >
+        —
+    </div>
+
+    <div
+        id="resultTimer"
+        class="timer"
+    >
+        النتيجة تجريبية
+    </div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   متغيرات المنافسة
+========================================================= */
+
+let sessionId = null;
+
+let deviceNumber = null;
+
+let screenStream = null;
+
+let competitionRunning = false;
+
+
+/* =========================================================
+   عناصر الصفحة
+========================================================= */
+
+const statusText =
+    document.getElementById(
+        "statusText"
+    );
+
+const sessionIdElement =
+    document.getElementById(
+        "sessionId"
+    );
+
+const deviceNumberElement =
+    document.getElementById(
+        "deviceNumber"
+    );
+
+const startButton =
+    document.getElementById(
+        "startButton"
+    );
+
+const stopButton =
+    document.getElementById(
+        "stopButton"
+    );
+
+const messageElement =
+    document.getElementById(
+        "message"
+    );
+
+const preview =
+    document.getElementById(
+        "preview"
+    );
+
+const screenVideo =
+    document.getElementById(
+        "screenVideo"
+    );
+
+
+/* =========================================================
+   رسالة
+========================================================= */
+
+function showMessage(
+    text,
+    color = "#1769d1"
+) {
+
+    messageElement.textContent = text;
+
+    messageElement.style.color =
+        color;
+
+}
+
+
+/* =========================================================
+   إنشاء جلسة
+========================================================= */
+
+async function createCompetitionSession() {
+
+    try {
+
+        const response = await fetch(
+            "/api/competition/session",
+            {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "تعذر إنشاء الجلسة"
+            );
+
+        }
+
+
+        sessionId =
+            data.session_id;
+
+
+        sessionIdElement.textContent =
+            sessionId;
+
+
+        /*
+         * رقم الجهاز هنا مؤقت.
+         *
+         * في الخطوة القادمة سنجعل
+         * النظام يوزع أرقام الأجهزة
+         * تلقائيًا من 2000 فما فوق.
+         */
+
+        deviceNumber =
+            2000;
+
+
+        deviceNumberElement.textContent =
+            deviceNumber;
+
+
+        showMessage(
+            "تم إنشاء جلسة المنافسة بنجاح."
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "#dc2626"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   بدء مشاركة الشاشة
+========================================================= */
+
+async function startCompetition() {
+
+    if (competitionRunning) {
+        return;
+    }
+
+
+    try {
+
+        startButton.disabled = true;
+
+
+        statusText.textContent =
+            "جاري طلب مشاركة الشاشة...";
+
+
+        showMessage(
+            "اختر الشاشة أو النافذة التي تعرض صور المنافسة."
+        );
+
+
+        /*
+         * المتصفح سيظهر نافذة مشاركة الشاشة
+         * ويطلب موافقة المستخدم.
+         */
+
+        screenStream =
+            await navigator.mediaDevices.getDisplayMedia({
+
+                video: {
+                    frameRate: 5
+                },
+
+                audio: false
+
+            });
+
+
+        screenVideo.srcObject =
+            screenStream;
+
+
+        preview.style.display =
+            "block";
+
+
+        competitionRunning = true;
+
+
+        stopButton.disabled =
+            false;
+
+
+        statusText.textContent =
+            "مشاركة الشاشة تعمل";
+
+
+        showMessage(
+            "تمت مشاركة الشاشة بنجاح."
+        );
+
+
+        /*
+         * إذا أوقف المستخدم المشاركة
+         * من شريط المتصفح نفسه.
+         */
+
+        const videoTrack =
+            screenStream.getVideoTracks()[0];
+
+
+        if (videoTrack) {
+
+            videoTrack.addEventListener(
+                "ended",
+                () => {
+
+                    stopCompetition();
+
+                }
+            );
+
+        }
+
+
+    } catch (error) {
+
+        competitionRunning = false;
+
+        startButton.disabled =
+            false;
+
+        stopButton.disabled =
+            true;
+
+
+        statusText.textContent =
+            "لم تبدأ مشاركة الشاشة";
+
+
+        if (
+            error.name ===
+            "NotAllowedError"
+        ) {
+
+            showMessage(
+                "لم يتم السماح بمشاركة الشاشة.",
+                "#dc2626"
+            );
+
+        } else {
+
+            showMessage(
+                "تعذر بدء مشاركة الشاشة: " +
+                error.message,
+                "#dc2626"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   إيقاف المنافسة
+========================================================= */
+
+function stopCompetition() {
+
+    competitionRunning = false;
+
+
+    if (screenStream) {
+
+        screenStream
+            .getTracks()
+            .forEach(
+                track => track.stop()
+            );
+
+        screenStream = null;
+
+    }
+
+
+    screenVideo.srcObject =
+        null;
+
+
+    preview.style.display =
+        "none";
+
+
+    startButton.disabled =
+        false;
+
+
+    stopButton.disabled =
+        true;
+
+
+    statusText.textContent =
+        "تم إيقاف مشاركة الشاشة";
+
+
+    showMessage(
+        "تم إيقاف مشاركة الشاشة."
+    );
+
+}
+
+
+/* =========================================================
+   بدء الصفحة
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        createCompetitionSession();
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
