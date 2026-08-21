@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{const a=document.querySelector('[name=start_date]'),b=document.querySelector('[name=end_date]');if(a&&b)b.addEventListener("change",()=>{if(a.value&&b.value&&b.value<a.value)b.value=a.value})});
