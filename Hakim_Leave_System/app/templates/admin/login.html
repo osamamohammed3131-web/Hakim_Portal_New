@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container">
+
+    <h1 class="lookup-title">
+        تسجيل الدخول
+    </h1>
+
+    <p class="lookup-description">
+        تسجيل الدخول إلى لوحة إدارة نظام الإجازات.
+    </p>
+
+    <form
+        method="post"
+        action="/admin/login"
+        class="lookup-form"
+    >
+
+        <input
+            type="text"
+            name="username"
+            placeholder="اسم المستخدم"
+            autocomplete="username"
+            required
+        >
+
+        <input
+            type="password"
+            name="password"
+            placeholder="كلمة المرور"
+            autocomplete="current-password"
+            required
+        >
+
+        <button
+            type="submit"
+            class="lookup-submit"
+        >
+            تسجيل الدخول
+        </button>
+
+    </form>
+
+    {% if error %}
+
+    <div class="result-box">
+        {{ error }}
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
