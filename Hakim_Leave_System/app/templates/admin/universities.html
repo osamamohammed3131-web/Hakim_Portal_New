@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container admin-universities-page">
+
+    <h1 class="lookup-title">
+        إدارة الجامعات
+    </h1>
+
+    <p class="lookup-description">
+        إدارة الجامعات المسجلة في النظام وإضافة الجامعات وتحديث بياناتها.
+    </p>
+
+
+    <!-- =====================================================
+         إضافة جامعة
+    ====================================================== -->
+
+    <div class="university-admin-card">
+
+        <h2 class="admin-section-title">
+            إضافة جامعة جديدة
+        </h2>
+
+        <form
+            method="post"
+            action="/admin/universities"
+            enctype="multipart/form-data"
+            class="university-form"
+        >
+
+            <div class="admin-form-group">
+
+                <label for="name">
+                    اسم الجامعة
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="أدخل اسم الجامعة"
+                    required
+                >
+
+            </div>
+
+
+            <div class="admin-form-group">
+
+                <label for="logo">
+                    شعار الجامعة
+                </label>
+
+                <input
+                    type="file"
+                    id="logo"
+                    name="logo"
+                    accept="image/png,image/jpeg,image/webp"
+                >
+
+                <small>
+                    يفضل استخدام صورة واضحة للشعار بصيغة PNG أو JPG.
+                </small>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="lookup-submit"
+            >
+                إضافة الجامعة
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         رسالة
+    ====================================================== -->
+
+    {% if message %}
+
+    <div class="result-box university-message">
+        {{ message }}
+    </div>
+
+    {% endif %}
+
+
+    {% if error %}
+
+    <div class="result-box university-error">
+        {{ error }}
+    </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         الجامعات
+    ====================================================== -->
+
+    <div class="universities-section">
+
+        <h2 class="admin-section-title">
+            الجامعات المسجلة
+        </h2>
+
+
+        {% if universities %}
+
+        <div class="universities-list">
+
+            {% for university in universities %}
+
+            <article class="university-card">
+
+
+                <div class="university-card-logo">
+
+                    {% if university.logo_path %}
+
+                    <img
+                        src="{{ university.logo_path }}"
+                        alt="شعار {{ university.name }}"
+                    >
+
+                    {% else %}
+
+                    <div class="university-no-logo">
+                        ✓
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="university-card-info">
+
+                    <h3>
+                        {{ university.name }}
+                    </h3>
+
+                    <span>
+                        {% if university.is_active %}
+                            نشطة
+                        {% else %}
+                            غير نشطة
+                        {% endif %}
+                    </span>
+
+                </div>
+
+
+                <div class="university-card-actions">
+
+                    {% if university.id %}
+
+                    <a
+                        href="/admin/universities/{{ university.id }}/edit"
+                        class="university-action-button"
+                    >
+                        تعديل
+                    </a>
+
+                    {% endif %}
+
+                </div>
+
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+        <div class="result-box">
+
+            لا توجد جامعات مسجلة حاليًا.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =====================================================
+         العودة
+    ====================================================== -->
+
+    <a
+        href="/admin/dashboard"
+        class="lookup-back university-back"
+    >
+        العودة إلى لوحة المشرف
+    </a>
+
+</section>
+
+
+<style>
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.admin-universities-page {
+
+    padding-top: 65px;
+
+}
+
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.university-admin-card {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto 45px;
+
+    padding: 30px;
+
+    background: #ffffff;
+
+    border: 1px solid #d9dde1;
+
+    border-radius: 10px;
+
+    text-align: right;
+
+}
+
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.admin-section-title {
+
+    margin: 0 0 28px;
+
+    color: #1475b6;
+
+    font-size: 27px;
+
+    font-weight: 800;
+
+    text-align: center;
+
+}
+
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.university-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 22px;
+
+}
+
+
+.admin-form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+
+}
+
+
+.admin-form-group label {
+
+    color: #5d6c78;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+}
+
+
+.admin-form-group input {
+
+    width: 100%;
+
+    height: 58px;
+
+    padding: 0 18px;
+
+    border: 1px solid #cfd4d8;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #52616d;
+
+    font-size: 18px;
+
+    outline: none;
+
+}
+
+
+.admin-form-group input[type="file"] {
+
+    height: auto;
+
+    min-height: 58px;
+
+    padding: 15px;
+
+}
+
+
+.admin-form-group input:focus {
+
+    border-color: #147cba;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20,124,186,.08);
+
+}
+
+
+.admin-form-group small {
+
+    color: #8a959d;
+
+    font-size: 13px;
+
+}
+
+
+
+/* =========================================================
+   UNIVERSITIES SECTION
+========================================================= */
+
+.universities-section {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+}
+
+
+.universities-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
+
+
+/* =========================================================
+   UNIVERSITY CARD
+========================================================= */
+
+.university-card {
+
+    width: 100%;
+
+    min-height: 105px;
+
+    padding: 18px 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #d9dde1;
+
+    border-radius: 9px;
+
+}
+
+
+.university-card-logo {
+
+    width: 70px;
+
+    height: 70px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.university-card-logo img {
+
+    max-width: 70px;
+
+    max-height: 70px;
+
+    object-fit: contain;
+
+}
+
+
+.university-no-logo {
+
+    width: 58px;
+
+    height: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 3px solid #147cba;
+
+    border-radius: 50%;
+
+    color: #147cba;
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+}
+
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.university-card-info {
+
+    flex: 1;
+
+    text-align: right;
+
+}
+
+
+.university-card-info h3 {
+
+    margin: 0 0 7px;
+
+    color: #435462;
+
+    font-size: 20px;
+
+}
+
+
+.university-card-info span {
+
+    color: #1475b6;
+
+    font-size: 14px;
+
+}
+
+
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.university-card-actions {
+
+    flex-shrink: 0;
+
+}
+
+
+.university-action-button {
+
+    min-width: 110px;
+
+    min-height: 45px;
+
+    padding: 8px 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid #147cba;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #1475b6;
+
+    font-size: 16px;
+
+}
+
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.university-message,
+.university-error {
+
+    width: 100%;
+
+    max-width: 900px;
+
+    margin: 0 auto 25px;
+
+}
+
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+.university-back {
+
+    margin-top: 35px;
+
+}
+
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .university-admin-card {
+
+        padding: 22px 18px;
+
+    }
+
+
+    .admin-section-title {
+
+        font-size: 24px;
+
+    }
+
+
+    .university-card {
+
+        padding: 18px;
+
+        flex-wrap: wrap;
+
+        justify-content: center;
+
+        text-align: center;
+
+    }
+
+
+    .university-card-info {
+
+        width: calc(100% - 90px);
+
+        text-align: right;
+
+    }
+
+
+    .university-card-actions {
+
+        width: 100%;
+
+    }
+
+
+    .university-action-button {
+
+        width: 150px;
+
+        margin: 0 auto;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
