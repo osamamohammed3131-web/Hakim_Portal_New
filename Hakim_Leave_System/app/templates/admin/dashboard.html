@@ -2,55 +2,262 @@
 
 {% block content %}
 
-<section class="lookup-container">
+<section class="container">
 
-    <h1 class="lookup-title">
-        تسجيل الدخول
-    </h1>
+    <div class="card">
 
-    <p class="lookup-description">
-        تسجيل الدخول إلى لوحة إدارة نظام الإجازات.
-    </p>
+        <h1 class="page-title">
+            لوحة المشرف
+        </h1>
 
-    <form
-        method="post"
-        action="/admin/login"
-        class="lookup-form"
-    >
+        <p class="page-description">
+            إدارة ومتابعة طلبات نظام الإجازات.
+        </p>
 
-        <input
-            type="text"
-            name="username"
-            placeholder="اسم المستخدم"
-            autocomplete="username"
-            required
-        >
 
-        <input
-            type="password"
-            name="password"
-            placeholder="كلمة المرور"
-            autocomplete="current-password"
-            required
-        >
+        <!-- الإحصائيات -->
 
-        <button
-            type="submit"
-            class="lookup-submit"
-        >
-            تسجيل الدخول
-        </button>
+        <div class="dashboard-stats">
 
-    </form>
+            <div class="dashboard-card">
+                <div class="dashboard-number">
+                    {{ total_requests or 0 }}
+                </div>
 
-    {% if error %}
+                <div class="dashboard-label">
+                    إجمالي الطلبات
+                </div>
+            </div>
 
-    <div class="result-box">
-        {{ error }}
+
+            <div class="dashboard-card">
+                <div class="dashboard-number">
+                    {{ registered_requests or 0 }}
+                </div>
+
+                <div class="dashboard-label">
+                    الطلبات المسجلة
+                </div>
+            </div>
+
+
+            <div class="dashboard-card">
+                <div class="dashboard-number">
+                    {{ cancelled_requests or 0 }}
+                </div>
+
+                <div class="dashboard-label">
+                    الطلبات الملغاة
+                </div>
+            </div>
+
+
+            <div class="dashboard-card">
+                <div class="dashboard-number">
+                    {{ universities_count or 0 }}
+                </div>
+
+                <div class="dashboard-label">
+                    عدد الجامعات
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- الإجراءات -->
+
+        <div class="dashboard-actions">
+
+            <a
+                href="/admin/requests/new"
+                class="lookup-button"
+            >
+                تسجيل طلب جديد
+            </a>
+
+
+            <a
+                href="/admin/requests"
+                class="dashboard-action-button"
+            >
+                الطلبات
+            </a>
+
+
+            <a
+                href="/admin/universities"
+                class="dashboard-action-button"
+            >
+                الجامعات
+            </a>
+
+
+            <a
+                href="/admin/logout"
+                class="dashboard-action-button logout-button"
+            >
+                تسجيل الخروج
+            </a>
+
+        </div>
+
     </div>
 
-    {% endif %}
-
 </section>
+
+
+<style>
+
+.dashboard-stats {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 0 auto 60px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+
+}
+
+
+.dashboard-card {
+
+    padding: 28px 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #d9dde1;
+
+    border-radius: 8px;
+
+    text-align: center;
+
+}
+
+
+.dashboard-number {
+
+    color: #147cba;
+
+    font-size: 38px;
+
+    font-weight: 800;
+
+    margin-bottom: 10px;
+
+}
+
+
+.dashboard-label {
+
+    color: #687786;
+
+    font-size: 18px;
+
+}
+
+
+.dashboard-actions {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+
+.dashboard-actions .lookup-button,
+.dashboard-action-button {
+
+    width: 190px;
+
+    min-height: 55px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 8px;
+
+    font-size: 20px;
+
+}
+
+
+.dashboard-action-button {
+
+    background: #ffffff;
+
+    border: 1px solid #147cba;
+
+    color: #1475b6;
+
+}
+
+
+.logout-button {
+
+    border-color: #b44b4b;
+
+    color: #a33f3f;
+
+}
+
+
+@media (max-width: 800px) {
+
+    .dashboard-stats {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .dashboard-stats {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .dashboard-number {
+
+        font-size: 34px;
+
+    }
+
+    .dashboard-label {
+
+        font-size: 17px;
+
+    }
+
+}
+
+</style>
 
 {% endblock %}
