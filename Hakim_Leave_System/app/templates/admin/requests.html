@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container admin-requests-page">
+
+    <h1 class="lookup-title">
+        الطلبات
+    </h1>
+
+    <p class="lookup-description">
+        عرض والبحث في جميع طلبات الإجازات والغياب المسجلة في النظام.
+    </p>
+
+
+    <!-- البحث -->
+
+    <form
+        method="get"
+        action="/admin/requests"
+        class="requests-search"
+    >
+
+        <input
+            type="text"
+            name="q"
+            value="{{ q or request.query_params.get('q', '') }}"
+            placeholder="ابحث برقم الطلب أو اسم الطالب أو رقم الهوية"
+            autocomplete="off"
+        >
+
+        <button
+            type="submit"
+            class="lookup-submit"
+        >
+            بحث
+        </button>
+
+    </form>
+
+
+    <!-- الطلبات -->
+
+    {% if requests %}
+
+    <div class="requests-list">
+
+        {% for item in requests %}
+
+        <article class="request-list-card">
+
+            <div class="request-list-top">
+
+                <div>
+
+                    <span class="request-list-label">
+                        رقم الطلب
+                    </span>
+
+                    <strong class="request-list-number">
+                        {{ item.request_number or "-" }}
+                    </strong>
+
+                </div>
+
+
+                <span class="request-list-status">
+                    {{ item.status or "مسجل" }}
+                </span>
+
+            </div>
+
+
+            <div class="request-list-content">
+
+                <div class="request-list-field">
+
+                    <span>
+                        اسم الطالب
+                    </span>
+
+                    <strong>
+                        {{ item.student_name or "-" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="request-list-field">
+
+                    <span>
+                        رقم الهوية / الإقامة
+                    </span>
+
+                    <strong>
+                        {{ item.national_id or "-" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="request-list-field">
+
+                    <span>
+                        الجامعة
+                    </span>
+
+                    <strong>
+
+                        {% if item.university %}
+
+                            {{ item.university.name }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="request-list-field">
+
+                    <span>
+                        تاريخ الطلب
+                    </span>
+
+                    <strong>
+                        {{ item.created_at or "-" }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="request-list-actions">
+
+                {% if item.id %}
+
+                <a
+                    href="/admin/requests/{{ item.id }}"
+                    class="request-outline-button"
+                >
+                    التفاصيل
+                </a>
+
+                <a
+                    href="/admin/requests/{{ item.id }}/edit"
+                    class="request-outline-button"
+                >
+                    تعديل
+                </a>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+        {% endfor %}
+
+    </div>
+
+
+    {% else %}
+
+    <div class="result-box">
+
+        لا توجد طلبات مسجلة حاليًا.
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- العودة -->
+
+    <a
+        href="/admin/dashboard"
+        class="lookup-back"
+        style="margin-top:30px;"
+    >
+        العودة إلى لوحة المشرف
+    </a>
+
+</section>
+
+
+<style>
+
+.admin-requests-page {
+    padding-top: 65px;
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.requests-search {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 0 auto 35px;
+
+    display: flex;
+
+    gap: 15px;
+
+    align-items: center;
+
+}
+
+
+.requests-search input {
+
+    flex: 1;
+
+    min-width: 0;
+
+    height: 58px;
+
+    padding: 0 20px;
+
+    border: 1px solid #cfd4d8;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #53626e;
+
+    font-size: 18px;
+
+    outline: none;
+
+    text-align: right;
+
+}
+
+
+.requests-search input:focus {
+
+    border-color: #147cba;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(20,124,186,.08);
+
+}
+
+
+.requests-search .lookup-submit {
+
+    flex-shrink: 0;
+
+    margin: 0;
+
+    width: 150px;
+
+}
+
+
+/* =========================================================
+   LIST
+========================================================= */
+
+.requests-list {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+}
+
+
+.request-list-card {
+
+    width: 100%;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #d9dde1;
+
+    border-radius: 10px;
+
+    text-align: right;
+
+}
+
+
+.request-list-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 18px;
+
+    border-bottom: 1px solid #e5e7e9;
+
+}
+
+
+.request-list-label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #89939b;
+
+    font-size: 14px;
+
+}
+
+
+.request-list-number {
+
+    color: #1475b6;
+
+    font-size: 21px;
+
+}
+
+
+.request-list-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 90px;
+
+    min-height: 36px;
+
+    padding: 4px 14px;
+
+    border-radius: 20px;
+
+    background: #e8f5fb;
+
+    color: #1475b6;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.request-list-content {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 18px;
+
+    padding: 22px 0;
+
+}
+
+
+.request-list-field {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+
+.request-list-field span {
+
+    color: #8b969e;
+
+    font-size: 14px;
+
+}
+
+
+.request-list-field strong {
+
+    color: #435462;
+
+    font-size: 17px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.request-list-actions {
+
+    display: flex;
+
+    justify-content: flex-start;
+
+    gap: 12px;
+
+    padding-top: 18px;
+
+    border-top: 1px solid #e5e7e9;
+
+}
+
+
+.request-list-actions .request-outline-button {
+
+    width: 150px;
+
+    min-height: 48px;
+
+    margin: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: 1px solid #147cba;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #1475b6;
+
+    font-size: 17px;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .requests-search {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .requests-search input {
+
+        width: 100%;
+
+    }
+
+
+    .requests-search .lookup-submit {
+
+        width: 190px;
+
+        margin: 0 auto;
+
+    }
+
+
+    .request-list-card {
+
+        padding: 19px;
+
+    }
+
+
+    .request-list-top {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        text-align: center;
+
+    }
+
+
+    .request-list-status {
+
+        align-self: center;
+
+    }
+
+
+    .request-list-content {
+
+        grid-template-columns: 1fr;
+
+        gap: 16px;
+
+    }
+
+
+    .request-list-actions {
+
+        justify-content: center;
+
+        flex-wrap: wrap;
+
+    }
+
+
+    .request-list-actions .request-outline-button {
+
+        width: 145px;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
