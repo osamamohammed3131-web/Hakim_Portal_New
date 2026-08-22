@@ -1,262 +1,471 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-    <title>نظام الإجازات</title>
+    html {
+        scroll-behavior: smooth;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f5f7fa;
+        color: #657486;
+        font-family: Tahoma, Arial, sans-serif;
+        direction: rtl;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    .site-header {
+        width: 100%;
+        background: #ffffff;
+        border-bottom: 1px solid #e4e8ec;
+    }
+
+    .header-inner {
+        max-width: 1200px;
+        min-height: 115px;
+        margin: 0 auto;
+        padding: 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .menu-button {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #008bc5;
+        font-size: 32px;
+        cursor: pointer;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: #173b55;
+    }
+
+    .brand-text {
+        font-size: 31px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .brand-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #078bc4;
+        color: #ffffff;
+        font-size: 35px;
+        font-weight: bold;
+    }
+
+    .top-nav {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 17px 30px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 38px;
+        color: #617386;
+        font-size: 19px;
+        font-weight: 600;
+    }
+
+    .top-nav a {
+        color: #617386;
+        transition: 0.2s;
+    }
+
+    .top-nav a:hover {
+        color: #008bc5;
+    }
+
+    main {
+        min-height: 650px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 75px 25px 100px;
+    }
+
+    .card {
+        width: 100%;
+        margin: 0 auto;
+        background: transparent;
+    }
+
+    .page-title {
+        margin: 0 0 40px;
+        text-align: center;
+        color: #078bc4;
+        font-size: 54px;
+        line-height: 1.35;
+        font-weight: 800;
+    }
+
+    .page-description {
+        max-width: 900px;
+        margin: 0 auto 55px;
+        text-align: center;
+        color: #6d7d8d;
+        font-size: 24px;
+        line-height: 2;
+    }
+
+    .lookup-button {
+        display: block;
+        width: min(520px, 100%);
+        margin: 0 auto;
+        padding: 18px 30px;
+        background: #078bc4;
+        color: #ffffff;
+        border-radius: 14px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: 700;
+        transition: 0.2s ease;
+    }
+
+    .lookup-button:hover {
+        background: #067bab;
+        transform: translateY(-2px);
+    }
+
+    .site-footer {
+        width: 100%;
+        background: #0780bd;
+        color: #ffffff;
+    }
+
+    .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 70px 30px 35px;
+    }
+
+    .footer-brand {
+        margin-bottom: 45px;
+        text-align: center;
+    }
+
+    .footer-logo {
+        width: 78px;
+        height: 78px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 4px solid rgba(255,255,255,0.9);
+        border-radius: 50%;
+        color: #ffffff;
+        font-size: 43px;
+        font-weight: bold;
+    }
+
+    .footer-title {
+        margin: 0 0 18px;
+        color: #ffffff;
+        font-size: 34px;
+        font-weight: 800;
+    }
+
+    .footer-description {
+        max-width: 850px;
+        margin: 0 auto;
+        color: rgba(255,255,255,0.96);
+        font-size: 20px;
+        line-height: 2;
+    }
+
+    .footer-section {
+        max-width: 700px;
+        margin: 45px auto 0;
+    }
+
+    .footer-heading {
+        width: fit-content;
+        margin: 0 auto 20px;
+        padding-bottom: 10px;
+        border-bottom: 4px solid #71d5ed;
+        color: #ffffff;
+        font-size: 27px;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer-links a {
+        padding: 18px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.25);
+        color: #ffffff;
+        text-align: center;
+        font-size: 20px;
+        transition: 0.2s;
+    }
+
+    .footer-links a:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    .footer-contact {
+        margin-top: 55px;
+        text-align: center;
+    }
+
+    .contact-info {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+        color: #ffffff;
+        font-size: 19px;
+    }
+
+    .footer-bottom {
+        margin-top: 55px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+        font-size: 15px;
+        line-height: 2;
+    }
+
+    @media (max-width: 700px) {
+
+        .header-inner {
+            min-height: 90px;
+            padding: 0 18px;
         }
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
+        .brand {
+            gap: 10px;
         }
 
-        body {
-            direction: rtl;
-            font-family: Tahoma, Arial, sans-serif;
-            background: #f5f7fa;
-            color: #526575;
+        .brand-text {
+            font-size: 24px;
         }
 
-        .page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 28px;
         }
 
-        /* الشريط العلوي */
-        .header {
-            height: 82px;
-            background: #ffffff;
-            border-bottom: 1px solid #e4e9ed;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 6%;
+        .menu-button {
+            width: 42px;
+            height: 42px;
+            font-size: 28px;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #087dbb;
-            font-size: 23px;
-            font-weight: bold;
+        .top-nav {
+            padding: 13px 18px;
+            gap: 24px;
+            font-size: 16px;
         }
 
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #087dbb;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 23px;
+        main {
+            min-height: 550px;
         }
 
-        .nav a {
-            color: #607584;
-            text-decoration: none;
-            margin-right: 25px;
-            font-size: 15px;
-            font-weight: bold;
+        .container {
+            padding: 55px 20px 70px;
         }
 
-        .nav a:hover {
-            color: #087dbb;
+        .page-title {
+            margin-bottom: 28px;
+            font-size: 40px;
         }
 
-        /* القسم الرئيسي */
-        .hero {
-            flex: 1;
-            width: 100%;
-            max-width: 1100px;
-            margin: auto;
-            padding: 75px 25px 90px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            margin: 0 0 22px;
-            color: #087dbb;
-            font-size: 42px;
-            font-weight: 800;
-        }
-
-        .hero p {
-            margin: 0 auto 40px;
-            max-width: 780px;
-            color: #71808d;
+        .page-description {
+            margin-bottom: 40px;
             font-size: 19px;
-            line-height: 2;
+            line-height: 1.9;
         }
 
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
+        .lookup-button {
+            width: 100%;
+            padding: 17px 20px;
+            border-radius: 12px;
+            font-size: 20px;
         }
 
-        .button {
-            display: inline-block;
-            min-width: 210px;
-            padding: 15px 28px;
-            border-radius: 7px;
-            background: #087dbb;
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 17px;
-            font-weight: bold;
-            transition: 0.2s;
+        .footer-inner {
+            padding: 50px 20px 30px;
         }
 
-        .button:hover {
-            background: #066b9f;
-        }
-
-        .button.secondary {
-            background: #ffffff;
-            color: #087dbb;
-            border: 1px solid #087dbb;
-        }
-
-        .button.secondary:hover {
-            background: #f0f8fc;
-        }
-
-        /* الفوتر */
-        .footer {
-            background: #087dbb;
-            color: #ffffff;
-            text-align: center;
-            padding: 38px 20px;
+        .footer-logo {
+            width: 68px;
+            height: 68px;
+            font-size: 37px;
         }
 
         .footer-title {
-            font-size: 27px;
-            font-weight: bold;
-            margin-bottom: 12px;
+            font-size: 29px;
         }
 
-        .footer-text {
-            font-size: 15px;
+        .footer-description {
+            font-size: 17px;
             line-height: 2;
-            opacity: 0.95;
         }
 
-        .copyright {
-            margin-top: 18px;
-            font-size: 12px;
-            opacity: 0.8;
+        .footer-heading {
+            font-size: 23px;
         }
 
-        /* الجوال */
-        @media (max-width: 700px) {
-
-            .header {
-                height: auto;
-                padding: 18px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav {
-                text-align: center;
-            }
-
-            .nav a {
-                margin: 0 8px;
-                font-size: 14px;
-            }
-
-            .hero {
-                padding: 55px 20px 70px;
-            }
-
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            .hero p {
-                font-size: 17px;
-            }
-
-            .button {
-                width: 100%;
-                max-width: 330px;
-            }
+        .footer-links a {
+            font-size: 18px;
         }
-    </style>
-</head>
 
-<body>
+        .contact-info {
+            font-size: 17px;
+        }
+    }
+</style>
+�
 
-<div class="page">
+�
 
-    <header class="header">
+<header class="site-header">
 
-        <div class="logo">
-            <div class="logo-icon">✓</div>
-            <span>نظام الإجازات</span>
+    <div class="header-inner">
+
+        <div class="menu-button" aria-label="القائمة">
+            ☰
         </div>
 
-        <nav class="nav">
-            <a href="/">الرئيسية</a>
-            <a href="/lookup">الاستعلام عن طلب</a>
-        </nav>
+        <a href="/" class="brand">
 
-    </header>
+            <span class="brand-text">
+                نظام الإجازات
+            </span>
 
+            <span class="brand-icon">
+                ✓
+            </span>
 
-    <main class="hero">
+        </a>
 
-        <h1>نظام الإجازات</h1>
+    </div>
 
-        <p>
-            خدمة إلكترونية تتيح لك الاستعلام عن حالة طلبات الإجازة
-            والغياب المسجلة داخل النظام بكل سهولة.
-        </p>
+    <nav class="top-nav">
 
-        <div class="buttons">
+        <a href="/">
+            الرئيسية
+        </a>
 
-            <a href="/lookup" class="button">
-                الاستعلام عن طلب
-            </a>
+        <a href="/lookup">
+            الاستعلام عن طلب
+        </a>
+
+    </nav>
+
+</header>
+
+<main>
+
+    {% block content %}
+
+    {% endblock %}
+
+</main>
+
+<footer class="site-footer">
+
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+
+            <div class="footer-logo">
+                ✓
+            </div>
+
+            <h2 class="footer-title">
+                نظام الإجازات
+            </h2>
+
+            <p class="footer-description">
+                نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
+                بطريقة سهلة ومنظمة.
+            </p>
 
         </div>
 
-    </main>
+        <div class="footer-section">
 
+            <h3 class="footer-heading">
+                القائمة الرئيسية
+            </h3>
 
-    <footer class="footer">
+            <div class="footer-links">
 
-        <div class="footer-title">
-            نظام الإجازات
+                <a href="/">
+                    الخدمات
+                </a>
+
+                <a href="/lookup">
+                    الاستعلامات
+                </a>
+
+                <a href="#">
+                    الأسئلة الشائعة
+                </a>
+
+                <a href="#">
+                    تواصل معنا
+                </a>
+
+            </div>
+
         </div>
 
-        <div class="footer-text">
-            نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
+        <div class="footer-contact">
+
+            <h3 class="footer-heading">
+                تواصل معنا
+            </h3>
+
+            <div class="contact-info">
+
+                <span>
+                    نظام الإجازات
+                </span>
+
+                <span>
+                    خدمة إلكترونية متاحة على مدار الساعة
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+
+            © 2026 نظام الإجازات
             <br>
-            بطريقة سهلة ومنظمة.
+
+            جميع الحقوق محفوظة
+
         </div>
 
-        <div class="copyright">
-            جميع الحقوق محفوظة © 2026
-        </div>
+    </div>
 
-    </footer>
-
-</div>
-
-</body>
-</html>
+</footer>
