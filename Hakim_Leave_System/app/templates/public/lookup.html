@@ -1,1 +1,64 @@
-{% extends "base.html" %}{% block content %}<main class="container"><h1>الاستعلام عن الطلب</h1><form method="post" class="card"><input name="request_number" placeholder="رقم الطلب" required><input name="national_id" placeholder="رقم الهوية / الإقامة" required><button>استعلام</button></form>{% if data %}<div class="card"><b>{{data.request.request_number}}</b><p>الطالب: {{data.request.student_name}}</p><p>الهوية: {{data.masked_id}}</p><p>الجامعة: {{data.university.name if data.university else ""}}</p><p>الفترة: {{data.request.start_date}} — {{data.request.end_date}}</p><p>الحالة: {{data.request.status}}</p></div>{% elif request.method=="POST" %}<div class="error">لم يتم العثور على طلب مطابق.</div>{% endif %}</main>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container">
+
+    <h1 class="lookup-title">
+        الاستعلام عن طلب
+    </h1>
+
+    <p class="lookup-description">
+        يمكنك الاستعلام عن طلبك المسجل في المنصة
+        باستخدام رقم الطلب ورقم الهوية / الإقامة.
+    </p>
+
+    <form
+        method="post"
+        action="/lookup"
+        class="lookup-form"
+    >
+
+        <input
+            type="text"
+            name="request_number"
+            placeholder="رقم الطلب"
+            autocomplete="off"
+            required
+        >
+
+        <input
+            type="text"
+            name="national_id"
+            placeholder="رقم الهوية / الإقامة"
+            autocomplete="off"
+            required
+        >
+
+        <button
+            type="submit"
+            class="lookup-submit"
+        >
+            استعلام
+        </button>
+
+        <a
+            href="/"
+            class="lookup-back"
+        >
+            رجوع
+        </a>
+
+    </form>
+
+    {% if error %}
+
+    <div class="result-box">
+        {{ error }}
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}
