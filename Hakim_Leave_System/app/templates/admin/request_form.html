@@ -1,1 +1,396 @@
-{% extends "base.html" %}{% block content %}<main class="container"><h1>تسجيل طلب جديد</h1><form method="post" class="card"><input name="student_name" placeholder="اسم الطالب" required><input name="national_id" placeholder="رقم الهوية / الإقامة" required><select name="university_id" required>{% for u in universities %}<option value="{{u.id}}">{{u.name}}</option>{% endfor %}</select><label>تاريخ الغياب<input type="date" name="absence_date" required></label><label>من<input type="date" name="start_date" required></label><label>إلى<input type="date" name="end_date" required></label><select name="request_type"><option>إجازة</option><option>غياب</option><option>عذر</option><option>طلب تسجيل</option></select><textarea name="notes" placeholder="ملاحظات"></textarea><button>حفظ وإنشاء الطلب</button></form></main>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container admin-request-page">
+
+    <h1 class="lookup-title">
+        تسجيل طلب جديد
+    </h1>
+
+    <p class="lookup-description">
+        تسجيل بيانات طلب الإجازة أو الغياب وإصدار الطلب إلكترونيًا.
+    </p>
+
+    {% if error %}
+    <div class="result-box">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form
+        method="post"
+        action="/admin/requests"
+        class="lookup-form"
+        id="requestForm"
+    >
+
+        <!-- بيانات الطالب -->
+        <div class="form-section">
+
+            <h2 class="form-section-title">
+                بيانات الطالب
+            </h2>
+
+            <div class="form-group">
+
+                <label for="student_name">
+                    اسم الطالب
+                </label>
+
+                <input
+                    type="text"
+                    id="student_name"
+                    name="student_name"
+                    placeholder="أدخل اسم الطالب"
+                    autocomplete="name"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="national_id">
+                    رقم الهوية / الإقامة
+                </label>
+
+                <input
+                    type="text"
+                    id="national_id"
+                    name="national_id"
+                    placeholder="أدخل رقم الهوية أو الإقامة"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- بيانات الجامعة -->
+        <div class="form-section">
+
+            <h2 class="form-section-title">
+                بيانات الجامعة
+            </h2>
+
+            <div class="form-group">
+
+                <label for="university_id">
+                    الجامعة
+                </label>
+
+                <select
+                    id="university_id"
+                    name="university_id"
+                    required
+                >
+
+                    <option value="">
+                        اختر الجامعة
+                    </option>
+
+                    {% for university in universities %}
+
+                    <option
+                        value="{{ university.id }}"
+                        data-logo="{{ university.logo_path or '' }}"
+                    >
+                        {{ university.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div
+                id="universityPreview"
+                class="university-preview"
+                hidden
+            >
+
+                <img
+                    id="universityLogo"
+                    src=""
+                    alt="شعار الجامعة"
+                >
+
+                <span id="universityName"></span>
+
+            </div>
+
+        </div>
+
+
+        <!-- بيانات الغياب -->
+        <div class="form-section">
+
+            <h2 class="form-section-title">
+                بيانات الغياب
+            </h2>
+
+            <div class="form-group">
+
+                <label for="absence_date">
+                    تاريخ الغياب
+                </label>
+
+                <input
+                    type="date"
+                    id="absence_date"
+                    name="absence_date"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="start_date">
+                    بداية الفترة
+                </label>
+
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="end_date">
+                    نهاية الفترة
+                </label>
+
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="days_count">
+                    عدد الأيام
+                </label>
+
+                <input
+                    type="number"
+                    id="days_count"
+                    name="days_count"
+                    value="1"
+                    min="1"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="request_type">
+                    نوع الطلب
+                </label>
+
+                <select
+                    id="request_type"
+                    name="request_type"
+                    required
+                >
+
+                    <option value="">
+                        اختر نوع الطلب
+                    </option>
+
+                    <option value="إجازة">
+                        إجازة
+                    </option>
+
+                    <option value="غياب">
+                        غياب
+                    </option>
+
+                    <option value="عذر">
+                        عذر
+                    </option>
+
+                    <option value="طلب تسجيل">
+                        طلب تسجيل
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="notes">
+                    ملاحظات
+                </label>
+
+                <textarea
+                    id="notes"
+                    name="notes"
+                    rows="5"
+                    placeholder="أدخل الملاحظات إن وجدت"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- أزرار التحكم -->
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="lookup-submit"
+            >
+                تسجيل الطلب
+            </button>
+
+            <a
+                href="/admin/dashboard"
+                class="lookup-back"
+            >
+                العودة إلى لوحة المشرف
+            </a>
+
+        </div>
+
+    </form>
+
+</section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const startDate = document.getElementById("start_date");
+    const endDate = document.getElementById("end_date");
+    const daysCount = document.getElementById("days_count");
+
+    const universitySelect =
+        document.getElementById("university_id");
+
+    const universityPreview =
+        document.getElementById("universityPreview");
+
+    const universityLogo =
+        document.getElementById("universityLogo");
+
+    const universityName =
+        document.getElementById("universityName");
+
+
+    function calculateDays() {
+
+        if (!startDate.value || !endDate.value) {
+            daysCount.value = 1;
+            return;
+        }
+
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+
+        if (end < start) {
+
+            daysCount.value = 0;
+
+            endDate.setCustomValidity(
+                "يجب أن يكون تاريخ النهاية بعد أو مساويًا لتاريخ البداية."
+            );
+
+            return;
+        }
+
+        endDate.setCustomValidity("");
+
+        const difference =
+            end.getTime() - start.getTime();
+
+        const days =
+            Math.floor(
+                difference / (1000 * 60 * 60 * 24)
+            ) + 1;
+
+        daysCount.value = days;
+    }
+
+
+    startDate.addEventListener(
+        "change",
+        calculateDays
+    );
+
+    endDate.addEventListener(
+        "change",
+        calculateDays
+    );
+
+
+    universitySelect.addEventListener(
+        "change",
+        function () {
+
+            const selectedOption =
+                universitySelect.options[
+                    universitySelect.selectedIndex
+                ];
+
+            if (!selectedOption.value) {
+
+                universityPreview.hidden = true;
+                universityLogo.src = "";
+                universityName.textContent = "";
+
+                return;
+            }
+
+            const name =
+                selectedOption.textContent.trim();
+
+            const logo =
+                selectedOption.dataset.logo;
+
+            universityName.textContent = name;
+
+            if (logo) {
+
+                universityLogo.src = logo;
+                universityLogo.alt =
+                    "شعار " + name;
+
+                universityLogo.style.display =
+                    "block";
+
+            } else {
+
+                universityLogo.src = "";
+                universityLogo.style.display =
+                    "none";
+            }
+
+            universityPreview.hidden = false;
+        }
+    );
+
+});
+</script>
+
+{% endblock %}
