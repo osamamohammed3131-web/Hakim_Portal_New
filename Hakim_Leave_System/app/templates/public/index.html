@@ -1,471 +1,674 @@
-<style>
-    * {
-        box-sizing: border-box;
-    }
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    html {
-        scroll-behavior: smooth;
-    }
+    <title>{{ title or "نظام الإجازات" }}</title>
 
-    body {
-        margin: 0;
-        padding: 0;
-        background: #f5f7fa;
-        color: #657486;
-        font-family: Tahoma, Arial, sans-serif;
-        direction: rtl;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    a {
-        text-decoration: none;
-    }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    .site-header {
-        width: 100%;
-        background: #ffffff;
-        border-bottom: 1px solid #e4e8ec;
-    }
+        body {
+            font-family:
+                Tahoma,
+                Arial,
+                "Segoe UI",
+                sans-serif;
+            direction: rtl;
+            background: #f7f9fc;
+            color: #5f6f7f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .header-inner {
-        max-width: 1200px;
-        min-height: 115px;
-        margin: 0 auto;
-        padding: 0 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+        a {
+            text-decoration: none;
+        }
 
-    .menu-button {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #008bc5;
-        font-size: 32px;
-        cursor: pointer;
-    }
+        /* =========================
+           HEADER
+        ========================= */
 
-    .brand {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        color: #173b55;
-    }
-
-    .brand-text {
-        font-size: 31px;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-
-    .brand-icon {
-        width: 56px;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: #078bc4;
-        color: #ffffff;
-        font-size: 35px;
-        font-weight: bold;
-    }
-
-    .top-nav {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 17px 30px;
-        display: flex;
-        justify-content: flex-start;
-        gap: 38px;
-        color: #617386;
-        font-size: 19px;
-        font-weight: 600;
-    }
-
-    .top-nav a {
-        color: #617386;
-        transition: 0.2s;
-    }
-
-    .top-nav a:hover {
-        color: #008bc5;
-    }
-
-    main {
-        min-height: 650px;
-    }
-
-    .container {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 75px 25px 100px;
-    }
-
-    .card {
-        width: 100%;
-        margin: 0 auto;
-        background: transparent;
-    }
-
-    .page-title {
-        margin: 0 0 40px;
-        text-align: center;
-        color: #078bc4;
-        font-size: 54px;
-        line-height: 1.35;
-        font-weight: 800;
-    }
-
-    .page-description {
-        max-width: 900px;
-        margin: 0 auto 55px;
-        text-align: center;
-        color: #6d7d8d;
-        font-size: 24px;
-        line-height: 2;
-    }
-
-    .lookup-button {
-        display: block;
-        width: min(520px, 100%);
-        margin: 0 auto;
-        padding: 18px 30px;
-        background: #078bc4;
-        color: #ffffff;
-        border-radius: 14px;
-        text-align: center;
-        font-size: 24px;
-        font-weight: 700;
-        transition: 0.2s ease;
-    }
-
-    .lookup-button:hover {
-        background: #067bab;
-        transform: translateY(-2px);
-    }
-
-    .site-footer {
-        width: 100%;
-        background: #0780bd;
-        color: #ffffff;
-    }
-
-    .footer-inner {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 70px 30px 35px;
-    }
-
-    .footer-brand {
-        margin-bottom: 45px;
-        text-align: center;
-    }
-
-    .footer-logo {
-        width: 78px;
-        height: 78px;
-        margin: 0 auto 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 4px solid rgba(255,255,255,0.9);
-        border-radius: 50%;
-        color: #ffffff;
-        font-size: 43px;
-        font-weight: bold;
-    }
-
-    .footer-title {
-        margin: 0 0 18px;
-        color: #ffffff;
-        font-size: 34px;
-        font-weight: 800;
-    }
-
-    .footer-description {
-        max-width: 850px;
-        margin: 0 auto;
-        color: rgba(255,255,255,0.96);
-        font-size: 20px;
-        line-height: 2;
-    }
-
-    .footer-section {
-        max-width: 700px;
-        margin: 45px auto 0;
-    }
-
-    .footer-heading {
-        width: fit-content;
-        margin: 0 auto 20px;
-        padding-bottom: 10px;
-        border-bottom: 4px solid #71d5ed;
-        color: #ffffff;
-        font-size: 27px;
-    }
-
-    .footer-links {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .footer-links a {
-        padding: 18px 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.25);
-        color: #ffffff;
-        text-align: center;
-        font-size: 20px;
-        transition: 0.2s;
-    }
-
-    .footer-links a:hover {
-        background: rgba(255,255,255,0.08);
-    }
-
-    .footer-contact {
-        margin-top: 55px;
-        text-align: center;
-    }
-
-    .contact-info {
-        margin-top: 25px;
-        display: flex;
-        flex-direction: column;
-        gap: 13px;
-        color: #ffffff;
-        font-size: 19px;
-    }
-
-    .footer-bottom {
-        margin-top: 55px;
-        padding-top: 25px;
-        border-top: 1px solid rgba(255,255,255,0.25);
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        font-size: 15px;
-        line-height: 2;
-    }
-
-    @media (max-width: 700px) {
+        .site-header {
+            width: 100%;
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            position: relative;
+            z-index: 10;
+        }
 
         .header-inner {
-            min-height: 90px;
-            padding: 0 18px;
+            max-width: 1200px;
+            margin: auto;
+            min-height: 105px;
+            padding: 18px 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
         }
+
+        /* الشعار */
 
         .brand {
-            gap: 10px;
-        }
-
-        .brand-text {
-            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #008bc5;
+            font-weight: bold;
+            white-space: nowrap;
         }
 
         .brand-icon {
-            width: 45px;
-            height: 45px;
-            font-size: 28px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #078fc5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
+
+        .brand-name {
+            font-size: 25px;
+            color: #17496b;
+            font-weight: 700;
+        }
+
+        /* القائمة */
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 42px;
+        }
+
+        .main-nav a {
+            color: #536779;
+            font-size: 16px;
+            font-weight: 500;
+            transition: 0.2s ease;
+        }
+
+        .main-nav a:hover {
+            color: #008bc5;
+        }
+
+        /* زر القائمة في الجوال */
 
         .menu-button {
-            width: 42px;
-            height: 42px;
-            font-size: 28px;
+            display: none;
+            border: 0;
+            background: transparent;
+            color: #008bc5;
+            font-size: 30px;
+            cursor: pointer;
         }
 
-        .top-nav {
-            padding: 13px 18px;
-            gap: 24px;
-            font-size: 16px;
-        }
+        /* =========================
+           MAIN
+        ========================= */
 
         main {
-            min-height: 550px;
+            flex: 1;
+            width: 100%;
         }
 
         .container {
-            padding: 55px 20px 70px;
+            width: 100%;
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 85px 25px 100px;
+        }
+
+        /* البطاقة الرئيسية */
+
+        .card {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            background: transparent;
+            text-align: center;
+            padding: 20px 15px;
         }
 
         .page-title {
-            margin-bottom: 28px;
-            font-size: 40px;
+            color: #008bc5;
+            font-size: 46px;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 25px;
         }
 
         .page-description {
-            margin-bottom: 40px;
-            font-size: 19px;
-            line-height: 1.9;
+            color: #667789;
+            font-size: 21px;
+            line-height: 2;
+            max-width: 850px;
+            margin: 0 auto 45px;
         }
 
+        /* زر الاستعلام */
+
         .lookup-button {
-            width: 100%;
-            padding: 17px 20px;
-            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 260px;
+            min-height: 68px;
+            padding: 15px 35px;
+            border-radius: 6px;
+            background: #008bc5;
+            color: #ffffff;
             font-size: 20px;
+            font-weight: 600;
+            box-shadow: none;
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .lookup-button:hover {
+            background: #007caf;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           FORMS
+        ========================= */
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            min-height: 58px;
+            border: 1px solid #d6dce2;
+            border-radius: 5px;
+            background: #ffffff;
+            padding: 12px 18px;
+            font-family: inherit;
+            font-size: 18px;
+            color: #526575;
+            outline: none;
+            transition: border 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #008bc5;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 55px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            background: #008bc5;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #007caf;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .site-footer {
+            width: 100%;
+            background: #0788c2;
+            color: #ffffff;
+            margin-top: auto;
         }
 
         .footer-inner {
-            padding: 50px 20px 30px;
+            max-width: 1200px;
+            margin: auto;
+            padding: 65px 30px 25px;
+            text-align: center;
         }
 
         .footer-logo {
-            width: 68px;
-            height: 68px;
-            font-size: 37px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 25px;
         }
 
-        .footer-title {
-            font-size: 29px;
+        .footer-logo-icon {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo-title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #ffffff;
         }
 
         .footer-description {
+            max-width: 800px;
+            margin: 0 auto 45px;
             font-size: 17px;
-            line-height: 2;
+            line-height: 2.1;
+            color: #ffffff;
         }
 
-        .footer-heading {
-            font-size: 23px;
+        /* القائمة الرئيسية في الفوتر */
+
+        .footer-section {
+            max-width: 700px;
+            margin: 0 auto 45px;
+        }
+
+        .footer-title {
+            display: inline-block;
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: 700;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border-bottom: 4px solid #62d7ee;
+        }
+
+        .footer-links {
+            list-style: none;
+            width: 100%;
+        }
+
+        .footer-links li {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.22);
         }
 
         .footer-links a {
-            font-size: 18px;
+            display: block;
+            padding: 16px 10px;
+            color: #ffffff;
+            font-size: 17px;
+            transition: 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* معلومات التواصل */
+
+        .contact-section {
+            max-width: 800px;
+            margin: 0 auto 35px;
         }
 
         .contact-info {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-info a,
+        .contact-info span {
+            color: #ffffff;
             font-size: 17px;
         }
-    }
-</style>
-�
 
-�
+        /* حقوق الموقع */
 
-<header class="site-header">
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+            padding-top: 20px;
+            margin-top: 30px;
+        }
 
-    <div class="header-inner">
+        .footer-bottom p {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 2;
+        }
 
-        <div class="menu-button" aria-label="القائمة">
-            ☰
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .header-inner {
+                min-height: 85px;
+                padding: 14px 20px;
+            }
+
+            .brand-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 27px;
+            }
+
+            .brand-name {
+                font-size: 20px;
+            }
+
+            .menu-button {
+                display: block;
+            }
+
+            .main-nav {
+                position: absolute;
+                top: 85px;
+                right: 0;
+                left: 0;
+                background: #ffffff;
+                border-bottom: 1px solid #eeeeee;
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                padding: 5px 20px 15px;
+            }
+
+            .main-nav.show {
+                display: flex;
+            }
+
+            .main-nav a {
+                padding: 15px 10px;
+                border-bottom: 1px solid #eeeeee;
+                text-align: right;
+            }
+
+            .container {
+                padding: 55px 18px 70px;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .page-description {
+                font-size: 18px;
+                line-height: 2;
+                margin-bottom: 35px;
+            }
+
+            .lookup-button {
+                width: 100%;
+                min-height: 62px;
+                font-size: 18px;
+            }
+
+            .footer-inner {
+                padding: 50px 20px 22px;
+            }
+
+            .footer-logo-icon {
+                width: 54px;
+                height: 54px;
+                font-size: 30px;
+            }
+
+            .footer-logo-title {
+                font-size: 26px;
+            }
+
+            .footer-description {
+                font-size: 15px;
+                line-height: 2;
+            }
+
+            .footer-title {
+                font-size: 22px;
+            }
+
+            .footer-links a {
+                font-size: 16px;
+                padding: 14px 8px;
+            }
+        }
+
+        @media (max-width: 420px) {
+
+            .brand-name {
+                font-size: 18px;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .page-description {
+                font-size: 17px;
+            }
+
+            .footer-description {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="site-header">
+
+        <div class="header-inner">
+
+            <a href="/" class="brand">
+
+                <span class="brand-icon">
+                    ✓
+                </span>
+
+                <span class="brand-name">
+                    نظام الإجازات
+                </span>
+
+            </a>
+
+            <button
+                class="menu-button"
+                type="button"
+                aria-label="فتح القائمة"
+                onclick="toggleMenu()">
+                ☰
+            </button>
+
+            <nav class="main-nav" id="mainNav">
+
+                <a href="/">
+                    الرئيسية
+                </a>
+
+                <a href="/lookup">
+                    الاستعلام عن طلب
+                </a>
+
+            </nav>
+
         </div>
 
-        <a href="/" class="brand">
+    </header>
 
-            <span class="brand-text">
-                نظام الإجازات
-            </span>
 
-            <span class="brand-icon">
-                ✓
-            </span>
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
 
-        </a>
+    <main>
 
-    </div>
+        {% block content %}
+        {% endblock %}
 
-    <nav class="top-nav">
+    </main>
 
-        <a href="/">
-            الرئيسية
-        </a>
 
-        <a href="/lookup">
-            الاستعلام عن طلب
-        </a>
+    <!-- =========================
+         FOOTER
+    ========================== -->
 
-    </nav>
+    <footer class="site-footer">
 
-</header>
-
-<main>
-
-    {% block content %}
-
-    {% endblock %}
-
-</main>
-
-<footer class="site-footer">
-
-    <div class="footer-inner">
-
-        <div class="footer-brand">
+        <div class="footer-inner">
 
             <div class="footer-logo">
-                ✓
+
+                <div class="footer-logo-icon">
+                    ✓
+                </div>
+
+                <div class="footer-logo-title">
+                    نظام الإجازات
+                </div>
+
             </div>
 
-            <h2 class="footer-title">
-                نظام الإجازات
-            </h2>
 
             <p class="footer-description">
                 نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
                 بطريقة سهلة ومنظمة.
             </p>
 
-        </div>
 
-        <div class="footer-section">
+            <section class="footer-section">
 
-            <h3 class="footer-heading">
-                القائمة الرئيسية
-            </h3>
+                <h2 class="footer-title">
+                    القائمة الرئيسية
+                </h2>
 
-            <div class="footer-links">
+                <ul class="footer-links">
 
-                <a href="/">
-                    الخدمات
-                </a>
+                    <li>
+                        <a href="/">
+                            الخدمات
+                        </a>
+                    </li>
 
-                <a href="/lookup">
-                    الاستعلامات
-                </a>
+                    <li>
+                        <a href="/lookup">
+                            الاستعلامات
+                        </a>
+                    </li>
 
-                <a href="#">
-                    الأسئلة الشائعة
-                </a>
+                    <li>
+                        <a href="#">
+                            الأسئلة الشائعة
+                        </a>
+                    </li>
 
-                <a href="#">
+                    <li>
+                        <a href="#">
+                            تواصل معنا
+                        </a>
+                    </li>
+
+                </ul>
+
+            </section>
+
+
+            <section class="contact-section">
+
+                <h2 class="footer-title">
                     تواصل معنا
-                </a>
+                </h2>
+
+                <div class="contact-info">
+
+                    <span>
+                        نظام الإجازات
+                    </span>
+
+                    <span>
+                        خدمة إلكترونية متاحة على مدار الساعة
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <div class="footer-bottom">
+
+                <p>
+                    © 2026 نظام الإجازات
+                </p>
+
+                <p>
+                    جميع الحقوق محفوظة
+                </p>
 
             </div>
 
         </div>
 
-        <div class="footer-contact">
+    </footer>
 
-            <h3 class="footer-heading">
-                تواصل معنا
-            </h3>
 
-            <div class="contact-info">
+    <!-- =========================
+         MENU SCRIPT
+    ========================== -->
 
-                <span>
-                    نظام الإجازات
-                </span>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("mainNav");
+            menu.classList.toggle("show");
+        }
 
-                <span>
-                    خدمة إلكترونية متاحة على مدار الساعة
-                </span>
+        document.addEventListener("click", function(event) {
 
-            </div>
+            const menu = document.getElementById("mainNav");
+            const button = document.querySelector(".menu-button");
 
-        </div>
+            if (
+                menu &&
+                button &&
+                !menu.contains(event.target) &&
+                !button.contains(event.target)
+            ) {
+                menu.classList.remove("show");
+            }
 
-        <div class="footer-bottom">
+        });
+    </script>
 
-            © 2026 نظام الإجازات
-            <br>
-
-            جميع الحقوق محفوظة
-
-        </div>
-
-    </div>
-
-</footer>
+</body>
+</html>
