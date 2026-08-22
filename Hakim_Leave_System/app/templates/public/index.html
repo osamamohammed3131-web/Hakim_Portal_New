@@ -1,53 +1,65 @@
 {% extends "base.html" %}
 
+{% block title %}
+الإجازات المرضية
+{% endblock %}
+
 {% block content %}
 
-<section class="page-container">
+<section class="container">
 
-    <h1 class="page-title">
-        الإجازات المرضية
-    </h1>
+    <div class="card">
 
-    <p class="page-description">
-        خدمة الاستعلام عن الإجازات المرضية تتيح لك الاستعلام عن حالة
-        طلب الإجازة ويمكنك طباعتها عن طريق تطبيق صحتي.
-    </p>
+        <h1 class="page-title">
+            الإجازات المرضية
+        </h1>
 
-    <div class="lookup-form">
+        <p class="page-description">
+            خدمة الاستعلام عن الإجازات المرضية تتيح لك الاستعلام
+            عن حالة طلب الإجازة ويمكنك طباعتها عن طريق تطبيق صحي
+        </p>
 
-        <div class="input-group">
-            <input
-                type="text"
-                class="form-input"
-                name="service_number"
-                placeholder="رقم الخدمة"
-                autocomplete="off">
-        </div>
+        <div class="form-container">
 
-        <div class="input-group">
-            <input
-                type="text"
-                class="form-input"
-                name="identity_number"
-                placeholder="رقم الهوية / الإقامة"
-                autocomplete="off">
-        </div>
+            <form action="/lookup" method="get">
 
-        <div class="button-row">
+                <input
+                    type="text"
+                    name="service_number"
+                    class="input-field"
+                    placeholder="رقم الخدمة"
+                    autocomplete="off"
+                    required
+                >
 
-            <button
-                type="button"
-                class="primary-button"
-                onclick="window.location.href='/lookup'">
-                استعلام
-            </button>
+                <input
+                    type="text"
+                    name="identity_number"
+                    class="input-field"
+                    placeholder="رقم الهوية / الإقامة"
+                    autocomplete="off"
+                    required
+                >
 
-            <a
-                href="/lookup"
-                class="secondary-button"
-                style="display:flex;align-items:center;justify-content:center;">
-                رجوع للاستعلامات
-            </a>
+                <div class="buttons">
+
+                    <button
+                        type="submit"
+                        class="lookup-button"
+                    >
+                        استعلام
+                    </button>
+
+                    <a
+                        href="/lookup"
+                        class="back-button"
+                    >
+                        رجوع للاستعلامات
+                    </a>
+
+                </div>
+
+            </form>
 
         </div>
 
