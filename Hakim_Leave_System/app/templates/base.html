@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ title or "الإجازات المرضية" }}</title>
+    <title>{% block title %}الإجازات المرضية{% endblock %}</title>
 
     <style>
         * {
@@ -16,483 +16,447 @@
             margin: 0;
             padding: 0;
             min-height: 100%;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #ffffff;
+            color: #657487;
         }
 
         body {
-            font-family: Tahoma, Arial, "Segoe UI", sans-serif;
             direction: rtl;
-            background: #ffffff;
-            color: #667789;
         }
 
         a {
             text-decoration: none;
+            color: inherit;
         }
 
-        /* ==============================
+        /* =========================
            HEADER
-        ============================== */
+        ========================= */
 
         .top-header {
             width: 100%;
-            height: 126px;
-            background: #f5f7fa;
-            border-bottom: 1px solid #eeeeee;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            height: 100%;
-            margin: auto;
-            padding: 0 28px;
-
+            height: 125px;
+            background: #f4f6f9;
+            border-bottom: 1px solid #e3e7eb;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 28px;
         }
 
-        .seha-logo {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            color: #ffffff;
-        }
-
-        .seha-logo-text {
+        .menu-button {
+            width: 44px;
+            height: 44px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            line-height: 1;
+            justify-content: center;
+            gap: 7px;
+            padding: 4px;
         }
 
-        .seha-arabic {
-            color: #444444;
-            font-size: 26px;
-            font-weight: bold;
+        .menu-button span {
+            display: block;
+            width: 31px;
+            height: 4px;
+            background: #078fc2;
+            border-radius: 2px;
         }
 
-        .seha-english {
-            color: #444444;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 5px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        .seha-check {
-            position: relative;
-            width: 62px;
-            height: 62px;
+        .brand-title {
+            font-size: 29px;
+            font-weight: 700;
+            color: #243f56;
+            white-space: nowrap;
+        }
+
+        .brand-icon {
+            width: 72px;
+            height: 72px;
+            border: 7px solid #078fc2;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .seha-check:before {
-            content: "";
-            position: absolute;
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: 7px solid #1685bd;
-        }
-
-        .seha-check:after {
-            content: "✓";
-            position: absolute;
-            color: #1685bd;
-            font-size: 43px;
+            color: #078fc2;
+            font-size: 48px;
             font-weight: bold;
             line-height: 1;
-            top: 3px;
         }
 
-        /* زر القائمة */
-
-        .menu-toggle {
-            display: none;
-            border: none;
-            background: transparent;
-            color: #008fc7;
-            font-size: 34px;
-            cursor: pointer;
-        }
-
-        /* ==============================
+        /* =========================
            NAVIGATION
-        ============================== */
+        ========================= */
 
         .navigation {
+            height: 64px;
             background: #ffffff;
-            min-height: 78px;
-            border-bottom: 1px solid #eeeeee;
-        }
-
-        .navigation-container {
-            max-width: 1200px;
-            margin: auto;
-            min-height: 78px;
-            padding: 0 30px;
-
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            gap: 45px;
+            padding: 0 48px;
+            border-bottom: 1px solid #eeeeee;
         }
 
         .navigation a {
-            color: #4f6576;
+            color: #5f7182;
             font-size: 18px;
-            font-weight: 600;
-            padding: 10px 0;
+            margin-left: 35px;
+            transition: 0.2s;
         }
 
         .navigation a:hover {
-            color: #087fb7;
+            color: #078fc2;
         }
 
-        /* ==============================
+        /* =========================
            MAIN
-        ============================== */
+        ========================= */
 
         main {
             width: 100%;
+            min-height: 760px;
             background: #ffffff;
         }
 
-        .page-container {
+        .container {
             width: 100%;
-            max-width: 1150px;
-            margin: auto;
-            padding: 105px 25px 130px;
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 90px 32px 110px;
+        }
+
+        .card {
+            width: 100%;
             text-align: center;
+            background: #ffffff;
         }
 
         .page-title {
-            margin: 0 0 38px;
-            color: #087fba;
-            font-size: 54px;
+            margin: 0 0 48px;
+            color: #078fc2;
+            font-size: 58px;
+            line-height: 1.3;
             font-weight: 700;
-            line-height: 1.4;
         }
 
         .page-description {
-            max-width: 1000px;
-            margin: 0 auto 72px;
-            color: #687887;
-            font-size: 24px;
-            line-height: 2;
+            max-width: 900px;
+            margin: 0 auto 75px;
+            color: #657487;
+            font-size: 27px;
+            line-height: 2.15;
             font-weight: 400;
         }
 
-        /* ==============================
-           FORM
-        ============================== */
+        /* =========================
+           FORMS
+        ========================= */
 
-        .lookup-form {
+        .form-container {
             width: 100%;
             max-width: 900px;
-            margin: auto;
+            margin: 0 auto;
         }
 
-        .input-group {
+        .input-field {
             width: 100%;
-            margin-bottom: 22px;
-        }
-
-        .form-input {
-            width: 100%;
-            height: 66px;
-            border: 1px solid #d0d5da;
-            border-radius: 6px;
+            height: 88px;
+            border: 1px solid #d2d5d8;
+            border-radius: 9px;
             background: #ffffff;
-            padding: 0 22px;
-            color: #667789;
-            font-family: Tahoma, Arial, sans-serif;
-            font-size: 21px;
+            padding: 0 28px;
+            margin-bottom: 30px;
             text-align: right;
+            direction: rtl;
+            color: #555;
+            font-size: 24px;
             outline: none;
         }
 
-        .form-input::placeholder {
-            color: #9ba4ad;
+        .input-field::placeholder {
+            color: #a2a7ad;
+            opacity: 1;
         }
 
-        .form-input:focus {
-            border-color: #168bc3;
+        .input-field:focus {
+            border-color: #078fc2;
+            box-shadow: 0 0 0 2px rgba(7, 143, 194, 0.08);
         }
 
-        .button-row {
+        .buttons {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 22px;
+            margin-top: 15px;
+        }
+
+        .lookup-button,
+        .back-button {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            gap: 14px;
-            margin-top: 27px;
-        }
-
-        .primary-button,
-        .secondary-button {
-            min-width: 190px;
-            min-height: 60px;
+            min-width: 245px;
+            min-height: 70px;
+            padding: 12px 30px;
             border: none;
-            border-radius: 6px;
-            background: #087fba;
+            border-radius: 9px;
+            background: #078fc2;
             color: #ffffff;
-            font-family: Tahoma, Arial, sans-serif;
-            font-size: 20px;
+            font-size: 25px;
+            font-weight: 500;
             cursor: pointer;
-            padding: 12px 28px;
+            transition: 0.2s;
         }
 
-        .primary-button:hover,
-        .secondary-button:hover {
-            background: #056f9f;
+        .lookup-button:hover,
+        .back-button:hover {
+            background: #057eac;
         }
 
-        /* ==============================
+        /* =========================
            FOOTER
-        ============================== */
+        ========================= */
 
         .footer {
             width: 100%;
-            background: #087fba;
+            background: #0788bf;
             color: #ffffff;
-        }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 75px 35px 30px;
+            padding: 75px 30px 40px;
             text-align: center;
         }
 
         .footer-logo {
-            margin-bottom: 32px;
-        }
-
-        .footer-seha {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 18px;
-            margin-bottom: 28px;
-        }
-
-        .footer-check {
-            width: 72px;
-            height: 72px;
-            border: 4px solid #ffffff;
-            border-radius: 50%;
-
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
 
-            color: #ffffff;
-            font-size: 49px;
+        .footer-check {
+            width: 76px;
+            height: 76px;
+            border: 5px solid #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
             font-weight: bold;
         }
 
-        .footer-brand-name {
-            color: #ffffff;
-            font-size: 35px;
-            font-weight: bold;
+        .footer-title {
+            font-size: 36px;
+            font-weight: 700;
         }
 
         .footer-description {
-            max-width: 930px;
-            margin: auto;
-            color: #ffffff;
-            font-size: 19px;
-            line-height: 2.2;
-        }
-
-        /* القائمة الرئيسية */
-
-        .footer-menu {
-            max-width: 700px;
-            margin: 75px auto 70px;
+            max-width: 850px;
+            margin: 0 auto 65px;
+            font-size: 20px;
+            line-height: 2;
         }
 
         .footer-heading {
             display: inline-block;
+            margin: 0 auto 20px;
+            padding-bottom: 12px;
+            border-bottom: 5px solid #49d7ec;
             color: #ffffff;
-            font-size: 30px;
-            font-weight: bold;
-            padding-bottom: 13px;
-            margin-bottom: 20px;
-            border-bottom: 5px solid #58d7eb;
+            font-size: 32px;
+            font-weight: 700;
         }
 
-        .footer-menu-list {
-            list-style: none;
-            padding: 0;
+        .footer-menu {
+            max-width: 850px;
+            margin: 0 auto 90px;
+        }
+
+        .footer-menu a {
+            display: block;
+            padding: 23px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.22);
+            color: #ffffff;
+            font-size: 22px;
+        }
+
+        .footer-contact {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .footer-service-title {
+            font-size: 25px;
+            margin: 28px 0 14px;
+        }
+
+        .footer-service-description {
+            font-size: 20px;
+            line-height: 2;
             margin: 0;
         }
 
-        .footer-menu-list li {
-            border-bottom: 1px solid rgba(255,255,255,0.25);
-        }
-
-        .footer-menu-list a {
-            display: block;
-            padding: 20px 10px;
-            color: #ffffff;
-            font-size: 20px;
-        }
-
-        .footer-menu-list a:hover {
-            background: rgba(255,255,255,0.06);
-        }
-
-        /* التواصل */
-
-        .contact-area {
-            margin-top: 20px;
-            padding-top: 15px;
-        }
-
-        .contact-items {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .contact-items span {
-            color: #ffffff;
-            font-size: 18px;
-        }
-
-        /* الحقوق */
-
         .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.22);
-            margin-top: 60px;
-            padding-top: 25px;
+            max-width: 850px;
+            margin: 80px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.25);
         }
 
         .footer-bottom p {
-            margin: 5px 0;
-            color: #ffffff;
-            font-size: 14px;
+            margin: 10px 0;
+            font-size: 16px;
         }
 
-        /* ==============================
-           MOBILE
-        ============================== */
+        /* =========================
+           RESPONSIVE
+        ========================= */
 
         @media (max-width: 768px) {
 
             .top-header {
                 height: 125px;
-            }
-
-            .header-container {
                 padding: 0 25px;
             }
 
-            .seha-arabic {
-                font-size: 22px;
+            .brand {
+                gap: 10px;
             }
 
-            .seha-english {
-                font-size: 17px;
-            }
-
-            .seha-check {
-                width: 55px;
-                height: 55px;
-            }
-
-            .seha-check:before {
-                width: 50px;
-                height: 50px;
-                border-width: 6px;
-            }
-
-            .seha-check:after {
-                font-size: 37px;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .navigation {
-                min-height: auto;
-            }
-
-            .navigation-container {
-                display: none;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 0;
-                padding: 5px 25px 15px;
-            }
-
-            .navigation-container.open {
-                display: flex;
-            }
-
-            .navigation a {
-                padding: 17px 5px;
-                border-bottom: 1px solid #eeeeee;
-                font-size: 17px;
-            }
-
-            .page-container {
-                padding: 70px 20px 90px;
-            }
-
-            .page-title {
-                font-size: 39px;
-                margin-bottom: 30px;
-            }
-
-            .page-description {
-                font-size: 19px;
-                line-height: 2;
-                margin-bottom: 50px;
-            }
-
-            .form-input {
-                height: 62px;
-                font-size: 18px;
-            }
-
-            .button-row {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .primary-button,
-            .secondary-button {
-                width: 190px;
-            }
-
-            .footer-container {
-                padding: 60px 22px 25px;
-            }
-
-            .footer-brand-name {
-                font-size: 29px;
-            }
-
-            .footer-description {
-                font-size: 16px;
-            }
-
-            .footer-heading {
+            .brand-title {
                 font-size: 25px;
             }
 
-            .footer-menu-list a {
-                font-size: 17px;
-                padding: 18px 8px;
+            .brand-icon {
+                width: 64px;
+                height: 64px;
+                border-width: 6px;
+                font-size: 42px;
             }
 
-            .contact-items span {
+            .navigation {
+                height: 58px;
+                padding: 0 25px;
+            }
+
+            .navigation a {
                 font-size: 16px;
+                margin-left: 25px;
+            }
+
+            .container {
+                padding: 75px 25px 90px;
+            }
+
+            .page-title {
+                font-size: 46px;
+                margin-bottom: 38px;
+            }
+
+            .page-description {
+                font-size: 22px;
+                line-height: 2;
+                margin-bottom: 60px;
+            }
+
+            .input-field {
+                height: 82px;
+                font-size: 21px;
+            }
+
+            .lookup-button,
+            .back-button {
+                min-width: 245px;
+                font-size: 23px;
+            }
+
+            .footer {
+                padding: 60px 25px 35px;
+            }
+
+            .footer-title {
+                font-size: 31px;
+            }
+
+            .footer-description {
+                font-size: 18px;
+            }
+
+            .footer-heading {
+                font-size: 29px;
+            }
+
+            .footer-menu a {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .top-header {
+                padding: 0 18px;
+            }
+
+            .brand-title {
+                font-size: 22px;
+            }
+
+            .brand-icon {
+                width: 58px;
+                height: 58px;
+                font-size: 37px;
+            }
+
+            .navigation {
+                padding: 0 20px;
+            }
+
+            .navigation a {
+                font-size: 14px;
+                margin-left: 18px;
+            }
+
+            .container {
+                padding: 65px 20px 80px;
+            }
+
+            .page-title {
+                font-size: 40px;
+            }
+
+            .page-description {
+                font-size: 20px;
+            }
+
+            .input-field {
+                height: 76px;
+                font-size: 19px;
+            }
+
+            .lookup-button,
+            .back-button {
+                min-width: 240px;
+                min-height: 65px;
+                font-size: 21px;
+            }
+
+            .footer-title {
+                font-size: 28px;
+            }
+
+            .footer-heading {
+                font-size: 26px;
             }
         }
     </style>
@@ -500,186 +464,115 @@
 
 <body>
 
-    <!-- ==============================
-         HEADER
-    ============================== -->
+<header class="top-header">
 
-    <header class="top-header">
+    <button class="menu-button" aria-label="القائمة">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
 
-        <div class="header-container">
-
-            <a href="/" class="seha-logo">
-
-                <div class="seha-logo-text">
-                    <span class="seha-arabic">نظام الإجازات</span>
-                </div>
-
-                <div class="seha-check"></div>
-
-            </a>
-
-            <button
-                type="button"
-                class="menu-toggle"
-                onclick="toggleNavigation()"
-                aria-label="القائمة">
-                ☰
-            </button>
-
+    <div class="brand">
+        <div class="brand-title">
+            نظام الإجازات
         </div>
 
-    </header>
+        <div class="brand-icon">
+            ✓
+        </div>
+    </div>
 
+</header>
 
-    <!-- ==============================
-         NAVIGATION
-    ============================== -->
+<nav class="navigation">
 
-    <nav class="navigation">
+    <a href="/">
+        الرئيسية
+    </a>
 
-        <div class="navigation-container" id="navigationMenu">
+    <a href="/lookup">
+        الاستعلام عن طلب
+    </a>
 
-            <a href="/">
-                الرئيسية
-            </a>
+</nav>
 
-            <a href="/lookup">
-                الاستعلام عن طلب
-            </a>
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
 
+<footer class="footer">
+
+    <div class="footer-logo">
+
+        <div class="footer-check">
+            ✓
         </div>
 
-    </nav>
-
-
-    <!-- ==============================
-         PAGE CONTENT
-    ============================== -->
-
-    <main>
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
-
-
-    <!-- ==============================
-         FOOTER
-    ============================== -->
-
-    <footer class="footer">
-
-        <div class="footer-container">
-
-            <div class="footer-logo">
-
-                <div class="footer-seha">
-
-                    <div class="footer-check">
-                        ✓
-                    </div>
-
-                    <div class="footer-brand-name">
-                        نظام الإجازات
-                    </div>
-
-                </div>
-
-                <p class="footer-description">
-                    نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
-                    بطريقة سهلة ومنظمة.
-                </p>
-
-            </div>
-
-
-            <div class="footer-menu">
-
-                <h2 class="footer-heading">
-                    القائمة الرئيسية
-                </h2>
-
-                <ul class="footer-menu-list">
-
-                    <li>
-                        <a href="/">
-                            الخدمات
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="/lookup">
-                            الاستعلامات
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            الأسئلة الشائعة
-                        </a>
-                    </li>
-
-                    <li>
-                        <a href="#">
-                            تواصل معنا
-                        </a>
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <div class="contact-area">
-
-                <h2 class="footer-heading">
-                    تواصل معنا
-                </h2>
-
-                <div class="contact-items">
-
-                    <span>
-                        نظام الإجازات
-                    </span>
-
-                    <span>
-                        خدمة إلكترونية متاحة على مدار الساعة
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="footer-bottom">
-
-                <p>
-                    © 2026 نظام الإجازات
-                </p>
-
-                <p>
-                    جميع الحقوق محفوظة
-                </p>
-
-            </div>
-
+        <div class="footer-title">
+            نظام الإجازات
         </div>
 
-    </footer>
+    </div>
 
+    <p class="footer-description">
+        نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
+        بطريقة سهلة ومنظمة.
+    </p>
 
-    <script>
-        function toggleNavigation() {
-            const menu = document.getElementById("navigationMenu");
+    <h2 class="footer-heading">
+        القائمة الرئيسية
+    </h2>
 
-            if (menu.classList.contains("open")) {
-                menu.classList.remove("open");
-            } else {
-                menu.classList.add("open");
-            }
-        }
-    </script>
+    <div class="footer-menu">
+
+        <a href="/">
+            الخدمات
+        </a>
+
+        <a href="/lookup">
+            الاستعلامات
+        </a>
+
+        <a href="#">
+            الأسئلة الشائعة
+        </a>
+
+        <a href="#">
+            تواصل معنا
+        </a>
+
+    </div>
+
+    <div class="footer-contact">
+
+        <h2 class="footer-heading">
+            تواصل معنا
+        </h2>
+
+        <div class="footer-service-title">
+            نظام الإجازات
+        </div>
+
+        <p class="footer-service-description">
+            خدمة إلكترونية متاحة على مدار الساعة
+        </p>
+
+    </div>
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 نظام الإجازات
+        </p>
+
+        <p>
+            جميع الحقوق محفوظة
+        </p>
+
+    </div>
+
+</footer>
 
 </body>
 </html>
