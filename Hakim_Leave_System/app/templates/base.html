@@ -1,578 +1,1006 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}الإجازات المرضية{% endblock %}</title>
+    <title>{{ title or "نظام الإجازات" }}</title>
 
     <style>
+        /* =========================================================
+           RESET
+        ========================================================= */
+
         * {
             box-sizing: border-box;
         }
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-            font-family: Tahoma, Arial, sans-serif;
-            background: #ffffff;
-            color: #657487;
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            color: #687786;
+            font-family: Tahoma, Arial, sans-serif;
             direction: rtl;
+            overflow-x: hidden;
         }
 
         a {
             text-decoration: none;
-            color: inherit;
         }
 
-        /* =========================
-           HEADER
-        ========================= */
+        button,
+        input {
+            font-family: inherit;
+        }
 
-        .top-header {
+
+        /* =========================================================
+           HEADER
+        ========================================================= */
+
+        .site-header {
             width: 100%;
-            height: 125px;
-            background: #f4f6f9;
-            border-bottom: 1px solid #e3e7eb;
+            background: #f5f6f8;
+            border-bottom: 1px solid #e3e6e9;
+        }
+
+        .header-inner {
+            width: min(1200px, 92%);
+            min-height: 126px;
+            margin: 0 auto;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 28px;
+
+            padding: 0 10px;
         }
 
-        .menu-button {
-            width: 44px;
-            height: 44px;
-            border: 0;
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 7px;
-            padding: 4px;
-        }
-
-        .menu-button span {
-            display: block;
-            width: 31px;
-            height: 4px;
-            background: #078fc2;
-            border-radius: 2px;
-        }
+        /*
+            شعار المنصة
+            استبدل النص/الرمز لاحقًا بصورة الشعار الحقيقي
+            الموجود عندك في static/images/
+        */
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
+
+            color: #344b5d;
         }
 
-        .brand-title {
-            font-size: 29px;
+        .brand-text {
+            font-size: 27px;
             font-weight: 700;
-            color: #243f56;
             white-space: nowrap;
         }
 
         .brand-icon {
-            width: 72px;
-            height: 72px;
-            border: 7px solid #078fc2;
-            border-radius: 50%;
+            width: 58px;
+            height: 58px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #078fc2;
-            font-size: 48px;
-            font-weight: bold;
-            line-height: 1;
+
+            color: #078bc4;
+            border: 4px solid #078bc4;
+            border-radius: 50%;
+
+            font-size: 35px;
+            font-weight: 700;
         }
 
-        /* =========================
-           NAVIGATION
-        ========================= */
+        .menu-button {
+            width: 52px;
+            height: 52px;
 
-        .navigation {
-            height: 64px;
-            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: #0797c5;
+            font-size: 34px;
+
+            cursor: pointer;
+            user-select: none;
+        }
+
+
+        /* =========================================================
+           NAVIGATION
+        ========================================================= */
+
+        .top-nav {
+            width: min(1200px, 92%);
+            margin: 0 auto;
+
+            min-height: 92px;
+
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 48px;
-            border-bottom: 1px solid #eeeeee;
+
+            gap: 38px;
+
+            color: #3e6f9a;
+            font-size: 20px;
+            font-weight: 700;
         }
 
-        .navigation a {
-            color: #5f7182;
-            font-size: 18px;
-            margin-left: 35px;
-            transition: 0.2s;
+        .top-nav a {
+            color: #3e6f9a;
+            transition: .2s ease;
         }
 
-        .navigation a:hover {
-            color: #078fc2;
+        .top-nav a:hover {
+            color: #078bc4;
         }
 
-        /* =========================
+
+        /* =========================================================
            MAIN
-        ========================= */
+        ========================================================= */
 
         main {
-            width: 100%;
-            min-height: 760px;
+            min-height: 650px;
             background: #ffffff;
         }
 
         .container {
-            width: 100%;
-            max-width: 1050px;
+            width: min(1100px, 92%);
             margin: 0 auto;
-            padding: 90px 32px 110px;
+
+            padding:
+                75px
+                25px
+                105px;
         }
 
         .card {
             width: 100%;
-            text-align: center;
-            background: #ffffff;
+            margin: 0 auto;
         }
 
+
+        /* =========================================================
+           PAGE TITLE
+        ========================================================= */
+
         .page-title {
-            margin: 0 0 48px;
-            color: #078fc2;
-            font-size: 58px;
-            line-height: 1.3;
-            font-weight: 700;
+            margin: 0 0 45px;
+
+            text-align: center;
+
+            color: #1875b8;
+
+            font-size: 56px;
+            line-height: 1.35;
+            font-weight: 800;
+
+            letter-spacing: -1px;
         }
 
         .page-description {
-            max-width: 900px;
-            margin: 0 auto 75px;
-            color: #657487;
-            font-size: 27px;
-            line-height: 2.15;
+            width: min(930px, 100%);
+            margin: 0 auto 65px;
+
+            text-align: center;
+
+            color: #71808e;
+
+            font-size: 25px;
+            line-height: 1.85;
             font-weight: 400;
         }
 
-        /* =========================
-           FORMS
-        ========================= */
 
-        .form-container {
-            width: 100%;
-            max-width: 900px;
+        /* =========================================================
+           MAIN BUTTON
+        ========================================================= */
+
+        .lookup-button {
+            width: 190px;
+
+            min-height: 55px;
+
             margin: 0 auto;
-        }
 
-        .input-field {
-            width: 100%;
-            height: 88px;
-            border: 1px solid #d2d5d8;
-            border-radius: 9px;
-            background: #ffffff;
-            padding: 0 28px;
-            margin-bottom: 30px;
-            text-align: right;
-            direction: rtl;
-            color: #555;
-            font-size: 24px;
-            outline: none;
-        }
-
-        .input-field::placeholder {
-            color: #a2a7ad;
-            opacity: 1;
-        }
-
-        .input-field:focus {
-            border-color: #078fc2;
-            box-shadow: 0 0 0 2px rgba(7, 143, 194, 0.08);
-        }
-
-        .buttons {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 22px;
-            margin-top: 15px;
-        }
-
-        .lookup-button,
-        .back-button {
-            display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 245px;
-            min-height: 70px;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 9px;
-            background: #078fc2;
+
+            background: linear-gradient(
+                to bottom,
+                #1388c9,
+                #0874b7
+            );
+
+            border: 1px solid #0069a9;
+            border-radius: 8px;
+
             color: #ffffff;
-            font-size: 25px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
+
+            font-size: 21px;
+            font-weight: 400;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.15);
+
+            transition: .2s ease;
         }
 
-        .lookup-button:hover,
-        .back-button:hover {
-            background: #057eac;
+        .lookup-button:hover {
+            transform: translateY(-1px);
+
+            background: linear-gradient(
+                to bottom,
+                #1691d3,
+                #0877bb
+            );
         }
 
-        /* =========================
-           FOOTER
-        ========================= */
 
-        .footer {
+        /* =========================================================
+           FORMS
+        ========================================================= */
+
+        .lookup-form {
             width: 100%;
-            background: #0788bf;
+            max-width: 1000px;
+
+            margin: 0 auto;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 24px;
+        }
+
+        .lookup-form input,
+        .lookup-form select {
+            width: 100%;
+            height: 61px;
+
+            padding: 0 24px;
+
+            background: #ffffff;
+
+            border: 1px solid #cfd3d7;
+            border-radius: 7px;
+
+            outline: none;
+
+            color: #55626e;
+
+            font-size: 20px;
+
+            text-align: right;
+
+            transition: .2s ease;
+        }
+
+        .lookup-form input::placeholder {
+            color: #a4a8ad;
+        }
+
+        .lookup-form input:focus,
+        .lookup-form select:focus {
+            border-color: #1687c5;
+
+            box-shadow:
+                0 0 0 3px rgba(22,135,197,.08);
+        }
+
+        .lookup-form button {
+            width: 190px;
+            min-height: 55px;
+
+            margin: 0 auto;
+
+            border: 1px solid #006cab;
+            border-radius: 8px;
+
+            background: linear-gradient(
+                to bottom,
+                #1287c8,
+                #0874b7
+            );
+
             color: #ffffff;
-            padding: 75px 30px 40px;
+
+            font-size: 21px;
+
+            cursor: pointer;
+        }
+
+        .back-button {
+            width: 190px;
+            min-height: 55px;
+
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            border: 1px solid #0a7cba;
+
+            color: #0876b5;
+
+            font-size: 20px;
+        }
+
+
+        /* =========================================================
+           RESULT
+        ========================================================= */
+
+        .result-box {
+            width: 100%;
+            max-width: 1000px;
+
+            margin: 40px auto 0;
+
+            padding: 28px;
+
+            border-radius: 8px;
+
+            border: 1px solid #d7dce0;
+
+            background: #fafbfc;
+
+            color: #52616d;
+
+            line-height: 2;
+        }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+
+        .site-footer {
+            width: 100%;
+
+            background: #1179bd;
+
+            color: #ffffff;
+        }
+
+        .footer-inner {
+            width: min(1100px, 90%);
+
+            margin: 0 auto;
+
+            padding:
+                78px
+                20px
+                34px;
+
             text-align: center;
         }
 
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 35px;
+        .footer-brand {
+            margin-bottom: 55px;
         }
 
-        .footer-check {
-            width: 76px;
-            height: 76px;
-            border: 5px solid #ffffff;
-            border-radius: 50%;
+        .footer-logo {
+            width: 105px;
+            height: 105px;
+
+            margin: 0 auto 24px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
-            font-weight: bold;
+
+            color: #ffffff;
+
+            border: 4px solid rgba(255,255,255,.9);
+            border-radius: 50%;
+
+            font-size: 58px;
+            font-weight: 700;
         }
 
         .footer-title {
-            font-size: 36px;
-            font-weight: 700;
+            margin: 0 0 25px;
+
+            color: #ffffff;
+
+            font-size: 34px;
+            font-weight: 800;
         }
 
         .footer-description {
-            max-width: 850px;
-            margin: 0 auto 65px;
-            font-size: 20px;
-            line-height: 2;
+            width: min(920px, 100%);
+
+            margin: 0 auto;
+
+            color: rgba(255,255,255,.98);
+
+            font-size: 22px;
+            line-height: 2.2;
+        }
+
+
+        /* =========================================================
+           FOOTER MENU
+        ========================================================= */
+
+        .footer-section {
+            width: min(820px, 100%);
+
+            margin: 75px auto 0;
         }
 
         .footer-heading {
-            display: inline-block;
-            margin: 0 auto 20px;
-            padding-bottom: 12px;
-            border-bottom: 5px solid #49d7ec;
+            width: fit-content;
+
+            margin: 0 auto 28px;
+
+            padding-bottom: 8px;
+
+            border-bottom:
+                5px solid #72d8ea;
+
             color: #ffffff;
-            font-size: 32px;
-            font-weight: 700;
+
+            font-size: 31px;
+            font-weight: 800;
         }
 
-        .footer-menu {
-            max-width: 850px;
-            margin: 0 auto 90px;
+        .footer-links {
+            display: flex;
+            flex-direction: column;
         }
 
-        .footer-menu a {
-            display: block;
-            padding: 23px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.22);
+        .footer-links a {
+            padding: 19px 10px;
+
+            border-bottom:
+                1px solid rgba(255,255,255,.28);
+
             color: #ffffff;
+
+            text-align: center;
+
             font-size: 22px;
+
+            transition: .2s ease;
         }
+
+        .footer-links a:hover {
+            background: rgba(255,255,255,.06);
+        }
+
+
+        /* =========================================================
+           CONTACT
+        ========================================================= */
 
         .footer-contact {
-            max-width: 850px;
-            margin: 0 auto;
+            width: min(850px, 100%);
+
+            margin: 85px auto 0;
+
+            text-align: center;
         }
 
-        .footer-service-title {
-            font-size: 25px;
-            margin: 28px 0 14px;
-        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
 
-        .footer-service-description {
+            gap: 14px;
+
+            margin-top: 30px;
+
+            color: #ffffff;
+
             font-size: 20px;
-            line-height: 2;
-            margin: 0;
+            line-height: 1.8;
         }
+
+
+        /* =========================================================
+           FOOTER BOTTOM
+        ========================================================= */
 
         .footer-bottom {
-            max-width: 850px;
-            margin: 80px auto 0;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.25);
+            margin-top: 70px;
+
+            padding-top: 25px;
+
+            border-top:
+                1px solid rgba(255,255,255,.28);
+
+            color: rgba(255,255,255,.92);
+
+            text-align: center;
+
+            font-size: 15px;
+
+            line-height: 2;
         }
 
-        .footer-bottom p {
-            margin: 10px 0;
-            font-size: 16px;
+
+        /* =========================================================
+           MOBILE MENU
+        ========================================================= */
+
+        .mobile-menu {
+            display: none;
+
+            background: #ffffff;
+
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
+        .mobile-menu a {
+            display: block;
 
-        @media (max-width: 768px) {
+            padding: 18px 25px;
 
-            .top-header {
-                height: 125px;
-                padding: 0 25px;
+            border-bottom: 1px solid #eeeeee;
+
+            color: #3e6f9a;
+
+            font-size: 18px;
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 700px) {
+
+            .header-inner {
+                min-height: 90px;
+
+                padding:
+                    0
+                    18px;
             }
 
             .brand {
-                gap: 10px;
+                gap: 9px;
             }
 
-            .brand-title {
-                font-size: 25px;
-            }
-
-            .brand-icon {
-                width: 64px;
-                height: 64px;
-                border-width: 6px;
-                font-size: 42px;
-            }
-
-            .navigation {
-                height: 58px;
-                padding: 0 25px;
-            }
-
-            .navigation a {
-                font-size: 16px;
-                margin-left: 25px;
-            }
-
-            .container {
-                padding: 75px 25px 90px;
-            }
-
-            .page-title {
-                font-size: 46px;
-                margin-bottom: 38px;
-            }
-
-            .page-description {
-                font-size: 22px;
-                line-height: 2;
-                margin-bottom: 60px;
-            }
-
-            .input-field {
-                height: 82px;
-                font-size: 21px;
-            }
-
-            .lookup-button,
-            .back-button {
-                min-width: 245px;
+            .brand-text {
                 font-size: 23px;
             }
 
-            .footer {
-                padding: 60px 25px 35px;
+            .brand-icon {
+                width: 45px;
+                height: 45px;
+
+                font-size: 28px;
+
+                border-width: 3px;
             }
 
-            .footer-title {
-                font-size: 31px;
-            }
+            .menu-button {
+                width: 44px;
+                height: 44px;
 
-            .footer-description {
-                font-size: 18px;
-            }
-
-            .footer-heading {
                 font-size: 29px;
             }
 
-            .footer-menu a {
-                font-size: 20px;
-            }
-        }
 
-        @media (max-width: 480px) {
+            .top-nav {
+                width: 100%;
 
-            .top-header {
-                padding: 0 18px;
-            }
+                min-height: 80px;
 
-            .brand-title {
-                font-size: 22px;
-            }
+                padding:
+                    15px
+                    18px;
 
-            .brand-icon {
-                width: 58px;
-                height: 58px;
-                font-size: 37px;
+                gap: 22px;
+
+                font-size: 16px;
+
+                justify-content: center;
             }
 
-            .navigation {
-                padding: 0 20px;
+
+            main {
+                min-height: 550px;
             }
 
-            .navigation a {
-                font-size: 14px;
-                margin-left: 18px;
-            }
 
             .container {
-                padding: 65px 20px 80px;
+                width: 100%;
+
+                padding:
+                    55px
+                    20px
+                    75px;
             }
+
 
             .page-title {
+                margin-bottom: 30px;
+
                 font-size: 40px;
+
+                line-height: 1.4;
             }
 
+
             .page-description {
+                margin-bottom: 45px;
+
+                font-size: 19px;
+
+                line-height: 1.95;
+            }
+
+
+            .lookup-button {
+                width: 190px;
+
+                min-height: 54px;
+
                 font-size: 20px;
             }
 
-            .input-field {
-                height: 76px;
+
+            .lookup-form {
+                gap: 20px;
+            }
+
+
+            .lookup-form input,
+            .lookup-form select {
+                height: 58px;
+
+                font-size: 18px;
+
+                padding:
+                    0
+                    18px;
+            }
+
+
+            .lookup-form button,
+            .back-button {
+                width: 190px;
+
+                min-height: 53px;
+
                 font-size: 19px;
             }
 
-            .lookup-button,
-            .back-button {
-                min-width: 240px;
-                min-height: 65px;
-                font-size: 21px;
+
+            .site-footer {
+                padding: 0;
             }
 
+
+            .footer-inner {
+                width: 100%;
+
+                padding:
+                    60px
+                    20px
+                    30px;
+            }
+
+
+            .footer-logo {
+                width: 82px;
+                height: 82px;
+
+                font-size: 45px;
+
+                margin-bottom: 20px;
+            }
+
+
             .footer-title {
-                font-size: 28px;
+                font-size: 29px;
+
+                margin-bottom: 20px;
+            }
+
+
+            .footer-description {
+                font-size: 18px;
+
+                line-height: 2.15;
+            }
+
+
+            .footer-section {
+                margin-top: 65px;
+            }
+
+
+            .footer-heading {
+                font-size: 27px;
+
+                border-bottom-width: 5px;
+            }
+
+
+            .footer-links a {
+                padding: 17px 10px;
+
+                font-size: 19px;
+            }
+
+
+            .footer-contact {
+                margin-top: 70px;
+            }
+
+
+            .contact-info {
+                font-size: 18px;
+            }
+
+
+            .footer-bottom {
+                margin-top: 50px;
+
+                font-size: 13px;
+            }
+        }
+
+
+        /* =========================================================
+           SMALL PHONES
+        ========================================================= */
+
+        @media (max-width: 430px) {
+
+            .brand-text {
+                font-size: 20px;
+            }
+
+            .brand-icon {
+                width: 42px;
+                height: 42px;
+            }
+
+            .top-nav {
+                font-size: 15px;
+                gap: 15px;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .page-description {
+                font-size: 18px;
+            }
+
+            .footer-description {
+                font-size: 17px;
             }
 
             .footer-heading {
-                font-size: 26px;
+                font-size: 25px;
             }
         }
     </style>
 </head>
 
+
 <body>
 
-<header class="top-header">
+    <!-- HEADER -->
 
-    <button class="menu-button" aria-label="القائمة">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    <header class="site-header">
 
-    <div class="brand">
-        <div class="brand-title">
-            نظام الإجازات
+        <div class="header-inner">
+
+            <button
+                class="menu-button"
+                id="menuButton"
+                type="button"
+                aria-label="فتح القائمة">
+                ☰
+            </button>
+
+
+            <a href="/" class="brand">
+
+                <span class="brand-text">
+                    نظام الإجازات
+                </span>
+
+                <span class="brand-icon">
+                    ✓
+                </span>
+
+            </a>
+
         </div>
 
-        <div class="brand-icon">
-            ✓
+
+        <nav class="top-nav">
+
+            <a href="/">
+                الرئيسية
+            </a>
+
+            <a href="/lookup">
+                الاستعلام عن طلب
+            </a>
+
+        </nav>
+
+
+        <nav class="mobile-menu" id="mobileMenu">
+
+            <a href="/">
+                الرئيسية
+            </a>
+
+            <a href="/lookup">
+                الاستعلام عن طلب
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <!-- CONTENT -->
+
+    <main>
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer class="site-footer">
+
+        <div class="footer-inner">
+
+
+            <div class="footer-brand">
+
+                <div class="footer-logo">
+                    ✓
+                </div>
+
+                <h2 class="footer-title">
+                    نظام الإجازات
+                </h2>
+
+                <p class="footer-description">
+                    نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
+                    بطريقة سهلة ومنظمة.
+                </p>
+
+            </div>
+
+
+            <div class="footer-section">
+
+                <h3 class="footer-heading">
+                    القائمة الرئيسية
+                </h3>
+
+
+                <div class="footer-links">
+
+                    <a href="/">
+                        الخدمات
+                    </a>
+
+                    <a href="/lookup">
+                        الاستعلامات
+                    </a>
+
+                    <a href="#">
+                        الأسئلة الشائعة
+                    </a>
+
+                    <a href="#">
+                        تواصل معنا
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-contact">
+
+                <h3 class="footer-heading">
+                    تواصل معنا
+                </h3>
+
+                <div class="contact-info">
+
+                    <span>
+                        نظام الإجازات
+                    </span>
+
+                    <span>
+                        خدمة إلكترونية متاحة على مدار الساعة
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="footer-bottom">
+
+                © 2026 نظام الإجازات
+
+                <br>
+
+                جميع الحقوق محفوظة
+
+            </div>
+
         </div>
-    </div>
 
-</header>
+    </footer>
 
-<nav class="navigation">
 
-    <a href="/">
-        الرئيسية
-    </a>
+    <script>
 
-    <a href="/lookup">
-        الاستعلام عن طلب
-    </a>
+        const menuButton =
+            document.getElementById("menuButton");
 
-</nav>
+        const mobileMenu =
+            document.getElementById("mobileMenu");
 
-<main>
-    {% block content %}
-    {% endblock %}
-</main>
 
-<footer class="footer">
+        if (menuButton && mobileMenu) {
 
-    <div class="footer-logo">
+            menuButton.addEventListener(
+                "click",
+                function () {
 
-        <div class="footer-check">
-            ✓
-        </div>
+                    if (
+                        mobileMenu.style.display ===
+                        "block"
+                    ) {
 
-        <div class="footer-title">
-            نظام الإجازات
-        </div>
+                        mobileMenu.style.display =
+                            "none";
 
-    </div>
+                    } else {
 
-    <p class="footer-description">
-        نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
-        بطريقة سهلة ومنظمة.
-    </p>
+                        mobileMenu.style.display =
+                            "block";
+                    }
 
-    <h2 class="footer-heading">
-        القائمة الرئيسية
-    </h2>
+                }
+            );
 
-    <div class="footer-menu">
+        }
 
-        <a href="/">
-            الخدمات
-        </a>
-
-        <a href="/lookup">
-            الاستعلامات
-        </a>
-
-        <a href="#">
-            الأسئلة الشائعة
-        </a>
-
-        <a href="#">
-            تواصل معنا
-        </a>
-
-    </div>
-
-    <div class="footer-contact">
-
-        <h2 class="footer-heading">
-            تواصل معنا
-        </h2>
-
-        <div class="footer-service-title">
-            نظام الإجازات
-        </div>
-
-        <p class="footer-service-description">
-            خدمة إلكترونية متاحة على مدار الساعة
-        </p>
-
-    </div>
-
-    <div class="footer-bottom">
-
-        <p>
-            © 2026 نظام الإجازات
-        </p>
-
-        <p>
-            جميع الحقوق محفوظة
-        </p>
-
-    </div>
-
-</footer>
+    </script>
 
 </body>
+
 </html>
