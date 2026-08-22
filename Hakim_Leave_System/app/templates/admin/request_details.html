@@ -1,1 +1,593 @@
-{% extends "base.html" %}{% block content %}<main class="container"><h1>تفاصيل الطلب</h1>{% if data %}<div class="card"><p>رقم الطلب: {{data.request.request_number}}</p><p>الطالب: {{data.request.student_name}}</p><p>الجامعة: {{data.university.name if data.university else ""}}</p><p>الفترة: {{data.request.start_date}} — {{data.request.end_date}}</p><p>الأيام: {{data.request.days_count}}</p><a class="btn" href="/admin/requests/{{data.request.id}}/pdf">تحميل PDF</a><a class="btn" href="/verify/{{data.request.verification_token}}">صفحة التحقق</a></div>{% endif %}</main>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container admin-request-page">
+
+    <h1 class="lookup-title">
+        تفاصيل الطلب
+    </h1>
+
+    <p class="lookup-description">
+        عرض جميع بيانات الطلب المسجل في النظام.
+    </p>
+
+
+    {% if request %}
+
+    <!-- بيانات الطلب -->
+
+    <div class="request-details-card">
+
+        <div class="request-details-header">
+
+            <h2>
+                بيانات الطلب
+            </h2>
+
+            <span class="request-status">
+                {{ request.status or "مسجل" }}
+            </span>
+
+        </div>
+
+
+        <div class="request-details-grid">
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    رقم الطلب
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.request_number or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    اسم الطالب
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.student_name or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    رقم الهوية / الإقامة
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.national_id or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    الجامعة
+                </span>
+
+                <strong class="detail-value">
+
+                    {% if request.university %}
+
+                        {{ request.university.name }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    تاريخ الغياب
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.absence_date or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    بداية الفترة
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.start_date or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    نهاية الفترة
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.end_date or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    عدد الأيام
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.days_count or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    نوع الطلب
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.request_type or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item detail-item-full">
+
+                <span class="detail-label">
+                    الملاحظات
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.notes or "لا توجد ملاحظات" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    تاريخ إنشاء الطلب
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.created_at or "-" }}
+                </strong>
+
+            </div>
+
+
+            <div class="detail-item">
+
+                <span class="detail-label">
+                    آخر تحديث
+                </span>
+
+                <strong class="detail-value">
+                    {{ request.updated_at or "-" }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- أزرار الإجراءات -->
+
+    <div class="request-actions">
+
+
+        {% if request.verification_token %}
+
+        <a
+            href="/verify/{{ request.verification_token }}"
+            class="lookup-button"
+            target="_blank"
+            rel="noopener"
+        >
+            صفحة التحقق
+        </a>
+
+        {% endif %}
+
+
+        {% if request.id %}
+
+        <a
+            href="/admin/requests/{{ request.id }}/pdf"
+            class="lookup-button"
+            target="_blank"
+            rel="noopener"
+        >
+            عرض PDF
+        </a>
+
+        <a
+            href="/admin/requests/{{ request.id }}/edit"
+            class="request-outline-button"
+        >
+            تعديل الطلب
+        </a>
+
+        {% endif %}
+
+
+        <a
+            href="/admin/dashboard"
+            class="request-outline-button"
+        >
+            العودة للوحة المشرف
+        </a>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="result-box">
+
+        لم يتم العثور على الطلب.
+
+    </div>
+
+
+    <a
+        href="/admin/dashboard"
+        class="lookup-back"
+        style="margin-top:25px;"
+    >
+        العودة للوحة المشرف
+    </a>
+
+    {% endif %}
+
+</section>
+
+
+<style>
+
+.admin-request-page {
+    padding-top: 65px;
+}
+
+
+/* =========================================================
+   REQUEST DETAILS CARD
+========================================================= */
+
+.request-details-card {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+    background: #ffffff;
+
+    border: 1px solid #d9dde1;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    text-align: right;
+
+}
+
+
+.request-details-header {
+
+    min-height: 75px;
+
+    padding: 18px 25px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: #f4f6f8;
+
+    border-bottom: 1px solid #d9dde1;
+
+}
+
+
+.request-details-header h2 {
+
+    margin: 0;
+
+    color: #1475b6;
+
+    font-size: 25px;
+
+}
+
+
+.request-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 95px;
+
+    min-height: 38px;
+
+    padding: 5px 15px;
+
+    border-radius: 20px;
+
+    background: #e8f5fb;
+
+    color: #1475b6;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   DETAILS GRID
+========================================================= */
+
+.request-details-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+}
+
+
+.detail-item {
+
+    min-height: 95px;
+
+    padding: 20px 24px;
+
+    border-bottom: 1px solid #e4e7e9;
+
+}
+
+
+.detail-item:nth-child(odd) {
+
+    border-left:
+        1px solid #e4e7e9;
+
+}
+
+
+.detail-item-full {
+
+    grid-column:
+        1 / -1;
+
+}
+
+
+.detail-label {
+
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #8a959e;
+
+    font-size: 15px;
+
+}
+
+
+.detail-value {
+
+    display: block;
+
+    color: #435462;
+
+    font-size: 19px;
+
+    line-height: 1.7;
+
+    word-break: break-word;
+
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.request-actions {
+
+    width: 100%;
+
+    max-width: 1000px;
+
+    margin: 30px auto 0;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 15px;
+
+}
+
+
+.request-actions .lookup-button,
+.request-outline-button {
+
+    width: 190px;
+
+    min-height: 55px;
+
+    margin: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 8px;
+
+    font-size: 18px;
+
+}
+
+
+.request-outline-button {
+
+    background: #ffffff;
+
+    border: 1px solid #147cba;
+
+    color: #1475b6;
+
+}
+
+
+.request-outline-button:hover {
+
+    background: #f3f8fb;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .request-details-header {
+
+        padding: 17px;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        text-align: center;
+
+    }
+
+
+    .request-details-header h2 {
+
+        font-size: 22px;
+
+    }
+
+
+    .request-status {
+
+        align-self: center;
+
+    }
+
+
+    .request-details-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .detail-item {
+
+        border-left: 0 !important;
+
+        padding: 18px;
+
+    }
+
+
+    .detail-item-full {
+
+        grid-column: auto;
+
+    }
+
+
+    .detail-label {
+
+        font-size: 14px;
+
+    }
+
+
+    .detail-value {
+
+        font-size: 18px;
+
+    }
+
+
+    .request-actions {
+
+        flex-direction: column;
+
+        align-items: center;
+
+    }
+
+
+    .request-actions .lookup-button,
+    .request-outline-button {
+
+        width: 190px;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
