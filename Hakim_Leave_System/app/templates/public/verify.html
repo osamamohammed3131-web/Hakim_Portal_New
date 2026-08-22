@@ -1,1 +1,98 @@
-{% extends "base.html" %}{% block content %}<main class="container"><h1>التحقق من الطلب</h1>{% if data %}<div class="card"><b>{{data.request.request_number}}</b><p>الطالب: {{data.request.student_name}}</p><p>الجامعة: {{data.university.name if data.university else ""}}</p><p>تاريخ الغياب: {{data.request.absence_date}}</p><p>الفترة: {{data.request.start_date}} — {{data.request.end_date}}</p><p>الأيام: {{data.request.days_count}}</p><p>الحالة: {{data.request.status}}</p></div><div class="notice">هذه الصفحة للتحقق من بيانات الطلب المسجل في منصة حكيم، ولا تمثل بحد ذاتها تقريرًا أو إجازة طبية صادرة من جهة صحية.</div>{% else %}<div class="error">رابط التحقق غير صالح.</div>{% endif %}</main>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="lookup-container">
+
+    <h1 class="lookup-title">
+        التحقق من الطلب
+    </h1>
+
+    <p class="lookup-description">
+        يمكنك التحقق من بيانات الطلب المسجل في المنصة
+        من خلال المعلومات الظاهرة أدناه.
+    </p>
+
+    {% if request %}
+
+    <div class="result-box">
+
+        <p>
+            <strong>رقم الطلب:</strong>
+            {{ request.request_number }}
+        </p>
+
+        <p>
+            <strong>اسم الطالب:</strong>
+            {{ request.student_name }}
+        </p>
+
+        <p>
+            <strong>رقم الهوية / الإقامة:</strong>
+            {{ request.national_id }}
+        </p>
+
+        <p>
+            <strong>الجامعة:</strong>
+            {{ request.university.name if request.university else "-" }}
+        </p>
+
+        <p>
+            <strong>تاريخ الغياب:</strong>
+            {{ request.absence_date or "-" }}
+        </p>
+
+        <p>
+            <strong>بداية الطلب:</strong>
+            {{ request.start_date or "-" }}
+        </p>
+
+        <p>
+            <strong>نهاية الطلب:</strong>
+            {{ request.end_date or "-" }}
+        </p>
+
+        <p>
+            <strong>عدد الأيام:</strong>
+            {{ request.days_count or "-" }}
+        </p>
+
+        <p>
+            <strong>نوع الطلب:</strong>
+            {{ request.request_type or "-" }}
+        </p>
+
+        <p>
+            <strong>حالة الطلب:</strong>
+            {{ request.status or "-" }}
+        </p>
+
+        <p>
+            <strong>تاريخ إنشاء الطلب:</strong>
+            {{ request.created_at or "-" }}
+        </p>
+
+    </div>
+
+    {% else %}
+
+    <div class="result-box">
+
+        لم يتم العثور على طلب مطابق.
+
+    </div>
+
+    {% endif %}
+
+
+    <a
+        href="/lookup"
+        class="lookup-back"
+        style="margin-top: 25px;"
+    >
+        رجوع للاستعلام
+    </a>
+
+</section>
+
+{% endblock %}
