@@ -1,322 +1,85 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+{% extends "base.html" %}
 
-<head>
+{% block content %}
 
-    <meta charset="UTF-8">
+<section class="lookup-container">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
+
+    <h1 class="lookup-title">
+
+        الإجازات المرضية
+
+    </h1>
+
+
+    <p class="lookup-description">
+
+        خدمة الاستعلام عن الإجازات المرضية تتيح لك
+        الاستعلام عن حالة طلب الإجازة ويمكنك طباعتها
+        عن طريق تطبيق صحتي
+
+    </p>
+
+
+    <form
+        method="post"
+        action="/lookup"
+        class="lookup-form"
     >
 
-    <meta
-        name="theme-color"
-        content="#f5f6f8"
-    >
 
-    <title>
-        {{ title or "نظام الإجازات" }}
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', path='css/main.css') }}"
-    >
-
-</head>
-
-
-<body>
-
-
-<!-- =========================================================
-     HEADER
-========================================================= -->
-
-<header class="old-header">
-
-    <div class="old-header-inner">
-
-
-        <!-- زر القائمة -->
-        <button
-            class="old-menu-button"
-            id="menuButton"
-            type="button"
-            aria-label="القائمة"
+        <input
+            type="text"
+            name="service_number"
+            placeholder="رقم الخدمة"
+            autocomplete="off"
+            required
         >
 
-            <span></span>
-            <span></span>
-            <span></span>
+
+        <input
+            type="text"
+            name="national_id"
+            placeholder="رقم الهوية / الإقامة"
+            autocomplete="off"
+            required
+        >
+
+
+        <button
+            type="submit"
+            class="lookup-submit"
+        >
+
+            استعلام
 
         </button>
 
 
-        <!-- شعار المنصة -->
         <a
             href="/"
-            class="old-brand"
+            class="lookup-back"
         >
 
-            <!--
-                إذا كان عندك شعار المنصة في:
-                static/images/logo.png
-
-                سيظهر تلقائيًا.
-            -->
-
-            <img
-                src="{{ url_for('static', path='images/logo.png') }}"
-                alt="نظام الإجازات"
-                class="old-brand-logo"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            >
-
-            <div
-                class="old-brand-fallback"
-            >
-
-                <span class="brand-check">
-                    ✓
-                </span>
-
-                <span class="brand-name">
-                    نظام الإجازات
-                </span>
-
-            </div>
+            رجوع للاستعلامات
 
         </a>
 
+
+    </form>
+
+
+    {% if error %}
+
+    <div class="result-box">
+
+        {{ error }}
 
     </div>
 
+    {% endif %}
 
-    <!-- القائمة -->
-    <nav
-        class="old-navigation"
-        id="navigation"
-    >
 
-        <a href="/">
-            الرئيسية
-        </a>
+</section>
 
-        <span class="nav-arrow">
-            ‹
-        </span>
-
-        <a href="/lookup">
-            الاستعلامات
-        </a>
-
-        <span class="nav-arrow">
-            ‹
-        </span>
-
-        <a href="/lookup">
-            الإجازات المرضية
-        </a>
-
-    </nav>
-
-
-    <!-- قائمة الجوال -->
-
-    <div
-        class="mobile-navigation"
-        id="mobileNavigation"
-    >
-
-        <a href="/">
-            الرئيسية
-        </a>
-
-        <a href="/lookup">
-            الاستعلامات
-        </a>
-
-        <a href="/lookup">
-            الإجازات المرضية
-        </a>
-
-    </div>
-
-</header>
-
-
-
-<!-- =========================================================
-     MAIN
-========================================================= -->
-
-<main>
-
-    {% block content %}
-
-    {% endblock %}
-
-</main>
-
-
-
-<!-- =========================================================
-     FOOTER
-========================================================= -->
-
-<footer class="old-footer">
-
-    <div class="old-footer-inner">
-
-
-        <!-- الشعار -->
-
-        <div class="footer-logo-area">
-
-            <div class="footer-logo">
-
-                <span>
-                    ✓
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <!-- وصف -->
-
-        <p class="footer-description">
-
-            نظام إلكتروني لإدارة ومتابعة طلبات الإجازات
-            بطريقة سهلة ومنظمة.
-
-        </p>
-
-
-
-        <!-- =================================================
-             القائمة الرئيسية
-        ================================================= -->
-
-        <section class="footer-block">
-
-            <h2 class="footer-title">
-
-                القائمة الرئيسية
-
-            </h2>
-
-
-            <div class="footer-title-line"></div>
-
-
-            <div class="footer-menu">
-
-                <a href="/">
-                    الخدمات
-                </a>
-
-                <a href="/lookup">
-                    الاستعلامات
-                </a>
-
-                <a href="#">
-                    الأسئلة الشائعة
-                </a>
-
-                <a href="#">
-                    تواصل معنا
-                </a>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             تواصل معنا
-        ================================================= -->
-
-        <section class="footer-block contact-block">
-
-            <h2 class="footer-title">
-
-                تواصل معنا
-
-            </h2>
-
-
-            <div class="footer-title-line"></div>
-
-
-            <div class="contact-information">
-
-                <div>
-                    نظام الإجازات
-                </div>
-
-                <div>
-                    خدمة إلكترونية متاحة على مدار الساعة
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =================================================
-             أسفل الفوتر
-        ================================================= -->
-
-        <div class="footer-bottom">
-
-            © 2026 نظام الإجازات
-
-            <br>
-
-            جميع الحقوق محفوظة
-
-        </div>
-
-
-    </div>
-
-</footer>
-
-
-
-<script>
-
-const menuButton =
-    document.getElementById("menuButton");
-
-const mobileNavigation =
-    document.getElementById("mobileNavigation");
-
-
-if (menuButton && mobileNavigation) {
-
-    menuButton.addEventListener(
-        "click",
-        function () {
-
-            mobileNavigation.classList.toggle(
-                "mobile-navigation-open"
-            );
-
-        }
-    );
-
-}
-
-</script>
-
-
-</body>
-
-</html>
+{% endblock %}
